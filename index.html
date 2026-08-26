@@ -320,6 +320,130 @@
     }
     .badge-row { flex-wrap: wrap; }
   }
+
+  /* Menu de démarrage */
+  .back-btn {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0 0 14px;
+    color: var(--text-dim);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .back-btn:hover:not(:disabled) { color: var(--accent); transform: none; filter: none; }
+  .menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 8px;
+  }
+  @media (max-width: 640px) { .menu-grid { grid-template-columns: 1fr; } }
+  .menu-card {
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 26px 24px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    font-family: var(--font-body);
+    color: var(--text);
+  }
+  .menu-card:hover { transform: translateY(-3px); box-shadow: 0 4px 6px rgba(20,21,28,0.06), 0 16px 32px -10px rgba(20,21,28,0.18); }
+  .menu-card.ranking { border-top: 4px solid var(--senior); }
+  .menu-card.custom { border-top: 4px solid var(--accent); }
+  .menu-card-icon { font-size: 30px; margin-bottom: 10px; }
+  .menu-card-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 6px; }
+  .menu-card-desc { color: var(--text-dim); font-size: 13.5px; line-height: 1.5; }
+
+  /* Recherche par nom (autocomplete) */
+  .search-input-wrap { position: relative; }
+  .name-suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    z-index: 20;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .name-suggestion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+  .name-suggestion:last-child { border-bottom: none; }
+  .name-suggestion:hover, .name-suggestion.active { background: var(--surface-2); transform: none; filter: none; }
+  .name-suggestion .sugg-id { margin-left: auto; color: var(--text-dim); font-family: var(--font-mono); font-size: 11.5px; }
+  .name-suggestion .sugg-empty { color: var(--text-dim); font-weight: 400; }
+
+  /* Vue Classements */
+  .ranking-event-card { margin-bottom: 20px; }
+  .ranking-event-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .ranking-event-header .event-dot { width: 13px; height: 13px; }
+  .ranking-event-header h3 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin: 0; }
+  .record-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .record-grid { grid-template-columns: 1fr; } }
+  .record-box {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .record-box-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; }
+  .record-value { font-family: var(--font-mono); font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+  .record-holder { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .record-holder img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--surface); flex-shrink: 0; border: 1px solid var(--border); }
+  .record-holder-name { font-weight: 700; font-size: 14px; }
+  .record-holder-name a { color: var(--text); text-decoration: none; }
+  .record-holder-name a:hover { color: var(--accent); }
+  .record-holder-meta { font-size: 11.5px; color: var(--text-dim); }
+  .record-comp { font-size: 12.5px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.5; }
+  .record-comp a { color: var(--accent); text-decoration: none; }
+  .record-comp a:hover { text-decoration: underline; }
+  .record-links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .record-link {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 11px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .record-link:hover { color: var(--accent); border-color: var(--accent); }
+  .record-multi-holder { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dashed var(--border); }
+  .record-multi-holder:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .record-tie-note { font-size: 11px; color: var(--senior); font-weight: 700; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -334,21 +458,43 @@
       </div>
       <div>
         <h1>WCA Ranking Explorer</h1>
-        <p class="subtitle">Classement mondial, national, séniors et fréquentation par épreuve — données en direct depuis worldcubeassociation.org</p>
+        <p class="subtitle" id="subtitleText">Deux façons d'explorer les données WCA — données en direct depuis worldcubeassociation.org</p>
       </div>
     </div>
 
-    <div class="search-bar">
+    <button id="backToMenuBtn" class="back-btn">← Menu</button>
+
+    <div id="menuView" class="menu-grid">
+      <button class="menu-card ranking" data-target="ranking">
+        <div class="menu-card-icon">🏆</div>
+        <div class="menu-card-title">Classements</div>
+        <div class="menu-card-desc">Le record du monde en single et en average pour chaque épreuve : compétition, date, recordman et liens utiles.</div>
+      </button>
+      <button class="menu-card custom" data-target="custom">
+        <div class="menu-card-icon">🔍</div>
+        <div class="menu-card-title">Custom</div>
+        <div class="menu-card-desc">Cherche un cubeur par WCA ID ou par nom : classement mondial, national, séniors et fréquentation par épreuve.</div>
+      </button>
+    </div>
+
+    <div id="customSearchBar" class="search-bar" style="display:none">
       <div class="search-input-wrap">
         <span class="search-icon">⌕</span>
-        <input id="wcaIdInput" type="text" placeholder="ex: 2009ZEMD01" maxlength="10" autocomplete="off" spellcheck="false">
+        <input id="wcaIdInput" type="text" placeholder="WCA ID (2009ZEMD01) ou nom du cubeur" maxlength="60" autocomplete="off" spellcheck="false">
+        <div id="nameSuggestions" class="name-suggestions" style="display:none"></div>
       </div>
       <button id="searchBtn">Rechercher</button>
     </div>
-    <p class="hint">Entre un WCA ID (format AAAANNNN NN, ex. 2009ZEMD01) puis appuie sur Entrée ou clique sur Rechercher.</p>
+    <p class="hint" id="customHint" style="display:none">Entre un WCA ID (ex. 2009ZEMD01) ou un nom/prénom — une liste de suggestions apparaît si tu tapes un nom.</p>
   </header>
 
-  <div id="output"></div>
+  <div id="customView" style="display:none">
+    <div id="output"></div>
+  </div>
+
+  <div id="rankingView" style="display:none">
+    <div id="rankingOutput"></div>
+  </div>
 
   <p class="app-footer">Données WCA officielles + wca-seniors.org (communautaire) · usage personnel non affilié à la WCA</p>
 </div>
@@ -369,6 +515,16 @@ const EVENT_TOTALS = {
   '333mbf': 4254, '333ft': 3265, '444bf': 2171, 'mmagic': 2076, '555bf': 1130,
   '333mbo': 139,
 };
+
+// Recordman(s) du monde single/average par épreuve : personId + competitionId (première
+// compétition où la valeur actuelle du record a été atteinte). L'API publique de la WCA n'expose
+// aucun endpoint "record du monde actuel + où il a été fait", donc — comme pour EVENT_TOTALS —
+// c'est calculé une fois à partir de l'export officiel (tables ranks_single/ranks_average pour
+// trouver qui a le rang 1, puis results pour la compétition où le drapeau WR a été posé la
+// première fois). Tout le reste (nom, avatar, pays, nom/date de la compétition) est récupéré en
+// direct via l'API à l'affichage, donc seule cette association personne↔compétition peut dater.
+const EVENT_RECORDS_DATE = '26 août 2026';
+const EVENT_RECORDS = {"222":{"average":{"holders":[{"competitionId":"KidsAmericaChristmasOH2025","personId":"2016FEIS01"}],"value":86},"single":{"holders":[{"competitionId":"HefeiOpen2025","personId":"2021YEZI01"}],"value":39}},"333":{"average":{"holders":[{"competitionId":"HefeiCubingLeague3x3III2026","personId":"2019WANY36"}],"value":351},"single":{"holders":[{"competitionId":"GLSBigCubesGdansk2026","personId":"2021ZAJD03"}],"value":276}},"333bf":{"average":{"holders":[{"competitionId":"HefeiAugustOpen2026","personId":"2015CHER07"}],"value":1397},"single":{"holders":[{"competitionId":"MidAtlanticQuietChampionship2026","personId":"2015CHER07"}],"value":1156}},"333fm":{"average":{"holders":[{"competitionId":"EvanstonFMCSpring2026","personId":"2013JOHN10"}],"value":1900},"single":{"holders":[{"competitionId":"FMC2019","personId":"2011TRON02"},{"competitionId":"AshfieldSummerChallenge2024","personId":"2018GIBS04"},{"competitionId":"AshfieldSummerChallenge2024","personId":"2017BRYA06"},{"competitionId":"RubiksUKChampionshipFMC2024","personId":"2022BROW01"}],"value":16}},"333ft":{"average":{"holders":[{"competitionId":"Medan10thAnniversary2019","personId":"2016HUNG08"}],"value":1990},"single":{"holders":[{"competitionId":"VJTIMumbaiCubeOpen2019","personId":"2017KOLI01"}],"value":1556}},"333mbf":{"single":{"holders":[{"competitionId":"PleaseBeQuietReno2025","personId":"2016SIGG01"}],"value":380350302}},"333mbo":{"single":{"holders":[{"competitionId":"GermanOpen2008","personId":"2007HABE01"}],"value":750815700}},"333oh":{"average":{"holders":[{"competitionId":"WuhuOpen2026","personId":"2023CHEN30"}],"value":699},"single":{"holders":[{"competitionId":"MidAtlanticChampionship2026","personId":"2012PONC02"}],"value":562}},"444":{"average":{"holders":[{"competitionId":"SeoulWinter2026","personId":"2016KOLA02"}],"value":1856},"single":{"holders":[{"competitionId":"SpanishChampionship2025","personId":"2016KOLA02"}],"value":1518}},"444bf":{"average":{"holders":[{"competitionId":"NewYorkMultimatePBQII2025","personId":"2016CHAP04"}],"value":5939},"single":{"holders":[{"competitionId":"4BLDinaMadisonHall2023","personId":"2016CHAP04"}],"value":5196}},"555":{"average":{"holders":[{"competitionId":"AllRoundersKatowiceI2026","personId":"2016KOLA02"}],"value":3373},"single":{"holders":[{"competitionId":"AllRoundersKatowiceI2026","personId":"2016KOLA02"}],"value":2949}},"555bf":{"average":{"holders":[{"competitionId":"MichiganCubingClubEpsilon2019","personId":"2016CHAP04"}],"value":14763},"single":{"holders":[{"competitionId":"MultiMayhemVA2026","personId":"2016CHAP04"}],"value":11859}},"666":{"average":{"holders":[{"competitionId":"KualaLumpurCC2026","personId":"2019TARA09"}],"value":6363},"single":{"holders":[{"competitionId":"BurbankBigCubes2025","personId":"2012PARK03"}],"value":5769}},"777":{"average":{"holders":[{"competitionId":"NubOpenTrabucoHillsFall2025","personId":"2012PARK03"}],"value":9686},"single":{"holders":[{"competitionId":"NAC2026","personId":"2012PARK03"}],"value":9059}},"clock":{"average":{"holders":[{"competitionId":"NewZealandNationals2026","personId":"2022GIBS04"}],"value":214},"single":{"holders":[{"competitionId":"HastyHastings2025","personId":"2022GIBS04"}],"value":153}},"magic":{"average":{"holders":[{"competitionId":"BeijingSummer2011","personId":"2009WANG13"}],"value":76},"single":{"holders":[{"competitionId":"BeijingSpring2011","personId":"2009WANG13"}],"value":69}},"minx":{"average":{"holders":[{"competitionId":"KualaLumpurCC2026","personId":"2019TARA09"}],"value":2340},"single":{"holders":[{"competitionId":"QuanzhouSummer2026","personId":"2016WUZI04"}],"value":2104}},"mmagic":{"average":{"holders":[{"competitionId":"USNationals2011","personId":"2010PULC01"}],"value":175},"single":{"holders":[{"competitionId":"TianjinWinter2012","personId":"2009WANG13"}],"value":166}},"pyram":{"average":{"holders":[{"competitionId":"ZhengzhouZest2025","personId":"2019JIAN54"}],"value":114},"single":{"holders":[{"competitionId":"MiddletonMeetupThursday2023","personId":"2016KELL12"}],"value":73}},"skewb":{"average":{"holders":[{"competitionId":"CFLJustynow2025","personId":"2022SAMS03"}],"value":137},"single":{"holders":[{"competitionId":"GluszycaOpen2026","personId":"2021GROH01"}],"value":73}},"sq1":{"average":{"holders":[{"competitionId":"CubinginSouthernOregon2025","personId":"2017AGGA01"}],"value":463},"single":{"holders":[{"competitionId":"EvanstonQualifier2026","personId":"2013JOHN10"}],"value":285}}};
 
 const EVENT_NAMES = {
   '222': '2x2x2', '333': '3x3x3', '444': '4x4x4', '555': '5x5x5', '666': '6x6x6', '777': '7x7x7',
@@ -418,8 +574,9 @@ async function loadSeniorIndex() {
     }
 
     const personCountry = new Map(data.persons.map(p => [p.id, p.country]));
+    const personAge = new Map(data.persons.map(p => [p.id, p.age]));
     const competitions = new Map(data.competitions.map(c => [c.id, c]));
-    return { refreshed: data.refreshed, brackets, personCountry, competitions };
+    return { refreshed: data.refreshed, brackets, personCountry, personAge, competitions };
   })();
   return seniorIndexPromise;
 }
@@ -520,7 +677,7 @@ function formatResult(value, eventId) {
   if (value === -1) return 'DNF';
   if (value === -2) return 'DNS';
   if (value === 0) return '—';
-  if (eventId === '333mbf') return parseMultiBld(value);
+  if (eventId === '333mbf' || eventId === '333mbo') return parseMultiBld(value);
   if (eventId === '333fm') return (value % 1 !== 0 || value > 1000) ? '' : value + ' mouv.';
   return formatCentiseconds(value);
 }
@@ -531,17 +688,87 @@ function formatFMResult(value, isAverage) {
   return isAverage ? (value / 100).toFixed(2) + ' mouv.' : value + ' mouv.';
 }
 
-async function search() {
-  const input = document.getElementById('wcaIdInput');
-  const btn = document.getElementById('searchBtn');
-  const output = document.getElementById('output');
-  const wcaId = input.value.trim().toUpperCase();
+const WCA_ID_RE = /^\d{4}[A-Za-z]{4}\d{2}$/;
 
-  if (!/^\d{4}[A-Z]{4}\d{2}$/.test(wcaId)) {
-    output.innerHTML = '';
-    output.appendChild(el('div', 'error', 'Format de WCA ID invalide. Exemple attendu : 2009ZEMD01 (4 chiffres, 4 lettres, 2 chiffres).'));
+async function fetchNameSuggestions(term) {
+  const res = await fetch(`${API}/persons?q=${encodeURIComponent(term)}`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.slice(0, 8).map(entry => entry.person);
+}
+
+function hideSuggestions() {
+  const box = document.getElementById('nameSuggestions');
+  box.style.display = 'none';
+  box.innerHTML = '';
+}
+
+function renderSuggestions(list, term) {
+  const box = document.getElementById('nameSuggestions');
+  box.innerHTML = '';
+  if (!list.length) {
+    box.appendChild(el('div', 'name-suggestion', `<span class="sugg-empty">Aucun cubeur trouvé pour "${term}"</span>`));
+  } else {
+    list.forEach(person => {
+      const item = el('div', 'name-suggestion',
+        `${countryFlag(person.country_iso2)} ${person.name} <span class="sugg-id">${person.wca_id}</span>`);
+      item.addEventListener('click', () => {
+        document.getElementById('wcaIdInput').value = person.wca_id;
+        hideSuggestions();
+        performSearch(person.wca_id);
+      });
+      box.appendChild(item);
+    });
+  }
+  box.style.display = 'block';
+}
+
+let nameSearchTimer = null;
+function scheduleNameSearch(term) {
+  clearTimeout(nameSearchTimer);
+  nameSearchTimer = setTimeout(async () => {
+    const list = await fetchNameSuggestions(term).catch(() => []);
+    renderSuggestions(list, term);
+  }, 300);
+}
+
+async function search() {
+  hideSuggestions();
+  const input = document.getElementById('wcaIdInput');
+  const output = document.getElementById('output');
+  const raw = input.value.trim();
+
+  if (WCA_ID_RE.test(raw)) {
+    performSearch(raw.toUpperCase());
     return;
   }
+
+  if (!raw) {
+    output.innerHTML = '';
+    output.appendChild(el('div', 'error', 'Entre un WCA ID (ex. 2009ZEMD01) ou un nom de cubeur.'));
+    return;
+  }
+
+  output.innerHTML = '';
+  output.appendChild(el('div', 'loading', '<span class="spinner"></span>Recherche par nom…'));
+  const list = await fetchNameSuggestions(raw).catch(() => []);
+
+  if (list.length === 1) {
+    performSearch(list[0].wca_id);
+    return;
+  }
+  output.innerHTML = '';
+  if (!list.length) {
+    output.appendChild(el('div', 'error', `Aucun cubeur trouvé pour "${raw}". Vérifie l'orthographe ou essaie le WCA ID.`));
+    return;
+  }
+  output.appendChild(el('div', 'hint', `${list.length} cubeur(s) trouvé(s) pour "${raw}" — choisis dans la liste ci-dessus.`));
+  renderSuggestions(list, raw);
+}
+
+async function performSearch(wcaId) {
+  const btn = document.getElementById('searchBtn');
+  const output = document.getElementById('output');
 
   btn.disabled = true;
   output.innerHTML = '';
@@ -734,9 +961,176 @@ function buildResultCell(entry, eid, isAverage, label) {
   return td;
 }
 
+// ---------- Vue Classements (records du monde) ----------
+
+const personCache = new Map();
+function fetchPersonBasic(wcaId) {
+  if (!personCache.has(wcaId)) {
+    personCache.set(wcaId, fetch(`${API}/persons/${wcaId}`)
+      .then(r => r.ok ? r.json() : null).then(d => d && d.person).catch(() => null));
+  }
+  return personCache.get(wcaId);
+}
+
+const competitionCache = new Map();
+function fetchCompetition(compId) {
+  if (!competitionCache.has(compId)) {
+    competitionCache.set(compId, fetch(`${API}/competitions/${compId}`)
+      .then(r => r.ok ? r.json() : null).catch(() => null));
+  }
+  return competitionCache.get(compId);
+}
+
+function formatCompetitionDate(comp) {
+  if (!comp || !comp.start_date) return '';
+  const d = new Date(comp.start_date + 'T00:00:00Z');
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
+function youtubeSearchUrl(personName, eventName, isAverage) {
+  const q = `${personName} ${eventName} world record ${isAverage ? 'average' : 'single'}`;
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+}
+function cubeSearchUrl(personName) {
+  return `https://www.google.com/search?q=${encodeURIComponent(`${personName} cube setup speedcubing`)}`;
+}
+
+let rankingLoaded = false;
+async function loadRankingView() {
+  if (rankingLoaded) return;
+  rankingLoaded = true;
+  const container = document.getElementById('rankingOutput');
+  container.innerHTML = '';
+  container.appendChild(el('div', 'loading', '<span class="spinner"></span>Chargement des records du monde…'));
+
+  const seniorIndexAttempt = loadSeniorIndex().catch(() => null);
+  const eventIds = EVENT_ORDER.filter(eid => EVENT_RECORDS[eid]);
+
+  try {
+    const cards = await Promise.all(eventIds.map(eid => buildRankingEventCard(eid, seniorIndexAttempt)));
+    container.innerHTML = '';
+    cards.forEach(c => container.appendChild(c));
+    container.appendChild(el('div', 'footnote',
+      `L'association recordman ↔ compétition est calculée une fois à partir de l'export officiel de la base WCA du ${EVENT_RECORDS_DATE} (aucun endpoint public ne donne "qui détient le record et où" en direct — un nouveau record ne sera reflété ici qu'après une mise à jour manuelle de cette page). Le profil, l'avatar, le pays et les infos de compétition sont eux récupérés en direct via l'API WCA à chaque affichage. Les liens "vidéo" et "cube utilisé" sont des recherches préremplies non vérifiées : la WCA ne suit aucune de ces deux informations.`));
+  } catch (err) {
+    container.innerHTML = '';
+    container.appendChild(el('div', 'error', "Impossible de charger les records du monde pour le moment."));
+    rankingLoaded = false;
+  }
+}
+
+async function buildRankingEventCard(eid, seniorIndexAttempt) {
+  const card = el('div', 'card ranking-event-card');
+  card.appendChild(el('div', 'ranking-event-header', `${eventDot(eid)}<h3>${EVENT_NAMES[eid] || eid}</h3>`));
+
+  const grid = el('div', 'record-grid');
+  const rec = EVENT_RECORDS[eid];
+  const seniorIndex = await seniorIndexAttempt;
+
+  grid.appendChild(await buildRecordBox(eid, rec.single, 'Single', false, seniorIndex));
+  grid.appendChild(await buildRecordBox(eid, rec.average, 'Average', true, seniorIndex));
+  card.appendChild(grid);
+  return card;
+}
+
+async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
+  const box = el('div', 'record-box');
+  box.appendChild(el('div', 'record-box-label', label));
+
+  if (!recordData) {
+    box.appendChild(el('div', 'result-cell', 'Aucun record enregistré'));
+    return box;
+  }
+
+  const valueText = eid === '333fm' ? formatFMResult(recordData.value, isAverage) : formatResult(recordData.value, eid);
+  box.appendChild(el('div', 'record-value', valueText));
+
+  if (recordData.holders.length > 1) {
+    box.appendChild(el('div', 'record-tie-note', `🤝 Record partagé par ${recordData.holders.length} cubeurs`));
+  }
+
+  const multi = recordData.holders.length > 1;
+  for (const holder of recordData.holders) {
+    const wrap = el('div', multi ? 'record-multi-holder' : '');
+    const [person, comp] = await Promise.all([fetchPersonBasic(holder.personId), fetchCompetition(holder.competitionId)]);
+
+    const name = person ? person.name : holder.personId;
+    const profileUrl = person ? person.url : `https://www.worldcubeassociation.org/persons/${holder.personId}`;
+
+    const holderRow = el('div', 'record-holder');
+    const img = el('img');
+    img.src = person && person.avatar && person.avatar.url ? person.avatar.url : '';
+    img.alt = name;
+    img.onerror = () => { img.style.display = 'none'; };
+    holderRow.appendChild(img);
+
+    const info = el('div');
+    info.appendChild(el('div', 'record-holder-name', `<a href="${profileUrl}" target="_blank" rel="noopener">${name}</a>`));
+    const age = seniorIndex ? seniorIndex.personAge.get(holder.personId) : null;
+    const countryText = person ? `${countryFlag(person.country_iso2)} ${person.country.name}` : '';
+    info.appendChild(el('div', 'record-holder-meta', `${countryText}${age ? ` · ${age}+ ans` : ''}`));
+    holderRow.appendChild(info);
+    wrap.appendChild(holderRow);
+
+    const compName = comp ? comp.name : holder.competitionId;
+    const compUrl = comp ? comp.url : `https://www.worldcubeassociation.org/competitions/${holder.competitionId}`;
+    const compDate = formatCompetitionDate(comp);
+    wrap.appendChild(el('div', 'record-comp', `<a href="${compUrl}" target="_blank" rel="noopener">${compName}</a>${compDate ? ' · ' + compDate : ''}`));
+
+    const links = el('div', 'record-links');
+    links.innerHTML = `
+      <a class="record-link" href="${youtubeSearchUrl(name, EVENT_NAMES[eid] || eid, isAverage)}" target="_blank" rel="noopener">🎥 Chercher la vidéo</a>
+      <a class="record-link" href="${cubeSearchUrl(name)}" target="_blank" rel="noopener">🧊 Chercher le cube utilisé</a>
+    `;
+    wrap.appendChild(links);
+
+    box.appendChild(wrap);
+  }
+  return box;
+}
+
+// ---------- Navigation entre vues ----------
+
+function showView(view) {
+  document.getElementById('menuView').style.display = view === 'menu' ? 'grid' : 'none';
+  document.getElementById('customSearchBar').style.display = view === 'custom' ? 'flex' : 'none';
+  document.getElementById('customHint').style.display = view === 'custom' ? 'block' : 'none';
+  document.getElementById('customView').style.display = view === 'custom' ? 'block' : 'none';
+  document.getElementById('rankingView').style.display = view === 'ranking' ? 'block' : 'none';
+  document.getElementById('backToMenuBtn').style.display = view === 'menu' ? 'none' : 'flex';
+
+  const subtitle = document.getElementById('subtitleText');
+  if (view === 'menu') {
+    subtitle.textContent = "Deux façons d'explorer les données WCA — données en direct depuis worldcubeassociation.org";
+  } else if (view === 'custom') {
+    subtitle.textContent = "Classement mondial, national, séniors et fréquentation par épreuve — cherche un cubeur par WCA ID ou par nom";
+  } else {
+    subtitle.textContent = "Le record du monde single et average pour chaque épreuve, avec compétition, date et lien vers le recordman";
+  }
+
+  if (view === 'ranking') loadRankingView();
+}
+
+document.querySelectorAll('.menu-card').forEach(card => {
+  card.addEventListener('click', () => showView(card.dataset.target));
+});
+document.getElementById('backToMenuBtn').addEventListener('click', () => showView('menu'));
+
 document.getElementById('searchBtn').addEventListener('click', search);
 document.getElementById('wcaIdInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') search(); });
-document.getElementById('wcaIdInput').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase(); });
+document.getElementById('wcaIdInput').addEventListener('input', (e) => {
+  const value = e.target.value.trim();
+  if (WCA_ID_RE.test(value)) { hideSuggestions(); return; }
+  if (value.length >= 2) scheduleNameSearch(value); else hideSuggestions();
+});
+document.addEventListener('click', (e) => {
+  const box = document.getElementById('nameSuggestions');
+  const input = document.getElementById('wcaIdInput');
+  if (box && !box.contains(e.target) && e.target !== input) hideSuggestions();
+});
+
+showView('menu');
 </script>
 </body>
 </html>
