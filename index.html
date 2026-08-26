@@ -108,7 +108,7 @@
   }
   .lang-btn:hover:not(:disabled) { transform: none; filter: none; color: var(--text); }
   .lang-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
-  @media (max-width: 560px) { .hero-top { flex-wrap: wrap; } }
+  @media (max-width: 560px) { .hero-top { align-items: center; } }
   .cube-logo {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -273,8 +273,6 @@
   .sub-rank { color: var(--text-dim); font-size: 11px; margin-top: 3px; font-weight: 500; }
   .result-cell { color: var(--world-time); font-size: 21px; font-weight: 700; margin-bottom: 6px; font-family: var(--font-mono); letter-spacing: -0.01em; }
   .participants-cell { font-family: var(--font-mono); }
-  .participants-cell b { color: var(--text); font-size: 14px; }
-  .participants-cell .others { color: var(--text-dim); font-size: 11px; display: block; margin-top: 1px; margin-bottom: 8px; font-weight: 500; }
   .geo-counts { display: flex; flex-direction: column; gap: 5px; }
   .geo-count { display: flex; align-items: baseline; gap: 6px; }
   .geo-count-value { font-weight: 700; font-size: 13px; }
@@ -327,7 +325,12 @@
     .search-bar { flex-direction: column; }
     button { padding: 13px 20px; }
     .hero { padding: 28px 2px 20px; }
-    h1 { font-size: 23px; }
+    h1 { font-size: 18px; }
+    .subtitle { font-size: 12.5px; }
+    .hero-brand { gap: 10px; }
+    .cube-logo { width: 36px; height: 36px; padding: 4px; border-radius: 9px; }
+    .lang-toggle { flex-shrink: 0; }
+    .lang-btn { padding: 5px 9px; font-size: 11px; }
   }
   /* En dessous de cette largeur, le tableau devient une liste de fiches empilées
      (une carte par épreuve) au lieu de colonnes qui débordent horizontalement. */
@@ -581,7 +584,7 @@ const I18N = {
     badgeWorld: 'monde',
     badgeNational: 'national',
     badgeContinent: 'continent',
-    worldFootnote: (date) => `Profil et classements (mondial / continental / national) récupérés en direct depuis l'API officielle de la WCA. "Cubeurs ayant fait l'épreuve" = nombre de personnes possédant au moins un résultat officiel WCA sur cette épreuve (monde / continent / pays du cubeur recherché), calculé à partir de l'export public de la base de données WCA du ${date} (la WCA ne publie pas ce chiffre en direct par épreuve).`,
+    worldFootnote: (date) => `Profil et classements (national / continental / mondial) récupérés en direct depuis l'API officielle de la WCA. "Cubeurs ayant fait l'épreuve" = nombre de personnes possédant au moins un résultat officiel WCA sur cette épreuve (pays / continent / monde du cubeur recherché), calculé à partir de l'export public de la base de données WCA du ${date} (la WCA ne publie pas ce chiffre en direct par épreuve).`,
     seniorTitle: '🎂 Classement séniors',
     seniorAgeBadge: (age) => `${age} ans et +`,
     seniorSub: (name, age) => `Tranche d'âge la plus haute atteinte par ${name}, en ne comptant que les résultats obtenus depuis qu'il/elle a ${age} ans.`,
@@ -589,7 +592,6 @@ const I18N = {
     rankGroupWorld: 'Monde',
     rankGroupNational: 'National',
     geoLabelWorld: 'monde',
-    geoOthers: (n, name) => `dont ${n} autre(s) que ${name}`,
     errorEmptyInput: 'Entre un WCA ID (ex. 2009ZEMD01) ou un nom de cubeur.',
     loadingNameSearch: 'Recherche par nom…',
     errorNoNameMatch: (q) => `Aucun cubeur trouvé pour "${q}". Vérifie l'orthographe ou essaie le WCA ID.`,
@@ -636,7 +638,7 @@ const I18N = {
     badgeWorld: 'world',
     badgeNational: 'national',
     badgeContinent: 'continent',
-    worldFootnote: (date) => `Profile and rankings (world / continental / national) fetched live from the official WCA API. "Cubers who've done the event" = number of people with at least one official WCA result in that event (world / continent / country of the searched cuber), computed from the public WCA database export dated ${date} (the WCA doesn't publish this figure live per event).`,
+    worldFootnote: (date) => `Profile and rankings (national / continental / world) fetched live from the official WCA API. "Cubers who've done the event" = number of people with at least one official WCA result in that event (country / continent / world of the searched cuber), computed from the public WCA database export dated ${date} (the WCA doesn't publish this figure live per event).`,
     seniorTitle: '🎂 Senior rankings',
     seniorAgeBadge: (age) => `${age}+ years old`,
     seniorSub: (name, age) => `Highest age bracket reached by ${name}, counting only results achieved since turning ${age}.`,
@@ -644,7 +646,6 @@ const I18N = {
     rankGroupWorld: 'World',
     rankGroupNational: 'National',
     geoLabelWorld: 'world',
-    geoOthers: (n, name) => `including ${n} other(s) besides ${name}`,
     errorEmptyInput: 'Enter a WCA ID (e.g. 2009ZEMD01) or a cuber\'s name.',
     loadingNameSearch: 'Searching by name…',
     errorNoNameMatch: (q) => `No cuber found for "${q}". Check the spelling or try the WCA ID.`,
@@ -1139,15 +1140,14 @@ function buildParticipantsCell(eid, person) {
 
   td.innerHTML = `
     <div class="geo-counts">
-      <div class="geo-count world">
-        <span class="geo-count-value">${total.toLocaleString(NUM_LOCALE)}</span><span class="geo-count-label">${t('geoLabelWorld')}</span>
+      <div class="geo-count national">
+        <span class="geo-count-value">${countryTotal !== undefined ? countryTotal.toLocaleString(NUM_LOCALE) : '—'}</span><span class="geo-count-label">${person.country.name}</span>
       </div>
-      <div class="others">${t('geoOthers', (total - 1).toLocaleString(NUM_LOCALE), person.name.split(' ')[0])}</div>
       <div class="geo-count continental">
         <span class="geo-count-value">${continentTotal !== undefined ? continentTotal.toLocaleString(NUM_LOCALE) : '—'}</span><span class="geo-count-label">${continentLabel}</span>
       </div>
-      <div class="geo-count national">
-        <span class="geo-count-value">${countryTotal !== undefined ? countryTotal.toLocaleString(NUM_LOCALE) : '—'}</span><span class="geo-count-label">${person.country.name}</span>
+      <div class="geo-count world">
+        <span class="geo-count-value">${total.toLocaleString(NUM_LOCALE)}</span><span class="geo-count-label">${t('geoLabelWorld')}</span>
       </div>
     </div>
   `;
@@ -1168,9 +1168,9 @@ function buildResultCell(entry, eid, isAverage, label) {
   td.innerHTML = `
     <div class="result-cell">${resultText}</div>
     <div class="badge-row">
-      <span class="rank-badge ${worldCls}">#${entry.world_rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')}</span>
       <span class="rank-badge national ${countryCls}">#${entry.country_rank.toLocaleString(NUM_LOCALE)} ${t('badgeNational')}</span>
       <span class="rank-badge continental ${continentCls}">#${entry.continent_rank.toLocaleString(NUM_LOCALE)} ${t('badgeContinent')}</span>
+      <span class="rank-badge ${worldCls}">#${entry.world_rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')}</span>
     </div>
   `;
   return td;
