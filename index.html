@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WCA Ranking Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3f4f8;
+    --surface: #ffffff;
+    --surface-2: #f0f1f5;
+    --border: #e3e5ec;
+    --text: #14151c;
+    --text-dim: #676c7c;
+    --accent: #3557ea;
+    --accent-2: #7c3aed;
+    --accent-dim: #eaefff;
+    --gold: #9a7000;
+    --silver: #5b6270;
+    --bronze: #8a4a1f;
+    --danger: #d9534f;
+    --senior: #9a6b00;
+    --senior-bg: #fdf3d9;
+    --radius: 16px;
+    --shadow: 0 1px 2px rgba(20,21,28,0.04), 0 8px 24px -8px rgba(20,21,28,0.10);
+    --cube-white: #f4f4f6; --cube-red: #d3273e; --cube-blue: #1857c4;
+    --cube-orange: #f2760f; --cube-green: #2a9d47; --cube-yellow: #f4c300;
+    --font-display: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d0e13;
+      --surface: #171922;
+      --surface-2: #1e212c;
+      --border: #2b2f3d;
+      --text: #eef0f6;
+      --text-dim: #9198ab;
+      --accent: #6e8bff;
+      --accent-2: #a685ff;
+      --accent-dim: #202850;
+      --gold: #f0c04a;
+      --silver: #b6bdcc;
+      --bronze: #e0985c;
+      --danger: #ef6b67;
+      --senior: #f0c04a;
+      --senior-bg: #2b2408;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px -10px rgba(0,0,0,0.55);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(720px 360px at 12% -8%, var(--accent-dim), transparent 60%),
+      radial-gradient(600px 300px at 100% 0%, var(--senior-bg), transparent 55%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 20px 16px 90px;
+  }
+  .brand-stripe {
+    position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 50;
+    background: linear-gradient(90deg,
+      var(--cube-white) 0 16.66%, var(--cube-red) 16.66% 33.33%, var(--cube-blue) 33.33% 50%,
+      var(--cube-orange) 50% 66.66%, var(--cube-green) 66.66% 83.33%, var(--cube-yellow) 83.33% 100%);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  .hero { padding: 40px 4px 28px; }
+  .hero-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .cube-logo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3px;
+    width: 46px; height: 46px;
+    padding: 5px;
+    background: #101114;
+    border-radius: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px -4px rgba(0,0,0,0.4);
+  }
+  .cube-logo span { border-radius: 3px; }
+  .cube-logo span:nth-child(1) { background: var(--cube-white); }
+  .cube-logo span:nth-child(2) { background: var(--cube-red); }
+  .cube-logo span:nth-child(3) { background: var(--cube-blue); }
+  .cube-logo span:nth-child(4) { background: var(--cube-orange); }
+  .cube-logo span:nth-child(5) { background: var(--cube-green); }
+  .cube-logo span:nth-child(6) { background: var(--cube-yellow); }
+  .cube-logo span:nth-child(7) { background: var(--cube-blue); }
+  .cube-logo span:nth-child(8) { background: var(--cube-white); }
+  .cube-logo span:nth-child(9) { background: var(--cube-red); }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 27px;
+    letter-spacing: -0.02em;
+    margin: 0 0 3px;
+    background: linear-gradient(90deg, var(--text), var(--text) 60%, var(--accent));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .subtitle { color: var(--text-dim); font-size: 14px; margin: 0; max-width: 56ch; }
+  .search-bar { display: flex; gap: 10px; }
+  .search-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 6px 4px 18px;
+    box-shadow: var(--shadow);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .search-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); }
+  .search-icon { color: var(--text-dim); font-size: 16px; flex-shrink: 0; }
+  input[type="text"] {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 10px 0;
+    min-width: 0;
+  }
+  input[type="text"]::placeholder { color: var(--text-dim); font-weight: 500; opacity: 0.6; }
+  button {
+    padding: 0 24px;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white;
+    font-family: var(--font-display);
+    font-size: 14.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--accent) 70%, transparent);
+    transition: transform .12s, filter .12s;
+  }
+  button:disabled { opacity: 0.55; cursor: default; box-shadow: none; }
+  button:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  .hint { font-size: 12.5px; color: var(--text-dim); margin: 12px 2px 0; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  .error {
+    background: var(--surface);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    font-size: 14px;
+  }
+  .profile {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--surface-2);
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+  }
+  .profile-name { font-family: var(--font-display); font-size: 19px; font-weight: 700; }
+  .profile-meta { color: var(--text-dim); font-size: 13.5px; margin-top: 3px; }
+  .profile-meta a { color: var(--accent); text-decoration: none; font-family: var(--font-mono); font-weight: 600; }
+  .profile-meta a:hover { text-decoration: underline; }
+  .profile-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+  }
+  .stat { font-size: 12.5px; color: var(--text-dim); }
+  .stat b { display: block; font-family: var(--font-mono); font-size: 19px; color: var(--text); font-weight: 700; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .section-dot { width: 9px; height: 9px; border-radius: 3px; background: var(--accent); flex-shrink: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  tbody tr { transition: background-color .1s; }
+  tbody tr:hover { background: var(--surface-2); }
+  tr:last-child td { border-bottom: none; }
+  .event-name { font-family: var(--font-display); font-weight: 700; display: flex; align-items: center; gap: 9px; white-space: nowrap; }
+  .event-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+  .rank-cell { white-space: nowrap; font-family: var(--font-mono); }
+  .rank-badge {
+    display: inline-block;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .rank-badge .rank-total { font-weight: 600; opacity: 0.7; font-size: 0.88em; }
+  .rank-badge.national { background: var(--accent-dim); color: var(--accent); }
+  .rank-badge.gold { background: linear-gradient(135deg,#ffe49a,#d9a520); color: #4a3300; box-shadow: 0 2px 8px -2px rgba(217,165,32,0.6); }
+  .rank-badge.silver { background: linear-gradient(135deg,#eef0f5,#b7bdca); color: #262a33; box-shadow: 0 2px 8px -2px rgba(150,155,170,0.5); }
+  .rank-badge.bronze { background: linear-gradient(135deg,#e8b183,#b0662f); color: #3a1f0a; box-shadow: 0 2px 8px -2px rgba(176,102,47,0.5); }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; }
+  .rank-group { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .rank-group-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); }
+  .sub-rank { color: var(--text-dim); font-size: 11px; margin-top: 3px; font-weight: 500; }
+  .result-cell { color: var(--text-dim); font-size: 12.5px; font-weight: 600; margin-bottom: 2px; }
+  .participants-cell { font-family: var(--font-mono); }
+  .participants-cell b { color: var(--text); font-size: 14px; }
+  .participants-cell .others { color: var(--text-dim); font-size: 11px; display: block; margin-top: 1px; font-weight: 500; }
+  .loading { text-align: center; color: var(--text-dim); padding: 48px 0; font-size: 14px; }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: -4px;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .flag { font-size: 16px; }
+  .table-wrap { overflow-x: auto; margin: 0 -6px; padding: 0 6px; }
+  .footnote { font-size: 11.5px; color: var(--text-dim); margin-top: 16px; line-height: 1.55; }
+  .footnote a { color: var(--accent); }
+  .world-card { border-left: 4px solid var(--accent); }
+  .senior-card { border-left: 4px solid var(--senior); }
+  .senior-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--senior);
+    margin-bottom: 2px;
+  }
+  .senior-badge {
+    background: var(--senior-bg);
+    color: var(--senior);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .senior-sub { font-size: 12.5px; color: var(--text-dim); margin-bottom: 14px; }
+  .senior-cell .senior-comp { color: var(--text-dim); font-size: 11px; margin-top: 3px; font-weight: 500; }
+  .senior-bracket-note { color: var(--senior); font-weight: 700; }
+  .app-footer { text-align: center; color: var(--text-dim); font-size: 12px; margin-top: 36px; }
+  @media (max-width: 560px) {
+    .search-bar { flex-direction: column; }
+    button { padding: 13px 20px; }
+    .hero { padding: 28px 2px 20px; }
+    h1 { font-size: 23px; }
+  }
+</style>
+</head>
+<body>
+<div class="brand-stripe"></div>
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-brand">
+      <div class="cube-logo" aria-hidden="true">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </div>
+      <div>
+        <h1>WCA Ranking Explorer</h1>
+        <p class="subtitle">Classement mondial, national, séniors et fréquentation par épreuve — données en direct depuis worldcubeassociation.org</p>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <span class="search-icon">⌕</span>
+        <input id="wcaIdInput" type="text" placeholder="ex: 2009ZEMD01" maxlength="10" autocomplete="off" spellcheck="false">
+      </div>
+      <button id="searchBtn">Rechercher</button>
+    </div>
+    <p class="hint">Entre un WCA ID (format AAAANNNN NN, ex. 2009ZEMD01) puis appuie sur Entrée ou clique sur Rechercher.</p>
+  </header>
+
+  <div id="output"></div>
+
+  <p class="app-footer">Données WCA officielles + wca-seniors.org (communautaire) · usage personnel non affilié à la WCA</p>
+</div>
+
+<script>
+const API = 'https://www.worldcubeassociation.org/api/v0';
+
+// Nombre de cubeurs distincts possédant au moins un résultat officiel pour chaque épreuve
+// (= taille du classement mondial de l'épreuve). L'API publique de la WCA ne permet pas
+// de calculer ce chiffre en direct (le paramètre "event" de /api/v0/persons est ignoré côté
+// serveur), donc ces totaux sont calculés à partir de l'export officiel de la base WCA
+// (table ranks_single de https://www.worldcubeassociation.org/export/results).
+const EVENT_TOTALS_DATE = '24 août 2026';
+const EVENT_TOTALS = {
+  '333': 282693, '222': 185867, 'pyram': 128678, '444': 83525, '333oh': 73238,
+  'skewb': 72904, '555': 40602, 'minx': 34607, 'clock': 31804, 'sq1': 25110,
+  '666': 17424, '777': 14165, '333fm': 12280, '333bf': 12123, 'magic': 4928,
+  '333mbf': 4254, '333ft': 3265, '444bf': 2171, 'mmagic': 2076, '555bf': 1130,
+  '333mbo': 139,
+};
+
+const EVENT_NAMES = {
+  '222': '2x2x2', '333': '3x3x3', '444': '4x4x4', '555': '5x5x5', '666': '6x6x6', '777': '7x7x7',
+  '333bf': '3x3x3 Les yeux bandés', '333fm': '3x3x3 Fewest Moves', '333oh': '3x3x3 Une main',
+  '333mbf': '3x3x3 Multi-Blind', '444bf': '4x4x4 Les yeux bandés', '555bf': '5x5x5 Les yeux bandés',
+  'clock': 'Clock', 'minx': 'Megaminx', 'pyram': 'Pyraminx', 'skewb': 'Skewb', 'sq1': 'Square-1',
+  'magic': 'Magic', 'mmagic': 'Master Magic', '333mbo': '3x3x3 Multi-Blind (ancien)', '333ft': '3x3x3 Pieds'
+};
+const EVENT_ORDER = ['333','222','444','555','666','777','333bf','333fm','333oh','clock','minx','pyram','skewb','sq1','444bf','555bf','333mbf','magic','mmagic','333mbo','333ft'];
+
+// Petite puce colorée par épreuve (couleurs stickers du cube), purement décorative.
+const CUBE_COLORS = ['var(--cube-white)', 'var(--cube-red)', 'var(--cube-blue)', 'var(--cube-orange)', 'var(--cube-green)', 'var(--cube-yellow)'];
+const EVENT_ACCENTS = Object.fromEntries(EVENT_ORDER.map((eid, i) => [eid, CUBE_COLORS[i % CUBE_COLORS.length]]));
+function eventDot(eid) {
+  return `<span class="event-dot" style="background:${EVENT_ACCENTS[eid] || 'var(--text-dim)'}"></span>`;
+}
+
+// Classements séniors (40 ans et +) : la WCA ne publie aucune date de naissance publiquement,
+// donc aucun classement par tranche d'âge n'existe sur worldcubeassociation.org. wca-seniors.org
+// est un projet communautaire (inscription volontaire du WCA ID + date de naissance) qui republie
+// un classement public par tranche d'âge cumulative (40+, 50+, 60+, 70+, 80+, 90+), recalculé
+// chaque jour à partir de l'export officiel WCA. On y cherche le cubeur recherché, et on ne garde
+// que la tranche la plus haute à laquelle il appartient, épreuve par épreuve.
+const SENIOR_DATA_URL = 'https://wca-seniors.org/data/Senior_Rankings.js';
+const SENIOR_AGE_BRACKETS = [90, 80, 70, 60, 50, 40];
+let seniorIndexPromise = null;
+
+async function loadSeniorIndex() {
+  if (seniorIndexPromise) return seniorIndexPromise;
+  seniorIndexPromise = (async () => {
+    const res = await fetch(SENIOR_DATA_URL);
+    if (!res.ok) throw new Error('wca-seniors.org indisponible');
+    const text = await res.text();
+    const data = JSON.parse(text.slice(text.indexOf('{')));
+
+    // brackets[eventId][type][age] = tableau des rangs mondiaux (déjà triés), un par tranche d'âge.
+    // On garde le tableau brut (pas juste l'entrée d'une personne) pour pouvoir recalculer un rang
+    // national à la volée en filtrant par pays.
+    const brackets = {};
+    for (const event of data.events) {
+      brackets[event.id] = { single: new Map(), average: new Map() };
+      for (const group of event.rankings) {
+        const byAge = brackets[event.id][group.type];
+        if (!byAge) continue;
+        byAge.set(group.age, group.ranks);
+      }
+    }
+
+    const personCountry = new Map(data.persons.map(p => [p.id, p.country]));
+    const competitions = new Map(data.competitions.map(c => [c.id, c]));
+    return { refreshed: data.refreshed, brackets, personCountry, competitions };
+  })();
+  return seniorIndexPromise;
+}
+
+function getSeniorInfo(index, wcaId, countryIso2, eventIds) {
+  let maxAge = 0;
+  const perEvent = {};
+  for (const eid of eventIds) {
+    const byType = index.brackets[eid];
+    if (!byType) continue;
+    const forType = {};
+    for (const type of ['single', 'average']) {
+      const byAge = byType[type];
+      for (const age of SENIOR_AGE_BRACKETS) {
+        const ranks = byAge.get(age);
+        if (!ranks) continue;
+        const worldEntry = ranks.find(r => r.id === wcaId);
+        if (!worldEntry) continue;
+        const nationalRanks = ranks.filter(r => index.personCountry.get(r.id) === countryIso2);
+        const nationalRank = nationalRanks.findIndex(r => r.id === wcaId) + 1;
+        forType[type] = {
+          rank: worldEntry.rank, worldTotal: ranks.length,
+          nationalRank, nationalTotal: nationalRanks.length,
+          best: worldEntry.best, age, competition: worldEntry.competition,
+        };
+        break; // première (= plus haute) tranche où cette personne apparaît pour cette épreuve/type
+      }
+    }
+    if (!forType.single && !forType.average) continue;
+    perEvent[eid] = forType;
+    if (forType.single) maxAge = Math.max(maxAge, forType.single.age);
+    if (forType.average) maxAge = Math.max(maxAge, forType.average.age);
+  }
+  if (maxAge === 0) return null;
+  return { maxAge, perEvent };
+}
+
+function formatSeniorCompetition(index, competitionId) {
+  const comp = index.competitions.get(competitionId);
+  if (!comp) return '';
+  const date = new Date(comp.startDate + 'T00:00:00Z');
+  const dateStr = isNaN(date) ? '' : date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  return `${comp.name}${dateStr ? ' · ' + dateStr : ''}`;
+}
+
+const el = (tag, cls, html) => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+};
+
+function countryFlag(iso2) {
+  if (!iso2 || iso2.length !== 2) return '';
+  const codePoints = [...iso2.toUpperCase()].map(c => 127397 + c.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
+
+function rankBadgeClass(rank) {
+  if (rank === 1) return 'gold';
+  if (rank === 2) return 'silver';
+  if (rank === 3) return 'bronze';
+  return '';
+}
+
+function formatCentiseconds(cs) {
+  const neg = cs < 0;
+  cs = Math.abs(cs);
+  const hours = Math.floor(cs / 360000);
+  const minutes = Math.floor((cs % 360000) / 6000);
+  const seconds = Math.floor((cs % 6000) / 100);
+  const hundredths = cs % 100;
+  let s = '';
+  if (hours > 0) s += hours + ':' + String(minutes).padStart(2, '0') + ':';
+  else if (minutes > 0) s += minutes + ':';
+  s += (minutes > 0 || hours > 0) ? String(seconds).padStart(2, '0') : String(seconds);
+  s += '.' + String(hundredths).padStart(2, '0');
+  return s;
+}
+
+function parseMultiBld(value) {
+  const missed = value % 100;
+  let v = Math.floor(value / 100);
+  const seconds = v % 100000;
+  v = Math.floor(v / 100000);
+  const difference = 99 - (v % 100);
+  const solved = difference + missed;
+  const attempted = solved + missed;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  let t = h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
+  return `${solved}/${attempted} ${t}`;
+}
+
+function formatResult(value, eventId) {
+  if (value === undefined || value === null) return '—';
+  if (value === -1) return 'DNF';
+  if (value === -2) return 'DNS';
+  if (value === 0) return '—';
+  if (eventId === '333mbf') return parseMultiBld(value);
+  if (eventId === '333fm') return (value % 1 !== 0 || value > 1000) ? '' : value + ' mouv.';
+  return formatCentiseconds(value);
+}
+function formatFMResult(value, isAverage) {
+  if (value === -1) return 'DNF';
+  if (value === -2) return 'DNS';
+  if (!value) return '—';
+  return isAverage ? (value / 100).toFixed(2) + ' mouv.' : value + ' mouv.';
+}
+
+async function search() {
+  const input = document.getElementById('wcaIdInput');
+  const btn = document.getElementById('searchBtn');
+  const output = document.getElementById('output');
+  const wcaId = input.value.trim().toUpperCase();
+
+  if (!/^\d{4}[A-Z]{4}\d{2}$/.test(wcaId)) {
+    output.innerHTML = '';
+    output.appendChild(el('div', 'error', 'Format de WCA ID invalide. Exemple attendu : 2009ZEMD01 (4 chiffres, 4 lettres, 2 chiffres).'));
+    return;
+  }
+
+  btn.disabled = true;
+  output.innerHTML = '';
+  output.appendChild(el('div', 'loading', '<span class="spinner"></span>Chargement du profil…'));
+
+  const seniorIndexAttempt = loadSeniorIndex().catch(() => null);
+
+  try {
+    const personRes = await fetch(`${API}/persons/${wcaId}`);
+    if (personRes.status === 404) {
+      throw new Error(`Aucun cubeur trouvé avec le WCA ID "${wcaId}".`);
+    }
+    if (!personRes.ok) {
+      throw new Error(`Erreur ${personRes.status} lors de la récupération du profil.`);
+    }
+    const data = await personRes.json();
+    const person = data.person;
+    const records = data.personal_records || {};
+
+    const eventIds = Object.keys(records).sort((a, b) => {
+      const ia = EVENT_ORDER.indexOf(a), ib = EVENT_ORDER.indexOf(b);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+
+    const seniorIndex = await seniorIndexAttempt;
+    const seniorInfo = seniorIndex ? getSeniorInfo(seniorIndex, wcaId, person.country_iso2, eventIds) : null;
+
+    renderProfile(person, data.competition_count, records, eventIds, seniorIndex, seniorInfo);
+  } catch (err) {
+    output.innerHTML = '';
+    output.appendChild(el('div', 'error', err.message || 'Une erreur est survenue.'));
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderProfile(person, competitionCount, records, eventIds, seniorIndex, seniorInfo) {
+  const output = document.getElementById('output');
+  output.innerHTML = '';
+
+  const profileCard = el('div', 'card');
+  const profileRow = el('div', 'profile');
+  const img = el('img', 'avatar');
+  img.src = person.avatar && person.avatar.url ? person.avatar.url : '';
+  img.alt = person.name;
+  img.onerror = () => { img.style.display = 'none'; };
+  const info = el('div');
+  info.appendChild(el('div', 'profile-name', `${person.name}`));
+  info.appendChild(el('div', 'profile-meta',
+    `${countryFlag(person.country_iso2)} ${person.country.name} · <a href="${person.url}" target="_blank" rel="noopener">${person.wca_id}</a>`));
+  profileRow.appendChild(img);
+  profileRow.appendChild(info);
+  profileCard.appendChild(profileRow);
+
+  const stats = el('div', 'profile-stats');
+  stats.appendChild(el('div', 'stat', `<b>${competitionCount}</b>Compétitions`));
+  stats.appendChild(el('div', 'stat', `<b>${eventIds.length}</b>Épreuves pratiquées`));
+  profileCard.appendChild(stats);
+  output.appendChild(profileCard);
+
+  const tableCard = el('div', 'card world-card');
+  tableCard.appendChild(el('div', 'section-title', '<span class="section-dot"></span>Classements par épreuve'));
+  const tableWrap = el('div', 'table-wrap');
+  const table = el('table');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Épreuve</th>
+        <th>Meilleur temps (rang mondial · national)</th>
+        <th>Moyenne (rang mondial · national)</th>
+        <th>Cubeurs ayant fait l'épreuve</th>
+      </tr>
+    </thead>
+  `;
+  const tbody = el('tbody');
+
+  eventIds.forEach(eid => {
+    const rec = records[eid];
+    const tr = el('tr');
+
+    const nameTd = el('td', 'event-name', `${eventDot(eid)}${EVENT_NAMES[eid] || eid}`);
+    tr.appendChild(nameTd);
+
+    tr.appendChild(buildResultCell(rec.single, eid, false));
+    tr.appendChild(buildResultCell(rec.average, eid, true));
+
+    const total = EVENT_TOTALS[eid];
+    const pTd = el('td', 'participants-cell');
+    if (total === undefined) {
+      pTd.innerHTML = '—';
+    } else {
+      pTd.innerHTML = `<b>${total.toLocaleString('fr-FR')}</b><span class="others">dont ${(total - 1).toLocaleString('fr-FR')} autre(s) que ${person.name.split(' ')[0]}</span>`;
+    }
+    tr.appendChild(pTd);
+
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  tableCard.appendChild(tableWrap);
+  tableCard.appendChild(el('div', 'footnote',
+    `Profil et classements (mondial / continental / national) récupérés en direct depuis l'API officielle de la WCA. "Cubeurs ayant fait l'épreuve" = nombre total de personnes possédant au moins un résultat officiel WCA sur cette épreuve, calculé à partir de l'export public de la base de données WCA du ${EVENT_TOTALS_DATE} (la WCA ne publie pas ce chiffre en direct par épreuve).`));
+  output.appendChild(tableCard);
+
+  if (seniorInfo) {
+    output.appendChild(buildSeniorCard(person, seniorIndex, seniorInfo));
+  }
+}
+
+function buildSeniorCard(person, seniorIndex, seniorInfo) {
+  const card = el('div', 'card senior-card');
+  card.appendChild(el('div', 'senior-title', `🎂 Classement séniors <span class="senior-badge">${seniorInfo.maxAge} ans et +</span>`));
+  card.appendChild(el('div', 'senior-sub',
+    `Tranche d'âge la plus haute atteinte par ${person.name.split(' ')[0]}, en ne comptant que les résultats obtenus depuis qu'il/elle a ${seniorInfo.maxAge} ans.`));
+
+  const tableWrap = el('div', 'table-wrap');
+  const table = el('table');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Épreuve</th>
+        <th>Meilleur temps (rang mondial · national)</th>
+        <th>Moyenne (rang mondial · national)</th>
+      </tr>
+    </thead>
+  `;
+  const tbody = el('tbody');
+
+  EVENT_ORDER.filter(eid => seniorInfo.perEvent[eid]).forEach(eid => {
+    const entry = seniorInfo.perEvent[eid];
+    const tr = el('tr');
+    tr.appendChild(el('td', 'event-name', `${eventDot(eid)}${EVENT_NAMES[eid] || eid}`));
+    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.single, seniorInfo.maxAge));
+    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.average, seniorInfo.maxAge));
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  card.appendChild(tableWrap);
+  card.appendChild(el('div', 'footnote',
+    `Classement communautaire non-officiel produit par <a href="https://wca-seniors.org" target="_blank" rel="noopener">wca-seniors.org</a> (inscription volontaire du WCA ID + date de naissance), recalculé chaque jour à partir de l'export de la base WCA — actualisé le ${seniorIndex.refreshed}. La WCA ne publie aucune date de naissance ni classement par âge officiellement ; ce cubeur n'apparaît ici que parce qu'il/elle s'est inscrit·e sur ce site tiers. Le rang mondial vient directement de wca-seniors.org ; le rang national est recalculé ici en filtrant ce même classement par pays. Les deux peuvent être légèrement approximatifs (± 1-2 places) pour les cubeurs séniors non inscrits sur le site.`));
+  return card;
+}
+
+function buildSeniorResultCell(seniorIndex, entry, age) {
+  const td = el('td', 'rank-cell senior-cell');
+  if (!entry) { td.innerHTML = '—'; return td; }
+  const best = String(entry.best).replace(' in ', ' en ');
+  const compText = formatSeniorCompetition(seniorIndex, entry.competition);
+  const bracketNote = entry.age < age ? ` <span class="senior-bracket-note">(${entry.age}+)</span>` : '';
+  td.innerHTML = `
+    <div class="result-cell">${best}</div>
+    <div class="badge-row">
+      <div class="rank-group">
+        <span class="rank-group-label">Monde${bracketNote}</span>
+        <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString('fr-FR')} <span class="rank-total">/ ${entry.worldTotal.toLocaleString('fr-FR')}</span></span>
+      </div>
+      <div class="rank-group">
+        <span class="rank-group-label">National</span>
+        <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString('fr-FR')} <span class="rank-total">/ ${entry.nationalTotal.toLocaleString('fr-FR')}</span></span>
+      </div>
+    </div>
+    ${compText ? `<div class="senior-comp">${compText}</div>` : ''}
+  `;
+  return td;
+}
+
+function buildResultCell(entry, eid, isAverage) {
+  const td = el('td', 'rank-cell');
+  if (!entry) { td.innerHTML = '—'; return td; }
+
+  const resultText = eid === '333fm' ? formatFMResult(entry.best, isAverage) : formatResult(entry.best, eid);
+
+  const worldCls = rankBadgeClass(entry.world_rank);
+  const countryCls = rankBadgeClass(entry.country_rank);
+
+  td.innerHTML = `
+    <div class="result-cell">${resultText}</div>
+    <div class="badge-row">
+      <span class="rank-badge ${worldCls}">#${entry.world_rank.toLocaleString('fr-FR')} monde</span>
+      <span class="rank-badge national ${countryCls}">#${entry.country_rank.toLocaleString('fr-FR')} national</span>
+    </div>
+    <div class="sub-rank">#${entry.continent_rank.toLocaleString('fr-FR')} continent</div>
+  `;
+  return td;
+}
+
+document.getElementById('searchBtn').addEventListener('click', search);
+document.getElementById('wcaIdInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') search(); });
+document.getElementById('wcaIdInput').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase(); });
+</script>
+</body>
+</html>
