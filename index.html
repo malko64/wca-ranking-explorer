@@ -524,6 +524,9 @@
   .podium-name a { color: var(--text); text-decoration: none; }
   .podium-name a:hover { color: var(--accent); }
   .podium-value { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--world-time); }
+  .podium-source { font-size: 11.5px; color: var(--text-dim); margin-bottom: 16px; }
+  .podium-source a { color: var(--accent); text-decoration: none; }
+  .podium-source a:hover { text-decoration: underline; }
   .country-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
   @media (max-width: 720px) { .country-stats-grid { grid-template-columns: 1fr; } }
   .country-stat-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
@@ -690,6 +693,7 @@ const I18N = {
     countryNoData: "Aucune donnée disponible pour ce pays (probablement trop peu de compétiteurs).",
     setDefaultCountry: '☆ Définir par défaut',
     isDefaultCountry: '★ Pays par défaut',
+    podiumFinalAt: 'Finale au',
     nrSingleLabel: 'Record national — Single',
     nrAverageLabel: 'Record national — Average',
     noNationalRecord: 'Aucun record enregistré',
@@ -698,7 +702,7 @@ const I18N = {
     statMostComps: (n) => `Le/la plus assidu·e en compétition (${n})`,
     noStatData: 'Aucune donnée',
     sectionCountryStatsTitle: 'Cubeurs remarquables',
-    countryFootnote: (date) => `Champions et records nationaux calculés une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne fournit ce classement par pays en direct). "Le/la plus titré·e" = victoires en finale lors du Championnat national officiel de ce pays (donnée WCA "championships"). "Le/la plus prolifique en records" = nombre de fois où cette personne a battu un record national (single ou average), toutes épreuves confondues. Le profil, l'avatar et les infos de compétition sont récupérés en direct via l'API WCA à chaque affichage.`,
+    countryFootnote: (date) => `Champions et records nationaux calculés une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne fournit ce classement par pays en direct). Le podium (🥇🥈🥉) = résultats de la finale de chaque épreuve à la dernière édition du Championnat national officiel de ce pays, en ne comptant que les cubeurs ayant représenté ce pays à cette compétition précise. Le record national (single/average) reste le meilleur résultat jamais réalisé par quelqu'un représentant ce pays, même si cette personne représente un autre pays aujourd'hui — comme sur le site officiel de la WCA. "Le/la plus titré·e" = victoires en finale lors du Championnat national officiel de ce pays, toutes éditions confondues. "Le/la plus prolifique en records" = nombre de fois où cette personne a battu un record national (single ou average), toutes épreuves confondues. Le profil, l'avatar et les infos de compétition sont récupérés en direct via l'API WCA à chaque affichage.`,
   },
   en: {
     subtitleMenu: "Two ways to explore WCA data — live data from worldcubeassociation.org",
@@ -763,6 +767,7 @@ const I18N = {
     countryNoData: "No data available for this country (likely too few competitors).",
     setDefaultCountry: '☆ Set as default',
     isDefaultCountry: '★ Default country',
+    podiumFinalAt: 'Final at',
     nrSingleLabel: 'National Record — Single',
     nrAverageLabel: 'National Record — Average',
     noNationalRecord: 'No record on file',
@@ -771,7 +776,7 @@ const I18N = {
     statMostComps: (n) => `Most competitions attended (${n})`,
     noStatData: 'No data',
     sectionCountryStatsTitle: 'Notable cubers',
-    countryFootnote: (date) => `National champions and records are computed once from the official WCA database export dated ${date} (no public endpoint provides this ranking by country live). "Most titles" = final-round wins at this country's official National Championship (from the WCA "championships" data). "Most national records" = number of times this person has broken a national record (single or average), across all events. The profile, avatar and competition info are fetched live from the WCA API on every view.`,
+    countryFootnote: (date) => `National champions and records are computed once from the official WCA database export dated ${date} (no public endpoint provides this ranking by country live). The podium (🥇🥈🥉) = final results for each event at the latest edition of this country's official National Championship, counting only competitors who represented this country at that specific competition. The national record (single/average) remains the best result ever achieved by someone representing this country, even if they represent a different country today — matching the official WCA site. "Most titles" = final-round wins at this country's official National Championship, across all editions. "Most national records" = number of times this person has broken a national record (single or average), across all events. The profile, avatar and competition info are fetched live from the WCA API on every view.`,
   },
 };
 function t(key, ...args) {
@@ -1536,7 +1541,7 @@ function renderCountryStats(iso2, name, entry) {
   (async () => {
     const eventIds = EVENT_ORDER.filter(eid => entry.events && entry.events[eid]);
     const [cards, statsCard] = await Promise.all([
-      mapWithConcurrency(eventIds, 5, eid => buildCountryEventCard(eid, entry.events[eid])),
+      mapWithConcurrency(eventIds, 5, eid => buildCountryEventCard(eid, entry.events[eid], entry.podiumCompetitionId)),
       buildCountryStatsCard(entry),
     ]);
     if (myToken !== countryRenderToken) return; // un rendu plus récent a démarré entre-temps, on abandonne celui-ci
@@ -1549,7 +1554,7 @@ function renderCountryStats(iso2, name, entry) {
 
 const MEDALS = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
-async function buildCountryEventCard(eid, data) {
+async function buildCountryEventCard(eid, data, podiumCompetitionId) {
   const card = el('div', 'card ranking-event-card');
   card.appendChild(el('div', 'ranking-event-header', `${eventDot(eid)}<h3>${eventName(eid)}</h3>`));
 
@@ -1571,6 +1576,14 @@ async function buildCountryEventCard(eid, data) {
       `));
     });
     card.appendChild(podiumList);
+    if (podiumCompetitionId) {
+      const comp = await fetchCompetition(podiumCompetitionId);
+      const compName = comp ? comp.name : podiumCompetitionId;
+      const compUrl = comp ? comp.url : `https://www.worldcubeassociation.org/competitions/${podiumCompetitionId}`;
+      const compDate = formatCompetitionDate(comp);
+      card.appendChild(el('div', 'podium-source',
+        `${t('podiumFinalAt')} <a href="${compUrl}" target="_blank" rel="noopener">${compName}</a>${compDate ? ' · ' + compDate : ''}`));
+    }
   }
 
   const grid = el('div', 'record-grid');
