@@ -24,6 +24,10 @@
     --danger: #d9534f;
     --senior: #9a6b00;
     --senior-bg: #fdf3d9;
+    --world-time: #1a8f4c;
+    --continental: #b35c00;
+    --continental-bg-1: #ffe7c2;
+    --continental-bg-2: #ffcf8f;
     --radius: 16px;
     --shadow: 0 1px 2px rgba(20,21,28,0.04), 0 8px 24px -8px rgba(20,21,28,0.10);
     --cube-white: #f4f4f6; --cube-red: #d3273e; --cube-blue: #1857c4;
@@ -49,6 +53,10 @@
       --danger: #ef6b67;
       --senior: #f0c04a;
       --senior-bg: #2b2408;
+      --world-time: #3ddc84;
+      --continental: #ffb066;
+      --continental-bg-1: #3a2510;
+      --continental-bg-2: #4d3010;
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px -10px rgba(0,0,0,0.55);
     }
   }
@@ -211,6 +219,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--border); }
   th { color: var(--text-dim); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  th:not(:first-child) { text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 3px; }
   tbody tr { transition: background-color .1s; }
   tbody tr:hover { background: var(--surface-2); }
   tr:last-child td { border-bottom: none; }
@@ -228,6 +237,7 @@
   }
   .rank-badge .rank-total { font-weight: 600; opacity: 0.7; font-size: 0.88em; }
   .rank-badge.national { background: var(--accent-dim); color: var(--accent); }
+  .rank-badge.continental { background: linear-gradient(135deg, var(--continental-bg-1), var(--continental-bg-2)); color: var(--continental); }
   .rank-badge.gold { background: linear-gradient(135deg,#ffe49a,#d9a520); color: #4a3300; box-shadow: 0 2px 8px -2px rgba(217,165,32,0.6); }
   .rank-badge.silver { background: linear-gradient(135deg,#eef0f5,#b7bdca); color: #262a33; box-shadow: 0 2px 8px -2px rgba(150,155,170,0.5); }
   .rank-badge.bronze { background: linear-gradient(135deg,#e8b183,#b0662f); color: #3a1f0a; box-shadow: 0 2px 8px -2px rgba(176,102,47,0.5); }
@@ -235,7 +245,7 @@
   .rank-group { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
   .rank-group-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); }
   .sub-rank { color: var(--text-dim); font-size: 11px; margin-top: 3px; font-weight: 500; }
-  .result-cell { color: var(--text-dim); font-size: 12.5px; font-weight: 600; margin-bottom: 2px; }
+  .result-cell { color: var(--world-time); font-size: 21px; font-weight: 700; margin-bottom: 6px; font-family: var(--font-mono); letter-spacing: -0.01em; }
   .participants-cell { font-family: var(--font-mono); }
   .participants-cell b { color: var(--text); font-size: 14px; }
   .participants-cell .others { color: var(--text-dim); font-size: 11px; display: block; margin-top: 1px; font-weight: 500; }
@@ -472,7 +482,7 @@
       </button>
       <button class="menu-card custom" data-target="custom">
         <div class="menu-card-icon">🔍</div>
-        <div class="menu-card-title">Custom</div>
+        <div class="menu-card-title">Speedcuber</div>
         <div class="menu-card-desc">Cherche un cubeur par WCA ID ou par nom : classement mondial, national, séniors et fréquentation par épreuve.</div>
       </button>
     </div>
@@ -949,14 +959,15 @@ function buildResultCell(entry, eid, isAverage, label) {
 
   const worldCls = rankBadgeClass(entry.world_rank);
   const countryCls = rankBadgeClass(entry.country_rank);
+  const continentCls = rankBadgeClass(entry.continent_rank);
 
   td.innerHTML = `
     <div class="result-cell">${resultText}</div>
     <div class="badge-row">
       <span class="rank-badge ${worldCls}">#${entry.world_rank.toLocaleString('fr-FR')} monde</span>
       <span class="rank-badge national ${countryCls}">#${entry.country_rank.toLocaleString('fr-FR')} national</span>
+      <span class="rank-badge continental ${continentCls}">#${entry.continent_rank.toLocaleString('fr-FR')} continent</span>
     </div>
-    <div class="sub-rank">#${entry.continent_rank.toLocaleString('fr-FR')} continent</div>
   `;
   return td;
 }
