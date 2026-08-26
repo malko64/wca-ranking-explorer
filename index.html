@@ -82,7 +82,33 @@
   }
   .wrap { max-width: 900px; margin: 0 auto; }
   .hero { padding: 40px 4px 28px; }
-  .hero-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+  .hero-brand { display: flex; align-items: center; gap: 16px; }
+  .lang-toggle {
+    display: flex;
+    gap: 3px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+  }
+  .lang-btn {
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .lang-btn:hover:not(:disabled) { transform: none; filter: none; color: var(--text); }
+  .lang-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
+  @media (max-width: 560px) { .hero-top { flex-wrap: wrap; } }
   .cube-logo {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -467,42 +493,48 @@
 <div class="brand-stripe"></div>
 <div class="wrap">
   <header class="hero">
-    <div class="hero-brand">
-      <div class="cube-logo" aria-hidden="true">
-        <span></span><span></span><span></span>
-        <span></span><span></span><span></span>
-        <span></span><span></span><span></span>
+    <div class="hero-top">
+      <div class="hero-brand">
+        <div class="cube-logo" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div>
+          <h1>WCA Ranking Explorer</h1>
+          <p class="subtitle" id="subtitleText"></p>
+        </div>
       </div>
-      <div>
-        <h1>WCA Ranking Explorer</h1>
-        <p class="subtitle" id="subtitleText">Deux façons d'explorer les données WCA — données en direct depuis worldcubeassociation.org</p>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
       </div>
     </div>
 
-    <button id="backToMenuBtn" class="back-btn">← Menu</button>
+    <button id="backToMenuBtn" class="back-btn"></button>
 
     <div id="menuView" class="menu-grid">
       <button class="menu-card ranking" data-target="ranking">
         <div class="menu-card-icon">🏆</div>
-        <div class="menu-card-title">Classements</div>
-        <div class="menu-card-desc">Le record du monde en single et en average pour chaque épreuve : compétition, date, recordman et liens utiles.</div>
+        <div class="menu-card-title" id="menuRankingTitle"></div>
+        <div class="menu-card-desc" id="menuRankingDesc"></div>
       </button>
       <button class="menu-card custom" data-target="custom">
         <div class="menu-card-icon">🔍</div>
-        <div class="menu-card-title">Speedcuber</div>
-        <div class="menu-card-desc">Cherche un cubeur par WCA ID ou par nom : classement mondial, national, séniors et fréquentation par épreuve.</div>
+        <div class="menu-card-title" id="menuCustomTitle"></div>
+        <div class="menu-card-desc" id="menuCustomDesc"></div>
       </button>
     </div>
 
     <div id="customSearchBar" class="search-bar" style="display:none">
       <div class="search-input-wrap">
         <span class="search-icon">⌕</span>
-        <input id="wcaIdInput" type="text" placeholder="WCA ID (2009ZEMD01) ou nom du cubeur" maxlength="60" autocomplete="off" spellcheck="false">
+        <input id="wcaIdInput" type="text" maxlength="60" autocomplete="off" spellcheck="false">
         <div id="nameSuggestions" class="name-suggestions" style="display:none"></div>
       </div>
-      <button id="searchBtn">Rechercher</button>
+      <button id="searchBtn"></button>
     </div>
-    <p class="hint" id="customHint" style="display:none">Entre un WCA ID (ex. 2009ZEMD01) ou un nom/prénom — une liste de suggestions apparaît si tu tapes un nom.</p>
+    <p class="hint" id="customHint" style="display:none"></p>
   </header>
 
   <div id="customView" style="display:none">
@@ -513,11 +545,150 @@
     <div id="rankingOutput"></div>
   </div>
 
-  <p class="app-footer">Données WCA officielles + wca-seniors.org (communautaire) · usage personnel non affilié à la WCA</p>
+  <p class="app-footer" id="appFooter"></p>
 </div>
 
 <script>
 const API = 'https://www.worldcubeassociation.org/api/v0';
+
+// ---------- Internationalisation (FR/EN) ----------
+let currentLang = localStorage.getItem('wcaAppLang') || (navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en');
+let NUM_LOCALE = currentLang === 'fr' ? 'fr-FR' : 'en-US';
+
+const I18N = {
+  fr: {
+    subtitleMenu: "Deux façons d'explorer les données WCA — données en direct depuis worldcubeassociation.org",
+    subtitleCustom: "Classement mondial, national, séniors et fréquentation par épreuve — cherche un cubeur par WCA ID ou par nom",
+    subtitleRanking: "Le record du monde single et average pour chaque épreuve, avec compétition, date et lien vers le recordman",
+    backToMenu: '← Menu',
+    menuRankingTitle: 'Classements',
+    menuRankingDesc: "Le record du monde en single et en average pour chaque épreuve : compétition, date, recordman et liens utiles.",
+    menuCustomTitle: 'Speedcuber',
+    menuCustomDesc: "Cherche un cubeur par WCA ID ou par nom : classement mondial, national, séniors et fréquentation par épreuve.",
+    searchPlaceholder: 'WCA ID (2009ZEMD01) ou nom du cubeur',
+    searchBtn: 'Rechercher',
+    customHint: "Entre un WCA ID (ex. 2009ZEMD01) ou un nom/prénom — une liste de suggestions apparaît si tu tapes un nom.",
+    appFooter: "Données WCA officielles + wca-seniors.org (communautaire) · usage personnel non affilié à la WCA",
+    statCompetitions: 'Compétitions',
+    statEvents: 'Épreuves pratiquées',
+    sectionRankingsTitle: 'Classements par épreuve',
+    thEvent: 'Épreuve',
+    thSingle: 'Meilleur temps (rang mondial · national)',
+    thAverage: 'Moyenne (rang mondial · national)',
+    thParticipants: "Cubeurs ayant fait l'épreuve",
+    labelBestTime: 'Meilleur temps',
+    labelAverage: 'Moyenne',
+    badgeWorld: 'monde',
+    badgeNational: 'national',
+    badgeContinent: 'continent',
+    worldFootnote: (date) => `Profil et classements (mondial / continental / national) récupérés en direct depuis l'API officielle de la WCA. "Cubeurs ayant fait l'épreuve" = nombre de personnes possédant au moins un résultat officiel WCA sur cette épreuve (monde / continent / pays du cubeur recherché), calculé à partir de l'export public de la base de données WCA du ${date} (la WCA ne publie pas ce chiffre en direct par épreuve).`,
+    seniorTitle: '🎂 Classement séniors',
+    seniorAgeBadge: (age) => `${age} ans et +`,
+    seniorSub: (name, age) => `Tranche d'âge la plus haute atteinte par ${name}, en ne comptant que les résultats obtenus depuis qu'il/elle a ${age} ans.`,
+    seniorFootnote: (refreshed) => `Classement communautaire non-officiel produit par <a href="https://wca-seniors.org" target="_blank" rel="noopener">wca-seniors.org</a> (inscription volontaire du WCA ID + date de naissance), recalculé chaque jour à partir de l'export de la base WCA — actualisé le ${refreshed}. La WCA ne publie aucune date de naissance ni classement par âge officiellement ; ce cubeur n'apparaît ici que parce qu'il/elle s'est inscrit·e sur ce site tiers. Le rang mondial vient directement de wca-seniors.org ; le rang national est recalculé ici en filtrant ce même classement par pays. Les deux peuvent être légèrement approximatifs (± 1-2 places) pour les cubeurs séniors non inscrits sur le site.`,
+    rankGroupWorld: 'Monde',
+    rankGroupNational: 'National',
+    geoLabelWorld: 'monde',
+    geoOthers: (n, name) => `dont ${n} autre(s) que ${name}`,
+    errorEmptyInput: 'Entre un WCA ID (ex. 2009ZEMD01) ou un nom de cubeur.',
+    loadingNameSearch: 'Recherche par nom…',
+    errorNoNameMatch: (q) => `Aucun cubeur trouvé pour "${q}". Vérifie l'orthographe ou essaie le WCA ID.`,
+    suggestionsFound: (n, q) => `${n} cubeur(s) trouvé(s) pour "${q}" — choisis dans la liste ci-dessus.`,
+    suggEmpty: (q) => `Aucun cubeur trouvé pour "${q}"`,
+    loadingProfile: 'Chargement du profil…',
+    errorNoProfile: (id) => `Aucun cubeur trouvé avec le WCA ID "${id}".`,
+    errorHttp: (code) => `Erreur ${code} lors de la récupération du profil.`,
+    errorGeneric: 'Une erreur est survenue.',
+    mouv: 'mouv.',
+    recordSingle: 'Single',
+    recordAverage: 'Moyenne',
+    recordNone: 'Aucun record enregistré',
+    recordTie: (n) => `🤝 Record partagé par ${n} cubeurs`,
+    recordVideoLink: '🎥 Chercher la vidéo',
+    recordCubeLink: '🧊 Chercher le cube utilisé',
+    ageBadge: (age) => `${age}+ ans`,
+    rankingLoading: 'Chargement des records du monde…',
+    rankingFootnote: (date) => `L'association recordman ↔ compétition est calculée une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne donne "qui détient le record et où" en direct — un nouveau record ne sera reflété ici qu'après une mise à jour manuelle de cette page). Le profil, l'avatar, le pays et les infos de compétition sont eux récupérés en direct via l'API WCA à chaque affichage. Les liens "vidéo" et "cube utilisé" sont des recherches préremplies non vérifiées : la WCA ne suit aucune de ces deux informations.`,
+    rankingError: 'Impossible de charger les records du monde pour le moment.',
+  },
+  en: {
+    subtitleMenu: "Two ways to explore WCA data — live data from worldcubeassociation.org",
+    subtitleCustom: "World, national and senior rankings plus event turnout — search a cuber by WCA ID or by name",
+    subtitleRanking: "The single and average world record for every event, with competition, date and a link to the record holder",
+    backToMenu: '← Menu',
+    menuRankingTitle: 'Rankings',
+    menuRankingDesc: "The single and average world record for every event: competition, date, record holder and useful links.",
+    menuCustomTitle: 'Speedcuber',
+    menuCustomDesc: "Search a cuber by WCA ID or by name: world, national and senior rankings, plus event turnout.",
+    searchPlaceholder: "WCA ID (2009ZEMD01) or cuber's name",
+    searchBtn: 'Search',
+    customHint: "Enter a WCA ID (e.g. 2009ZEMD01) or a first/last name — a suggestion list appears as you type a name.",
+    appFooter: "Official WCA data + wca-seniors.org (community) · personal project, not affiliated with the WCA",
+    statCompetitions: 'Competitions',
+    statEvents: 'Events practiced',
+    sectionRankingsTitle: 'Rankings by event',
+    thEvent: 'Event',
+    thSingle: 'Best time (world · national rank)',
+    thAverage: 'Average (world · national rank)',
+    thParticipants: "Cubers who've done the event",
+    labelBestTime: 'Best time',
+    labelAverage: 'Average',
+    badgeWorld: 'world',
+    badgeNational: 'national',
+    badgeContinent: 'continent',
+    worldFootnote: (date) => `Profile and rankings (world / continental / national) fetched live from the official WCA API. "Cubers who've done the event" = number of people with at least one official WCA result in that event (world / continent / country of the searched cuber), computed from the public WCA database export dated ${date} (the WCA doesn't publish this figure live per event).`,
+    seniorTitle: '🎂 Senior rankings',
+    seniorAgeBadge: (age) => `${age}+ years old`,
+    seniorSub: (name, age) => `Highest age bracket reached by ${name}, counting only results achieved since turning ${age}.`,
+    seniorFootnote: (refreshed) => `Unofficial community ranking produced by <a href="https://wca-seniors.org" target="_blank" rel="noopener">wca-seniors.org</a> (voluntary sign-up with WCA ID + date of birth), recomputed daily from the WCA database export — last updated ${refreshed}. The WCA does not officially publish any date of birth or age-based ranking; this cuber only appears here because they signed up on this third-party site. The world rank comes straight from wca-seniors.org; the national rank is recomputed here by filtering that same ranking by country. Both can be slightly approximate (± 1-2 places) for senior cubers not registered on the site.`,
+    rankGroupWorld: 'World',
+    rankGroupNational: 'National',
+    geoLabelWorld: 'world',
+    geoOthers: (n, name) => `including ${n} other(s) besides ${name}`,
+    errorEmptyInput: 'Enter a WCA ID (e.g. 2009ZEMD01) or a cuber\'s name.',
+    loadingNameSearch: 'Searching by name…',
+    errorNoNameMatch: (q) => `No cuber found for "${q}". Check the spelling or try the WCA ID.`,
+    suggestionsFound: (n, q) => `${n} cuber(s) found for "${q}" — pick one from the list above.`,
+    suggEmpty: (q) => `No cuber found for "${q}"`,
+    loadingProfile: 'Loading profile…',
+    errorNoProfile: (id) => `No cuber found with WCA ID "${id}".`,
+    errorHttp: (code) => `Error ${code} while fetching the profile.`,
+    errorGeneric: 'Something went wrong.',
+    mouv: 'moves',
+    recordSingle: 'Single',
+    recordAverage: 'Average',
+    recordNone: 'No record on file',
+    recordTie: (n) => `🤝 Record shared by ${n} cubers`,
+    recordVideoLink: '🎥 Search for the video',
+    recordCubeLink: '🧊 Search for the cube used',
+    ageBadge: (age) => `${age}+ yo`,
+    rankingLoading: 'Loading world records…',
+    rankingFootnote: (date) => `The record holder ↔ competition association is computed once from the official WCA database export dated ${date} (no public endpoint gives "who holds the record and where" live — a new record will only show here after this page is manually refreshed). The profile, avatar, country and competition info are fetched live from the WCA API on every view. The "video" and "cube used" links are unverified pre-filled searches: the WCA does not track either of those.`,
+    rankingError: "Couldn't load the world records right now.",
+  },
+};
+function t(key, ...args) {
+  const entry = I18N[currentLang][key];
+  return typeof entry === 'function' ? entry(...args) : entry;
+}
+const EVENT_NAMES_EN = {
+  '222': '2x2x2', '333': '3x3x3', '444': '4x4x4', '555': '5x5x5', '666': '6x6x6', '777': '7x7x7',
+  '333bf': '3x3x3 Blindfolded', '333fm': '3x3x3 Fewest Moves', '333oh': '3x3x3 One-Handed',
+  '333mbf': '3x3x3 Multi-Blind', '444bf': '4x4x4 Blindfolded', '555bf': '5x5x5 Blindfolded',
+  'clock': 'Clock', 'minx': 'Megaminx', 'pyram': 'Pyraminx', 'skewb': 'Skewb', 'sq1': 'Square-1',
+  'magic': 'Magic', 'mmagic': 'Master Magic', '333mbo': '3x3x3 Multi-Blind (old style)', '333ft': '3x3x3 With Feet',
+};
+function eventName(eid) {
+  return (currentLang === 'fr' ? EVENT_NAMES : EVENT_NAMES_EN)[eid] || eid;
+}
+const CONTINENT_NAMES_EN = {
+  '_Africa': 'Africa', '_Asia': 'Asia', '_Europe': 'Europe',
+  '_North America': 'North America', '_South America': 'South America', '_Oceania': 'Oceania',
+};
+function continentName(continentId) {
+  const map = currentLang === 'fr' ? CONTINENT_NAMES_FR : CONTINENT_NAMES_EN;
+  return map[continentId] || (continentId || '').replace(/^_/, '');
+}
 
 // Nombre de cubeurs distincts possédant au moins un résultat officiel pour chaque épreuve
 // (= taille du classement mondial de l'épreuve), et sa ventilation par pays / continent.
@@ -636,7 +807,7 @@ function formatSeniorCompetition(index, competitionId) {
   const comp = index.competitions.get(competitionId);
   if (!comp) return '';
   const date = new Date(comp.startDate + 'T00:00:00Z');
-  const dateStr = isNaN(date) ? '' : date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const dateStr = isNaN(date) ? '' : date.toLocaleDateString(NUM_LOCALE, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
   return `${comp.name}${dateStr ? ' · ' + dateStr : ''}`;
 }
 
@@ -696,14 +867,14 @@ function formatResult(value, eventId) {
   if (value === -2) return 'DNS';
   if (value === 0) return '—';
   if (eventId === '333mbf' || eventId === '333mbo') return parseMultiBld(value);
-  if (eventId === '333fm') return (value % 1 !== 0 || value > 1000) ? '' : value + ' mouv.';
+  if (eventId === '333fm') return (value % 1 !== 0 || value > 1000) ? '' : value + ' ' + t('mouv');
   return formatCentiseconds(value);
 }
 function formatFMResult(value, isAverage) {
   if (value === -1) return 'DNF';
   if (value === -2) return 'DNS';
   if (!value) return '—';
-  return isAverage ? (value / 100).toFixed(2) + ' mouv.' : value + ' mouv.';
+  return (isAverage ? (value / 100).toFixed(2) : value) + ' ' + t('mouv');
 }
 
 const WCA_ID_RE = /^\d{4}[A-Za-z]{4}\d{2}$/;
@@ -725,7 +896,7 @@ function renderSuggestions(list, term) {
   const box = document.getElementById('nameSuggestions');
   box.innerHTML = '';
   if (!list.length) {
-    box.appendChild(el('div', 'name-suggestion', `<span class="sugg-empty">Aucun cubeur trouvé pour "${term}"</span>`));
+    box.appendChild(el('div', 'name-suggestion', `<span class="sugg-empty">${t('suggEmpty', term)}</span>`));
   } else {
     list.forEach(person => {
       const item = el('div', 'name-suggestion',
@@ -763,12 +934,12 @@ async function search() {
 
   if (!raw) {
     output.innerHTML = '';
-    output.appendChild(el('div', 'error', 'Entre un WCA ID (ex. 2009ZEMD01) ou un nom de cubeur.'));
+    output.appendChild(el('div', 'error', t('errorEmptyInput')));
     return;
   }
 
   output.innerHTML = '';
-  output.appendChild(el('div', 'loading', '<span class="spinner"></span>Recherche par nom…'));
+  output.appendChild(el('div', 'loading', `<span class="spinner"></span>${t('loadingNameSearch')}`));
   const list = await fetchNameSuggestions(raw).catch(() => []);
 
   if (list.length === 1) {
@@ -777,12 +948,14 @@ async function search() {
   }
   output.innerHTML = '';
   if (!list.length) {
-    output.appendChild(el('div', 'error', `Aucun cubeur trouvé pour "${raw}". Vérifie l'orthographe ou essaie le WCA ID.`));
+    output.appendChild(el('div', 'error', t('errorNoNameMatch', raw)));
     return;
   }
-  output.appendChild(el('div', 'hint', `${list.length} cubeur(s) trouvé(s) pour "${raw}" — choisis dans la liste ci-dessus.`));
+  output.appendChild(el('div', 'hint', t('suggestionsFound', list.length, raw)));
   renderSuggestions(list, raw);
 }
+
+let lastProfileData = null;
 
 async function performSearch(wcaId) {
   const btn = document.getElementById('searchBtn');
@@ -790,17 +963,17 @@ async function performSearch(wcaId) {
 
   btn.disabled = true;
   output.innerHTML = '';
-  output.appendChild(el('div', 'loading', '<span class="spinner"></span>Chargement du profil…'));
+  output.appendChild(el('div', 'loading', `<span class="spinner"></span>${t('loadingProfile')}`));
 
   const seniorIndexAttempt = loadSeniorIndex().catch(() => null);
 
   try {
     const personRes = await fetch(`${API}/persons/${wcaId}`);
     if (personRes.status === 404) {
-      throw new Error(`Aucun cubeur trouvé avec le WCA ID "${wcaId}".`);
+      throw new Error(t('errorNoProfile', wcaId));
     }
     if (!personRes.ok) {
-      throw new Error(`Erreur ${personRes.status} lors de la récupération du profil.`);
+      throw new Error(t('errorHttp', personRes.status));
     }
     const data = await personRes.json();
     const person = data.person;
@@ -814,10 +987,12 @@ async function performSearch(wcaId) {
     const seniorIndex = await seniorIndexAttempt;
     const seniorInfo = seniorIndex ? getSeniorInfo(seniorIndex, wcaId, person.country_iso2, eventIds) : null;
 
+    lastProfileData = { person, competitionCount: data.competition_count, records, eventIds, seniorIndex, seniorInfo };
     renderProfile(person, data.competition_count, records, eventIds, seniorIndex, seniorInfo);
   } catch (err) {
+    lastProfileData = null;
     output.innerHTML = '';
-    output.appendChild(el('div', 'error', err.message || 'Une erreur est survenue.'));
+    output.appendChild(el('div', 'error', err.message || t('errorGeneric')));
   } finally {
     btn.disabled = false;
   }
@@ -842,22 +1017,22 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
   profileCard.appendChild(profileRow);
 
   const stats = el('div', 'profile-stats');
-  stats.appendChild(el('div', 'stat', `<b>${competitionCount}</b>Compétitions`));
-  stats.appendChild(el('div', 'stat', `<b>${eventIds.length}</b>Épreuves pratiquées`));
+  stats.appendChild(el('div', 'stat', `<b>${competitionCount}</b>${t('statCompetitions')}`));
+  stats.appendChild(el('div', 'stat', `<b>${eventIds.length}</b>${t('statEvents')}`));
   profileCard.appendChild(stats);
   output.appendChild(profileCard);
 
   const tableCard = el('div', 'card world-card');
-  tableCard.appendChild(el('div', 'section-title', '<span class="section-dot"></span>Classements par épreuve'));
+  tableCard.appendChild(el('div', 'section-title', `<span class="section-dot"></span>${t('sectionRankingsTitle')}`));
   const tableWrap = el('div', 'table-wrap');
   const table = el('table');
   table.innerHTML = `
     <thead>
       <tr>
-        <th>Épreuve</th>
-        <th>Meilleur temps (rang mondial · national)</th>
-        <th>Moyenne (rang mondial · national)</th>
-        <th>Cubeurs ayant fait l'épreuve</th>
+        <th>${t('thEvent')}</th>
+        <th>${t('thSingle')}</th>
+        <th>${t('thAverage')}</th>
+        <th>${t('thParticipants')}</th>
       </tr>
     </thead>
   `;
@@ -867,11 +1042,11 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
     const rec = records[eid];
     const tr = el('tr');
 
-    const nameTd = el('td', 'event-name', `${eventDot(eid)}${EVENT_NAMES[eid] || eid}`);
+    const nameTd = el('td', 'event-name', `${eventDot(eid)}${eventName(eid)}`);
     tr.appendChild(nameTd);
 
-    tr.appendChild(buildResultCell(rec.single, eid, false, 'Meilleur temps'));
-    tr.appendChild(buildResultCell(rec.average, eid, true, 'Moyenne'));
+    tr.appendChild(buildResultCell(rec.single, eid, false, t('labelBestTime')));
+    tr.appendChild(buildResultCell(rec.average, eid, true, t('labelAverage')));
 
     tr.appendChild(buildParticipantsCell(eid, person));
 
@@ -881,8 +1056,7 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
   table.appendChild(tbody);
   tableWrap.appendChild(table);
   tableCard.appendChild(tableWrap);
-  tableCard.appendChild(el('div', 'footnote',
-    `Profil et classements (mondial / continental / national) récupérés en direct depuis l'API officielle de la WCA. "Cubeurs ayant fait l'épreuve" = nombre de personnes possédant au moins un résultat officiel WCA sur cette épreuve (monde / continent / pays du cubeur recherché), calculé à partir de l'export public de la base de données WCA du ${EVENT_TOTALS_DATE} (la WCA ne publie pas ce chiffre en direct par épreuve).`));
+  tableCard.appendChild(el('div', 'footnote', t('worldFootnote', EVENT_TOTALS_DATE)));
   output.appendChild(tableCard);
 
   if (seniorInfo) {
@@ -892,18 +1066,17 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
 
 function buildSeniorCard(person, seniorIndex, seniorInfo) {
   const card = el('div', 'card senior-card');
-  card.appendChild(el('div', 'senior-title', `🎂 Classement séniors <span class="senior-badge">${seniorInfo.maxAge} ans et +</span>`));
-  card.appendChild(el('div', 'senior-sub',
-    `Tranche d'âge la plus haute atteinte par ${person.name.split(' ')[0]}, en ne comptant que les résultats obtenus depuis qu'il/elle a ${seniorInfo.maxAge} ans.`));
+  card.appendChild(el('div', 'senior-title', `${t('seniorTitle')} <span class="senior-badge">${t('seniorAgeBadge', seniorInfo.maxAge)}</span>`));
+  card.appendChild(el('div', 'senior-sub', t('seniorSub', person.name.split(' ')[0], seniorInfo.maxAge)));
 
   const tableWrap = el('div', 'table-wrap');
   const table = el('table');
   table.innerHTML = `
     <thead>
       <tr>
-        <th>Épreuve</th>
-        <th>Meilleur temps (rang mondial · national)</th>
-        <th>Moyenne (rang mondial · national)</th>
+        <th>${t('thEvent')}</th>
+        <th>${t('thSingle')}</th>
+        <th>${t('thAverage')}</th>
       </tr>
     </thead>
   `;
@@ -912,17 +1085,16 @@ function buildSeniorCard(person, seniorIndex, seniorInfo) {
   EVENT_ORDER.filter(eid => seniorInfo.perEvent[eid]).forEach(eid => {
     const entry = seniorInfo.perEvent[eid];
     const tr = el('tr');
-    tr.appendChild(el('td', 'event-name', `${eventDot(eid)}${EVENT_NAMES[eid] || eid}`));
-    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.single, seniorInfo.maxAge, 'Meilleur temps'));
-    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.average, seniorInfo.maxAge, 'Moyenne'));
+    tr.appendChild(el('td', 'event-name', `${eventDot(eid)}${eventName(eid)}`));
+    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.single, seniorInfo.maxAge, t('labelBestTime')));
+    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.average, seniorInfo.maxAge, t('labelAverage')));
     tbody.appendChild(tr);
   });
 
   table.appendChild(tbody);
   tableWrap.appendChild(table);
   card.appendChild(tableWrap);
-  card.appendChild(el('div', 'footnote',
-    `Classement communautaire non-officiel produit par <a href="https://wca-seniors.org" target="_blank" rel="noopener">wca-seniors.org</a> (inscription volontaire du WCA ID + date de naissance), recalculé chaque jour à partir de l'export de la base WCA — actualisé le ${seniorIndex.refreshed}. La WCA ne publie aucune date de naissance ni classement par âge officiellement ; ce cubeur n'apparaît ici que parce qu'il/elle s'est inscrit·e sur ce site tiers. Le rang mondial vient directement de wca-seniors.org ; le rang national est recalculé ici en filtrant ce même classement par pays. Les deux peuvent être légèrement approximatifs (± 1-2 places) pour les cubeurs séniors non inscrits sur le site.`));
+  card.appendChild(el('div', 'footnote', t('seniorFootnote', seniorIndex.refreshed)));
   return card;
 }
 
@@ -930,19 +1102,19 @@ function buildSeniorResultCell(seniorIndex, entry, age, label) {
   const td = el('td', 'rank-cell senior-cell');
   td.setAttribute('data-label', label);
   if (!entry) { td.innerHTML = '—'; return td; }
-  const best = String(entry.best).replace(' in ', ' en ');
+  const best = currentLang === 'fr' ? String(entry.best).replace(' in ', ' en ') : String(entry.best);
   const compText = formatSeniorCompetition(seniorIndex, entry.competition);
   const bracketNote = entry.age < age ? ` <span class="senior-bracket-note">(${entry.age}+)</span>` : '';
   td.innerHTML = `
     <div class="result-cell">${best}</div>
     <div class="badge-row">
       <div class="rank-group">
-        <span class="rank-group-label">Monde${bracketNote}</span>
-        <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString('fr-FR')} <span class="rank-total">/ ${entry.worldTotal.toLocaleString('fr-FR')}</span></span>
+        <span class="rank-group-label">${t('rankGroupWorld')}${bracketNote}</span>
+        <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString(NUM_LOCALE)} <span class="rank-total">/ ${entry.worldTotal.toLocaleString(NUM_LOCALE)}</span></span>
       </div>
       <div class="rank-group">
-        <span class="rank-group-label">National</span>
-        <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString('fr-FR')} <span class="rank-total">/ ${entry.nationalTotal.toLocaleString('fr-FR')}</span></span>
+        <span class="rank-group-label">${t('rankGroupNational')}</span>
+        <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString(NUM_LOCALE)} <span class="rank-total">/ ${entry.nationalTotal.toLocaleString(NUM_LOCALE)}</span></span>
       </div>
     </div>
     ${compText ? `<div class="senior-comp">${compText}</div>` : ''}
@@ -952,7 +1124,7 @@ function buildSeniorResultCell(seniorIndex, entry, age, label) {
 
 function buildParticipantsCell(eid, person) {
   const td = el('td', 'participants-cell');
-  td.setAttribute('data-label', "Cubeurs ayant fait l'épreuve");
+  td.setAttribute('data-label', t('thParticipants'));
 
   const total = EVENT_TOTALS[eid];
   if (total === undefined) {
@@ -961,21 +1133,21 @@ function buildParticipantsCell(eid, person) {
   }
 
   const continentId = person.country.continent_id;
-  const continentName = CONTINENT_NAMES_FR[continentId] || (continentId || '').replace(/^_/, '');
+  const continentLabel = continentName(continentId);
   const continentTotal = EVENT_CONTINENT_TOTALS[eid] ? EVENT_CONTINENT_TOTALS[eid][continentId] : undefined;
   const countryTotal = EVENT_COUNTRY_TOTALS[eid] ? EVENT_COUNTRY_TOTALS[eid][person.country_iso2] : undefined;
 
   td.innerHTML = `
     <div class="geo-counts">
       <div class="geo-count world">
-        <span class="geo-count-value">${total.toLocaleString('fr-FR')}</span><span class="geo-count-label">monde</span>
+        <span class="geo-count-value">${total.toLocaleString(NUM_LOCALE)}</span><span class="geo-count-label">${t('geoLabelWorld')}</span>
       </div>
-      <div class="others">dont ${(total - 1).toLocaleString('fr-FR')} autre(s) que ${person.name.split(' ')[0]}</div>
+      <div class="others">${t('geoOthers', (total - 1).toLocaleString(NUM_LOCALE), person.name.split(' ')[0])}</div>
       <div class="geo-count continental">
-        <span class="geo-count-value">${continentTotal !== undefined ? continentTotal.toLocaleString('fr-FR') : '—'}</span><span class="geo-count-label">${continentName}</span>
+        <span class="geo-count-value">${continentTotal !== undefined ? continentTotal.toLocaleString(NUM_LOCALE) : '—'}</span><span class="geo-count-label">${continentLabel}</span>
       </div>
       <div class="geo-count national">
-        <span class="geo-count-value">${countryTotal !== undefined ? countryTotal.toLocaleString('fr-FR') : '—'}</span><span class="geo-count-label">${person.country.name}</span>
+        <span class="geo-count-value">${countryTotal !== undefined ? countryTotal.toLocaleString(NUM_LOCALE) : '—'}</span><span class="geo-count-label">${person.country.name}</span>
       </div>
     </div>
   `;
@@ -996,9 +1168,9 @@ function buildResultCell(entry, eid, isAverage, label) {
   td.innerHTML = `
     <div class="result-cell">${resultText}</div>
     <div class="badge-row">
-      <span class="rank-badge ${worldCls}">#${entry.world_rank.toLocaleString('fr-FR')} monde</span>
-      <span class="rank-badge national ${countryCls}">#${entry.country_rank.toLocaleString('fr-FR')} national</span>
-      <span class="rank-badge continental ${continentCls}">#${entry.continent_rank.toLocaleString('fr-FR')} continent</span>
+      <span class="rank-badge ${worldCls}">#${entry.world_rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')}</span>
+      <span class="rank-badge national ${countryCls}">#${entry.country_rank.toLocaleString(NUM_LOCALE)} ${t('badgeNational')}</span>
+      <span class="rank-badge continental ${continentCls}">#${entry.continent_rank.toLocaleString(NUM_LOCALE)} ${t('badgeContinent')}</span>
     </div>
   `;
   return td;
@@ -1028,7 +1200,7 @@ function formatCompetitionDate(comp) {
   if (!comp || !comp.start_date) return '';
   const d = new Date(comp.start_date + 'T00:00:00Z');
   if (isNaN(d)) return '';
-  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  return d.toLocaleDateString(NUM_LOCALE, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
 function youtubeSearchUrl(personName, eventName, isAverage) {
@@ -1045,7 +1217,7 @@ async function loadRankingView() {
   rankingLoaded = true;
   const container = document.getElementById('rankingOutput');
   container.innerHTML = '';
-  container.appendChild(el('div', 'loading', '<span class="spinner"></span>Chargement des records du monde…'));
+  container.appendChild(el('div', 'loading', `<span class="spinner"></span>${t('rankingLoading')}`));
 
   const seniorIndexAttempt = loadSeniorIndex().catch(() => null);
   const eventIds = EVENT_ORDER.filter(eid => EVENT_RECORDS[eid]);
@@ -1054,25 +1226,24 @@ async function loadRankingView() {
     const cards = await Promise.all(eventIds.map(eid => buildRankingEventCard(eid, seniorIndexAttempt)));
     container.innerHTML = '';
     cards.forEach(c => container.appendChild(c));
-    container.appendChild(el('div', 'footnote',
-      `L'association recordman ↔ compétition est calculée une fois à partir de l'export officiel de la base WCA du ${EVENT_RECORDS_DATE} (aucun endpoint public ne donne "qui détient le record et où" en direct — un nouveau record ne sera reflété ici qu'après une mise à jour manuelle de cette page). Le profil, l'avatar, le pays et les infos de compétition sont eux récupérés en direct via l'API WCA à chaque affichage. Les liens "vidéo" et "cube utilisé" sont des recherches préremplies non vérifiées : la WCA ne suit aucune de ces deux informations.`));
+    container.appendChild(el('div', 'footnote', t('rankingFootnote', EVENT_RECORDS_DATE)));
   } catch (err) {
     container.innerHTML = '';
-    container.appendChild(el('div', 'error', "Impossible de charger les records du monde pour le moment."));
+    container.appendChild(el('div', 'error', t('rankingError')));
     rankingLoaded = false;
   }
 }
 
 async function buildRankingEventCard(eid, seniorIndexAttempt) {
   const card = el('div', 'card ranking-event-card');
-  card.appendChild(el('div', 'ranking-event-header', `${eventDot(eid)}<h3>${EVENT_NAMES[eid] || eid}</h3>`));
+  card.appendChild(el('div', 'ranking-event-header', `${eventDot(eid)}<h3>${eventName(eid)}</h3>`));
 
   const grid = el('div', 'record-grid');
   const rec = EVENT_RECORDS[eid];
   const seniorIndex = await seniorIndexAttempt;
 
-  grid.appendChild(await buildRecordBox(eid, rec.single, 'Single', false, seniorIndex));
-  grid.appendChild(await buildRecordBox(eid, rec.average, 'Average', true, seniorIndex));
+  grid.appendChild(await buildRecordBox(eid, rec.single, t('recordSingle'), false, seniorIndex));
+  grid.appendChild(await buildRecordBox(eid, rec.average, t('recordAverage'), true, seniorIndex));
   card.appendChild(grid);
   return card;
 }
@@ -1082,7 +1253,7 @@ async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
   box.appendChild(el('div', 'record-box-label', label));
 
   if (!recordData) {
-    box.appendChild(el('div', 'result-cell', 'Aucun record enregistré'));
+    box.appendChild(el('div', 'result-cell', t('recordNone')));
     return box;
   }
 
@@ -1090,7 +1261,7 @@ async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
   box.appendChild(el('div', 'record-value', valueText));
 
   if (recordData.holders.length > 1) {
-    box.appendChild(el('div', 'record-tie-note', `🤝 Record partagé par ${recordData.holders.length} cubeurs`));
+    box.appendChild(el('div', 'record-tie-note', t('recordTie', recordData.holders.length)));
   }
 
   const multi = recordData.holders.length > 1;
@@ -1112,7 +1283,7 @@ async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
     info.appendChild(el('div', 'record-holder-name', `<a href="${profileUrl}" target="_blank" rel="noopener">${name}</a>`));
     const age = seniorIndex ? seniorIndex.personAge.get(holder.personId) : null;
     const countryText = person ? `${countryFlag(person.country_iso2)} ${person.country.name}` : '';
-    info.appendChild(el('div', 'record-holder-meta', `${countryText}${age ? ` · ${age}+ ans` : ''}`));
+    info.appendChild(el('div', 'record-holder-meta', `${countryText}${age ? ` · ${t('ageBadge', age)}` : ''}`));
     holderRow.appendChild(info);
     wrap.appendChild(holderRow);
 
@@ -1123,8 +1294,8 @@ async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
 
     const links = el('div', 'record-links');
     links.innerHTML = `
-      <a class="record-link" href="${youtubeSearchUrl(name, EVENT_NAMES[eid] || eid, isAverage)}" target="_blank" rel="noopener">🎥 Chercher la vidéo</a>
-      <a class="record-link" href="${cubeSearchUrl(name)}" target="_blank" rel="noopener">🧊 Chercher le cube utilisé</a>
+      <a class="record-link" href="${youtubeSearchUrl(name, eventName(eid), isAverage)}" target="_blank" rel="noopener">${t('recordVideoLink')}</a>
+      <a class="record-link" href="${cubeSearchUrl(name)}" target="_blank" rel="noopener">${t('recordCubeLink')}</a>
     `;
     wrap.appendChild(links);
 
@@ -1135,7 +1306,10 @@ async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
 
 // ---------- Navigation entre vues ----------
 
+let currentView = 'menu';
+
 function showView(view) {
+  currentView = view;
   document.getElementById('menuView').style.display = view === 'menu' ? 'grid' : 'none';
   document.getElementById('customSearchBar').style.display = view === 'custom' ? 'flex' : 'none';
   document.getElementById('customHint').style.display = view === 'custom' ? 'block' : 'none';
@@ -1144,16 +1318,56 @@ function showView(view) {
   document.getElementById('backToMenuBtn').style.display = view === 'menu' ? 'none' : 'flex';
 
   const subtitle = document.getElementById('subtitleText');
-  if (view === 'menu') {
-    subtitle.textContent = "Deux façons d'explorer les données WCA — données en direct depuis worldcubeassociation.org";
-  } else if (view === 'custom') {
-    subtitle.textContent = "Classement mondial, national, séniors et fréquentation par épreuve — cherche un cubeur par WCA ID ou par nom";
-  } else {
-    subtitle.textContent = "Le record du monde single et average pour chaque épreuve, avec compétition, date et lien vers le recordman";
-  }
+  if (view === 'menu') subtitle.textContent = t('subtitleMenu');
+  else if (view === 'custom') subtitle.textContent = t('subtitleCustom');
+  else subtitle.textContent = t('subtitleRanking');
 
   if (view === 'ranking') loadRankingView();
 }
+
+// ---------- Bascule de langue ----------
+
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLang;
+  document.getElementById('backToMenuBtn').textContent = t('backToMenu');
+  document.getElementById('menuRankingTitle').textContent = t('menuRankingTitle');
+  document.getElementById('menuRankingDesc').textContent = t('menuRankingDesc');
+  document.getElementById('menuCustomTitle').textContent = t('menuCustomTitle');
+  document.getElementById('menuCustomDesc').textContent = t('menuCustomDesc');
+  document.getElementById('wcaIdInput').placeholder = t('searchPlaceholder');
+  document.getElementById('searchBtn').textContent = t('searchBtn');
+  document.getElementById('customHint').textContent = t('customHint');
+  document.getElementById('appFooter').textContent = t('appFooter');
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+  });
+  const subtitle = document.getElementById('subtitleText');
+  if (currentView === 'menu') subtitle.textContent = t('subtitleMenu');
+  else if (currentView === 'custom') subtitle.textContent = t('subtitleCustom');
+  else subtitle.textContent = t('subtitleRanking');
+}
+
+function setLang(lang) {
+  if (lang === currentLang) return;
+  currentLang = lang;
+  NUM_LOCALE = lang === 'fr' ? 'fr-FR' : 'en-US';
+  localStorage.setItem('wcaAppLang', lang);
+  applyStaticTranslations();
+
+  // Re-rend le contenu déjà affiché dans la nouvelle langue.
+  if (currentView === 'custom' && lastProfileData) {
+    const d = lastProfileData;
+    renderProfile(d.person, d.competitionCount, d.records, d.eventIds, d.seniorIndex, d.seniorInfo);
+  }
+  if (currentView === 'ranking' && rankingLoaded) {
+    rankingLoaded = false;
+    loadRankingView();
+  }
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => setLang(btn.dataset.lang));
+});
 
 document.querySelectorAll('.menu-card').forEach(card => {
   card.addEventListener('click', () => showView(card.dataset.target));
@@ -1173,6 +1387,7 @@ document.addEventListener('click', (e) => {
   if (box && !box.contains(e.target) && e.target !== input) hideSuggestions();
 });
 
+applyStaticTranslations();
 showView('menu');
 </script>
 </body>
