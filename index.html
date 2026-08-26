@@ -286,6 +286,40 @@
     .hero { padding: 28px 2px 20px; }
     h1 { font-size: 23px; }
   }
+  /* En dessous de cette largeur, le tableau devient une liste de fiches empilées
+     (une carte par épreuve) au lieu de colonnes qui débordent horizontalement. */
+  @media (max-width: 700px) {
+    .card { padding: 16px; }
+    .table-wrap { overflow-x: visible; margin: 0; padding: 0; }
+    table, thead, tbody, tr, td { display: block; width: 100%; }
+    thead { position: absolute; left: -9999px; }
+    table { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    tbody tr {
+      padding: 14px 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: transparent; }
+    td { border-bottom: none; padding: 0; white-space: normal; }
+    td.event-name {
+      font-size: 15px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px dashed var(--border);
+    }
+    td:not(.event-name) { padding: 8px 0 0; }
+    td:not(.event-name)::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+    }
+    .badge-row { flex-wrap: wrap; }
+  }
 </style>
 </head>
 <body>
@@ -591,11 +625,12 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
     const nameTd = el('td', 'event-name', `${eventDot(eid)}${EVENT_NAMES[eid] || eid}`);
     tr.appendChild(nameTd);
 
-    tr.appendChild(buildResultCell(rec.single, eid, false));
-    tr.appendChild(buildResultCell(rec.average, eid, true));
+    tr.appendChild(buildResultCell(rec.single, eid, false, 'Meilleur temps'));
+    tr.appendChild(buildResultCell(rec.average, eid, true, 'Moyenne'));
 
     const total = EVENT_TOTALS[eid];
     const pTd = el('td', 'participants-cell');
+    pTd.setAttribute('data-label', "Cubeurs ayant fait l'épreuve");
     if (total === undefined) {
       pTd.innerHTML = '—';
     } else {
@@ -641,8 +676,8 @@ function buildSeniorCard(person, seniorIndex, seniorInfo) {
     const entry = seniorInfo.perEvent[eid];
     const tr = el('tr');
     tr.appendChild(el('td', 'event-name', `${eventDot(eid)}${EVENT_NAMES[eid] || eid}`));
-    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.single, seniorInfo.maxAge));
-    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.average, seniorInfo.maxAge));
+    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.single, seniorInfo.maxAge, 'Meilleur temps'));
+    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.average, seniorInfo.maxAge, 'Moyenne'));
     tbody.appendChild(tr);
   });
 
@@ -654,8 +689,9 @@ function buildSeniorCard(person, seniorIndex, seniorInfo) {
   return card;
 }
 
-function buildSeniorResultCell(seniorIndex, entry, age) {
+function buildSeniorResultCell(seniorIndex, entry, age, label) {
   const td = el('td', 'rank-cell senior-cell');
+  td.setAttribute('data-label', label);
   if (!entry) { td.innerHTML = '—'; return td; }
   const best = String(entry.best).replace(' in ', ' en ');
   const compText = formatSeniorCompetition(seniorIndex, entry.competition);
@@ -677,8 +713,9 @@ function buildSeniorResultCell(seniorIndex, entry, age) {
   return td;
 }
 
-function buildResultCell(entry, eid, isAverage) {
+function buildResultCell(entry, eid, isAverage, label) {
   const td = el('td', 'rank-cell');
+  td.setAttribute('data-label', label);
   if (!entry) { td.innerHTML = '—'; return td; }
 
   const resultText = eid === '333fm' ? formatFMResult(entry.best, isAverage) : formatResult(entry.best, eid);
