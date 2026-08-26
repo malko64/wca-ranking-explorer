@@ -1506,7 +1506,10 @@ async function selectCountry(iso2, name) {
   renderCountryStats(iso2, name, stats[iso2]);
 }
 
+let countryRenderToken = 0;
+
 function renderCountryStats(iso2, name, entry) {
+  const myToken = ++countryRenderToken;
   const output = document.getElementById('countryOutput');
   output.innerHTML = '';
 
@@ -1536,6 +1539,7 @@ function renderCountryStats(iso2, name, entry) {
       mapWithConcurrency(eventIds, 5, eid => buildCountryEventCard(eid, entry.events[eid])),
       buildCountryStatsCard(entry),
     ]);
+    if (myToken !== countryRenderToken) return; // un rendu plus récent a démarré entre-temps, on abandonne celui-ci
     loadingEl.remove();
     cards.forEach(c => output.appendChild(c));
     output.appendChild(statsCard);
