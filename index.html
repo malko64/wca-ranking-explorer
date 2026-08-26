@@ -385,11 +385,12 @@
   .back-btn:hover:not(:disabled) { color: var(--accent); transform: none; filter: none; }
   .menu-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 18px;
     margin-top: 8px;
   }
-  @media (max-width: 640px) { .menu-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 860px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .menu-grid { grid-template-columns: 1fr; } }
   .menu-card {
     text-align: left;
     background: var(--surface);
@@ -405,6 +406,7 @@
   .menu-card:hover { transform: translateY(-3px); box-shadow: 0 4px 6px rgba(20,21,28,0.06), 0 16px 32px -10px rgba(20,21,28,0.18); }
   .menu-card.ranking { border-top: 4px solid var(--senior); }
   .menu-card.custom { border-top: 4px solid var(--accent); }
+  .menu-card.country { border-top: 4px solid var(--world-time); }
   .menu-card-icon { font-size: 30px; margin-bottom: 10px; }
   .menu-card-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 6px; }
   .menu-card-desc { color: var(--text-dim); font-size: 13.5px; line-height: 1.5; }
@@ -490,6 +492,54 @@
   .record-multi-holder { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dashed var(--border); }
   .record-multi-holder:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
   .record-tie-note { font-size: 11px; color: var(--senior); font-weight: 700; margin-bottom: 10px; }
+
+  /* Vue Pays */
+  .country-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .country-header-name { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+  .country-header-flag { font-size: 26px; }
+  .default-btn {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: none;
+    color: var(--text-dim);
+  }
+  .default-btn.active { background: var(--senior-bg); color: var(--senior); border-color: transparent; }
+  .default-btn:hover:not(:disabled) { color: var(--accent); transform: none; filter: none; }
+  .podium-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .podium-item { display: flex; align-items: center; gap: 10px; }
+  .podium-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: var(--surface-2); flex-shrink: 0; border: 1px solid var(--border); }
+  .podium-medal { font-size: 17px; width: 22px; text-align: center; flex-shrink: 0; }
+  .podium-name { font-weight: 600; font-size: 13.5px; flex: 1; }
+  .podium-name a { color: var(--text); text-decoration: none; }
+  .podium-name a:hover { color: var(--accent); }
+  .podium-value { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--world-time); }
+  .country-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .country-stats-grid { grid-template-columns: 1fr; } }
+  .country-stat-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .country-stat-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); margin-bottom: 10px; }
+  .country-stat-value { font-family: var(--font-mono); font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+  .title-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .title-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--senior);
+    background: var(--senior-bg);
+    border-radius: 999px;
+    padding: 3px 10px;
+    text-decoration: none;
+  }
+  .title-badge:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -527,6 +577,11 @@
         <div class="menu-card-title" id="menuCustomTitle"></div>
         <div class="menu-card-desc" id="menuCustomDesc"></div>
       </button>
+      <button class="menu-card country" data-target="country">
+        <div class="menu-card-icon">🌍</div>
+        <div class="menu-card-title" id="menuCountryTitle"></div>
+        <div class="menu-card-desc" id="menuCountryDesc"></div>
+      </button>
     </div>
 
     <div id="customSearchBar" class="search-bar" style="display:none">
@@ -538,6 +593,15 @@
       <button id="searchBtn"></button>
     </div>
     <p class="hint" id="customHint" style="display:none"></p>
+
+    <div id="countrySearchBar" class="search-bar" style="display:none">
+      <div class="search-input-wrap">
+        <span class="search-icon">⌕</span>
+        <input id="countryInput" type="text" autocomplete="off" spellcheck="false">
+        <div id="countrySuggestions" class="name-suggestions" style="display:none"></div>
+      </div>
+    </div>
+    <p class="hint" id="countryHint" style="display:none"></p>
   </header>
 
   <div id="customView" style="display:none">
@@ -546,6 +610,10 @@
 
   <div id="rankingView" style="display:none">
     <div id="rankingOutput"></div>
+  </div>
+
+  <div id="countryView" style="display:none">
+    <div id="countryOutput"></div>
   </div>
 
   <p class="app-footer" id="appFooter"></p>
@@ -612,6 +680,25 @@ const I18N = {
     rankingLoading: 'Chargement des records du monde…',
     rankingFootnote: (date) => `L'association recordman ↔ compétition est calculée une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne donne "qui détient le record et où" en direct — un nouveau record ne sera reflété ici qu'après une mise à jour manuelle de cette page). Le profil, l'avatar, le pays et les infos de compétition sont eux récupérés en direct via l'API WCA à chaque affichage. Les liens "vidéo" et "cube utilisé" sont des recherches préremplies non vérifiées : la WCA ne suit aucune de ces deux informations.`,
     rankingError: 'Impossible de charger les records du monde pour le moment.',
+    subtitleCountry: "Champions, records nationaux et statistiques par pays — choisis un pays pour explorer ses données",
+    menuCountryTitle: 'Pays',
+    menuCountryDesc: "Champions nationaux, records en cours, et les cubeurs les plus titrés, les plus prolifiques en records et les plus assidus en compétition.",
+    countryPlaceholder: 'Nom du pays',
+    countryHint: "Tape le nom d'un pays pour voir ses champions et records nationaux.",
+    countryLoading: 'Chargement des statistiques du pays…',
+    countryError: 'Impossible de charger les statistiques du pays pour le moment.',
+    countryNoData: "Aucune donnée disponible pour ce pays (probablement trop peu de compétiteurs).",
+    setDefaultCountry: '☆ Définir par défaut',
+    isDefaultCountry: '★ Pays par défaut',
+    nrSingleLabel: 'Record national — Single',
+    nrAverageLabel: 'Record national — Average',
+    noNationalRecord: 'Aucun record enregistré',
+    statMostTitles: (n) => `Le/la plus titré·e (${n} titre${n > 1 ? 's' : ''})`,
+    statMostNR: (n) => `Le/la plus prolifique en records (${n})`,
+    statMostComps: (n) => `Le/la plus assidu·e en compétition (${n})`,
+    noStatData: 'Aucune donnée',
+    sectionCountryStatsTitle: 'Cubeurs remarquables',
+    countryFootnote: (date) => `Champions et records nationaux calculés une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne fournit ce classement par pays en direct). "Le/la plus titré·e" = victoires en finale lors du Championnat national officiel de ce pays (donnée WCA "championships"). "Le/la plus prolifique en records" = nombre de fois où cette personne a battu un record national (single ou average), toutes épreuves confondues. Le profil, l'avatar et les infos de compétition sont récupérés en direct via l'API WCA à chaque affichage.`,
   },
   en: {
     subtitleMenu: "Two ways to explore WCA data — live data from worldcubeassociation.org",
@@ -666,6 +753,25 @@ const I18N = {
     rankingLoading: 'Loading world records…',
     rankingFootnote: (date) => `The record holder ↔ competition association is computed once from the official WCA database export dated ${date} (no public endpoint gives "who holds the record and where" live — a new record will only show here after this page is manually refreshed). The profile, avatar, country and competition info are fetched live from the WCA API on every view. The "video" and "cube used" links are unverified pre-filled searches: the WCA does not track either of those.`,
     rankingError: "Couldn't load the world records right now.",
+    subtitleCountry: "Champions, national records and stats by country — pick a country to explore its data",
+    menuCountryTitle: 'Country',
+    menuCountryDesc: "National champions, current records, and the cubers with the most titles, the most national records, and the most competitions attended.",
+    countryPlaceholder: 'Country name',
+    countryHint: "Type a country's name to see its national champions and records.",
+    countryLoading: 'Loading country stats…',
+    countryError: "Couldn't load this country's stats right now.",
+    countryNoData: "No data available for this country (likely too few competitors).",
+    setDefaultCountry: '☆ Set as default',
+    isDefaultCountry: '★ Default country',
+    nrSingleLabel: 'National Record — Single',
+    nrAverageLabel: 'National Record — Average',
+    noNationalRecord: 'No record on file',
+    statMostTitles: (n) => `Most titles (${n})`,
+    statMostNR: (n) => `Most national records (${n})`,
+    statMostComps: (n) => `Most competitions attended (${n})`,
+    noStatData: 'No data',
+    sectionCountryStatsTitle: 'Notable cubers',
+    countryFootnote: (date) => `National champions and records are computed once from the official WCA database export dated ${date} (no public endpoint provides this ranking by country live). "Most titles" = final-round wins at this country's official National Championship (from the WCA "championships" data). "Most national records" = number of times this person has broken a national record (single or average), across all events. The profile, avatar and competition info are fetched live from the WCA API on every view.`,
   },
 };
 function t(key, ...args) {
@@ -1178,6 +1284,21 @@ function buildResultCell(entry, eid, isAverage, label) {
 
 // ---------- Vue Classements (records du monde) ----------
 
+// Traite les items par lots pour ne pas envoyer des dizaines de requêtes simultanées
+// à l'API WCA d'un coup (évite de se faire limiter en débit).
+async function mapWithConcurrency(items, limit, fn) {
+  const results = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await fn(items[i], i);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
 const personCache = new Map();
 function fetchPersonBasic(wcaId) {
   if (!personCache.has(wcaId)) {
@@ -1223,7 +1344,7 @@ async function loadRankingView() {
   const eventIds = EVENT_ORDER.filter(eid => EVENT_RECORDS[eid]);
 
   try {
-    const cards = await Promise.all(eventIds.map(eid => buildRankingEventCard(eid, seniorIndexAttempt)));
+    const cards = await mapWithConcurrency(eventIds, 5, eid => buildRankingEventCard(eid, seniorIndexAttempt));
     container.innerHTML = '';
     cards.forEach(c => container.appendChild(c));
     container.appendChild(el('div', 'footnote', t('rankingFootnote', EVENT_RECORDS_DATE)));
@@ -1304,6 +1425,261 @@ async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
   return box;
 }
 
+// ---------- Vue Pays (champions & records nationaux) ----------
+
+// Champions/records nationaux + cubeurs les plus titrés/prolifiques calculés une fois à partir
+// de l'export officiel de la base WCA (tables ranks_single/ranks_average pour les podiums et
+// records nationaux, championships + results pour les titres de champion en finale, et un
+// comptage des flags "NR" / des compétitions distinctes par personne). Fichier séparé
+// (country_stats.json, ~900 Ko) plutôt qu'embarqué, chargé à la demande. Le reste (profil,
+// avatar, compétitions) est récupéré en direct via l'API WCA à l'affichage.
+const COUNTRY_STATS_DATE = '26 août 2026';
+const COUNTRY_STATS_URL = 'country_stats.json';
+const DEFAULT_COUNTRY_KEY = 'wcaAppDefaultCountry';
+
+let countryStatsPromise = null;
+function loadCountryStats() {
+  if (!countryStatsPromise) {
+    countryStatsPromise = fetch(COUNTRY_STATS_URL).then(r => r.ok ? r.json() : null).catch(() => null);
+  }
+  return countryStatsPromise;
+}
+
+let countriesListPromise = null;
+function loadCountriesList() {
+  if (!countriesListPromise) {
+    countriesListPromise = fetch(`${API}/countries`).then(r => r.ok ? r.json() : []).catch(() => []);
+  }
+  return countriesListPromise;
+}
+
+function hideCountrySuggestions() {
+  const box = document.getElementById('countrySuggestions');
+  box.style.display = 'none';
+  box.innerHTML = '';
+}
+
+async function renderCountrySuggestions(term) {
+  const box = document.getElementById('countrySuggestions');
+  const countries = await loadCountriesList();
+  const q = term.trim().toLowerCase();
+  const matches = countries.filter(c => c.name.toLowerCase().includes(q)).slice(0, 8);
+  box.innerHTML = '';
+  if (!matches.length) {
+    box.appendChild(el('div', 'name-suggestion', `<span class="sugg-empty">${t('suggEmpty', term)}</span>`));
+  } else {
+    matches.forEach(c => {
+      const item = el('div', 'name-suggestion', `${countryFlag(c.iso2)} ${c.name}`);
+      item.addEventListener('click', () => {
+        document.getElementById('countryInput').value = c.name;
+        hideCountrySuggestions();
+        selectCountry(c.iso2, c.name);
+      });
+      box.appendChild(item);
+    });
+  }
+  box.style.display = 'block';
+}
+
+let countrySearchTimer = null;
+function scheduleCountrySearch(term) {
+  clearTimeout(countrySearchTimer);
+  countrySearchTimer = setTimeout(() => renderCountrySuggestions(term), 200);
+}
+
+let lastCountrySelection = null;
+
+async function selectCountry(iso2, name) {
+  hideCountrySuggestions();
+  lastCountrySelection = { iso2, name };
+  const output = document.getElementById('countryOutput');
+  output.innerHTML = '';
+  output.appendChild(el('div', 'loading', `<span class="spinner"></span>${t('countryLoading')}`));
+
+  const stats = await loadCountryStats();
+  if (!stats) {
+    output.innerHTML = '';
+    output.appendChild(el('div', 'error', t('countryError')));
+    return;
+  }
+  lastCountrySelection = { iso2, name, entry: stats[iso2] };
+  renderCountryStats(iso2, name, stats[iso2]);
+}
+
+function renderCountryStats(iso2, name, entry) {
+  const output = document.getElementById('countryOutput');
+  output.innerHTML = '';
+
+  const isDefault = localStorage.getItem(DEFAULT_COUNTRY_KEY) === iso2;
+  const header = el('div', 'country-header');
+  header.appendChild(el('div', 'country-header-name', `<span class="country-header-flag">${countryFlag(iso2)}</span>${name}`));
+  const defBtn = el('button', 'default-btn' + (isDefault ? ' active' : ''), isDefault ? t('isDefaultCountry') : t('setDefaultCountry'));
+  defBtn.addEventListener('click', () => {
+    if (localStorage.getItem(DEFAULT_COUNTRY_KEY) === iso2) localStorage.removeItem(DEFAULT_COUNTRY_KEY);
+    else localStorage.setItem(DEFAULT_COUNTRY_KEY, iso2);
+    renderCountryStats(iso2, name, entry);
+  });
+  header.appendChild(defBtn);
+  output.appendChild(header);
+
+  if (!entry) {
+    output.appendChild(el('div', 'error', t('countryNoData')));
+    return;
+  }
+
+  const loadingEl = el('div', 'loading', `<span class="spinner"></span>${t('countryLoading')}`);
+  output.appendChild(loadingEl);
+
+  (async () => {
+    const eventIds = EVENT_ORDER.filter(eid => entry.events && entry.events[eid]);
+    const [cards, statsCard] = await Promise.all([
+      mapWithConcurrency(eventIds, 5, eid => buildCountryEventCard(eid, entry.events[eid])),
+      buildCountryStatsCard(entry),
+    ]);
+    loadingEl.remove();
+    cards.forEach(c => output.appendChild(c));
+    output.appendChild(statsCard);
+    output.appendChild(el('div', 'footnote', t('countryFootnote', COUNTRY_STATS_DATE)));
+  })();
+}
+
+const MEDALS = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+async function buildCountryEventCard(eid, data) {
+  const card = el('div', 'card ranking-event-card');
+  card.appendChild(el('div', 'ranking-event-header', `${eventDot(eid)}<h3>${eventName(eid)}</h3>`));
+
+  const podiumEntries = (data.podium || []).slice().sort((a, b) => a.rank - b.rank);
+  if (podiumEntries.length) {
+    const podiumList = el('div', 'podium-list');
+    const persons = await Promise.all(podiumEntries.map(p => fetchPersonBasic(p.personId)));
+    podiumEntries.forEach((p, i) => {
+      const person = persons[i];
+      const name = person ? person.name : p.personId;
+      const url = person ? person.url : `https://www.worldcubeassociation.org/persons/${p.personId}`;
+      const avatarUrl = person && person.avatar && person.avatar.url ? person.avatar.url : '';
+      const valueText = eid === '333fm' ? formatFMResult(p.value, false) : formatResult(p.value, eid);
+      podiumList.appendChild(el('div', 'podium-item', `
+        <img src="${avatarUrl}" onerror="this.style.display='none'">
+        <span class="podium-medal">${MEDALS[p.rank] || '#' + p.rank}</span>
+        <span class="podium-name"><a href="${url}" target="_blank" rel="noopener">${name}</a></span>
+        <span class="podium-value">${valueText}</span>
+      `));
+    });
+    card.appendChild(podiumList);
+  }
+
+  const grid = el('div', 'record-grid');
+  grid.appendChild(await buildCountryRecordBox(eid, data.nrSingle, false, t('nrSingleLabel')));
+  grid.appendChild(await buildCountryRecordBox(eid, data.nrAverage, true, t('nrAverageLabel')));
+  card.appendChild(grid);
+  return card;
+}
+
+async function buildCountryRecordBox(eid, nrData, isAverage, label) {
+  const box = el('div', 'record-box');
+  box.appendChild(el('div', 'record-box-label', label));
+
+  if (!nrData) {
+    box.appendChild(el('div', 'result-cell', t('noNationalRecord')));
+    return box;
+  }
+
+  const valueText = eid === '333fm' ? formatFMResult(nrData.value, isAverage) : formatResult(nrData.value, eid);
+  box.appendChild(el('div', 'record-value', valueText));
+
+  const [person, comp] = await Promise.all([
+    fetchPersonBasic(nrData.personId),
+    nrData.competitionId ? fetchCompetition(nrData.competitionId) : Promise.resolve(null),
+  ]);
+  const name = person ? person.name : nrData.personId;
+  const profileUrl = person ? person.url : `https://www.worldcubeassociation.org/persons/${nrData.personId}`;
+
+  const holderRow = el('div', 'record-holder');
+  const img = el('img');
+  img.src = person && person.avatar && person.avatar.url ? person.avatar.url : '';
+  img.alt = name;
+  img.onerror = () => { img.style.display = 'none'; };
+  holderRow.appendChild(img);
+  const info = el('div');
+  info.appendChild(el('div', 'record-holder-name', `<a href="${profileUrl}" target="_blank" rel="noopener">${name}</a>`));
+  holderRow.appendChild(info);
+  box.appendChild(holderRow);
+
+  if (comp) {
+    const compDate = formatCompetitionDate(comp);
+    box.appendChild(el('div', 'record-comp', `<a href="${comp.url}" target="_blank" rel="noopener">${comp.name}</a>${compDate ? ' · ' + compDate : ''}`));
+  }
+
+  return box;
+}
+
+async function buildCountryStatsCard(entry) {
+  const card = el('div', 'card');
+  card.appendChild(el('div', 'section-title', `<span class="section-dot"></span>${t('sectionCountryStatsTitle')}`));
+
+  const grid = el('div', 'country-stats-grid');
+
+  const mostTitles = entry.mostTitles;
+  const mostNR = entry.mostNR;
+  const mostComps = entry.mostComps;
+
+  const [titlesPerson, nrPerson, compsPerson] = await Promise.all([
+    mostTitles ? fetchPersonBasic(mostTitles.personId) : null,
+    mostNR ? fetchPersonBasic(mostNR.personId) : null,
+    mostComps ? fetchPersonBasic(mostComps.personId) : null,
+  ]);
+
+  grid.appendChild(await buildCountryStatBox(t('statMostTitles', mostTitles ? mostTitles.count : 0), mostTitles, titlesPerson, true));
+  grid.appendChild(buildSimpleStatBox(t('statMostNR', mostNR ? mostNR.count : 0), mostNR, nrPerson));
+  grid.appendChild(buildSimpleStatBox(t('statMostComps', mostComps ? mostComps.count : 0), mostComps, compsPerson));
+
+  card.appendChild(grid);
+  return card;
+}
+
+function buildSimpleStatBox(label, data, person) {
+  const box = el('div', 'country-stat-card');
+  box.appendChild(el('div', 'country-stat-label', label));
+  if (!data) {
+    box.appendChild(el('div', 'result-cell', t('noStatData')));
+    return box;
+  }
+  const name = person ? person.name : data.personId;
+  const url = person ? person.url : `https://www.worldcubeassociation.org/persons/${data.personId}`;
+  box.appendChild(el('div', 'country-stat-value', `<a href="${url}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${name}</a>`));
+  return box;
+}
+
+async function buildCountryStatBox(label, data, person, withTitleList) {
+  const box = el('div', 'country-stat-card');
+  box.appendChild(el('div', 'country-stat-label', label));
+  if (!data) {
+    box.appendChild(el('div', 'result-cell', t('noStatData')));
+    return box;
+  }
+  const name = person ? person.name : data.personId;
+  const url = person ? person.url : `https://www.worldcubeassociation.org/persons/${data.personId}`;
+  box.appendChild(el('div', 'country-stat-value', `<a href="${url}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${name}</a>`));
+
+  if (withTitleList && data.titles && data.titles.length) {
+    const list = el('div', 'title-list');
+    const comps = await Promise.all(data.titles.map(ti => fetchCompetition(ti.competitionId)));
+    data.titles.forEach((ti, i) => {
+      const comp = comps[i];
+      const compUrl = comp ? comp.url : `https://www.worldcubeassociation.org/competitions/${ti.competitionId}`;
+      const compLabel = comp ? comp.name : ti.competitionId;
+      const badge = el('a', 'title-badge', `${eventName(ti.event)} · ${compLabel}`);
+      badge.href = compUrl;
+      badge.target = '_blank';
+      badge.rel = 'noopener';
+      list.appendChild(badge);
+    });
+    box.appendChild(list);
+  }
+  return box;
+}
+
 // ---------- Navigation entre vues ----------
 
 let currentView = 'menu';
@@ -1315,14 +1691,37 @@ function showView(view) {
   document.getElementById('customHint').style.display = view === 'custom' ? 'block' : 'none';
   document.getElementById('customView').style.display = view === 'custom' ? 'block' : 'none';
   document.getElementById('rankingView').style.display = view === 'ranking' ? 'block' : 'none';
+  document.getElementById('countrySearchBar').style.display = view === 'country' ? 'flex' : 'none';
+  document.getElementById('countryHint').style.display = view === 'country' ? 'block' : 'none';
+  document.getElementById('countryView').style.display = view === 'country' ? 'block' : 'none';
   document.getElementById('backToMenuBtn').style.display = view === 'menu' ? 'none' : 'flex';
 
   const subtitle = document.getElementById('subtitleText');
   if (view === 'menu') subtitle.textContent = t('subtitleMenu');
   else if (view === 'custom') subtitle.textContent = t('subtitleCustom');
+  else if (view === 'country') subtitle.textContent = t('subtitleCountry');
   else subtitle.textContent = t('subtitleRanking');
 
   if (view === 'ranking') loadRankingView();
+  if (view === 'country') openCountryView();
+}
+
+function openCountryView() {
+  const output = document.getElementById('countryOutput');
+  if (lastCountrySelection) {
+    renderCountryStats(lastCountrySelection.iso2, lastCountrySelection.name, lastCountrySelection.entry);
+    return;
+  }
+  const defaultIso2 = localStorage.getItem(DEFAULT_COUNTRY_KEY);
+  if (defaultIso2) {
+    loadCountriesList().then(countries => {
+      const c = countries.find(x => x.iso2 === defaultIso2);
+      document.getElementById('countryInput').value = c ? c.name : defaultIso2;
+      selectCountry(defaultIso2, c ? c.name : defaultIso2);
+    });
+  } else {
+    output.innerHTML = '';
+  }
 }
 
 // ---------- Bascule de langue ----------
@@ -1334,9 +1733,13 @@ function applyStaticTranslations() {
   document.getElementById('menuRankingDesc').textContent = t('menuRankingDesc');
   document.getElementById('menuCustomTitle').textContent = t('menuCustomTitle');
   document.getElementById('menuCustomDesc').textContent = t('menuCustomDesc');
+  document.getElementById('menuCountryTitle').textContent = t('menuCountryTitle');
+  document.getElementById('menuCountryDesc').textContent = t('menuCountryDesc');
   document.getElementById('wcaIdInput').placeholder = t('searchPlaceholder');
   document.getElementById('searchBtn').textContent = t('searchBtn');
   document.getElementById('customHint').textContent = t('customHint');
+  document.getElementById('countryInput').placeholder = t('countryPlaceholder');
+  document.getElementById('countryHint').textContent = t('countryHint');
   document.getElementById('appFooter').textContent = t('appFooter');
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === currentLang);
@@ -1344,6 +1747,7 @@ function applyStaticTranslations() {
   const subtitle = document.getElementById('subtitleText');
   if (currentView === 'menu') subtitle.textContent = t('subtitleMenu');
   else if (currentView === 'custom') subtitle.textContent = t('subtitleCustom');
+  else if (currentView === 'country') subtitle.textContent = t('subtitleCountry');
   else subtitle.textContent = t('subtitleRanking');
 }
 
@@ -1363,6 +1767,9 @@ function setLang(lang) {
     rankingLoaded = false;
     loadRankingView();
   }
+  if (currentView === 'country' && lastCountrySelection) {
+    selectCountry(lastCountrySelection.iso2, lastCountrySelection.name);
+  }
 }
 
 document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -1381,10 +1788,17 @@ document.getElementById('wcaIdInput').addEventListener('input', (e) => {
   if (WCA_ID_RE.test(value)) { hideSuggestions(); return; }
   if (value.length >= 2) scheduleNameSearch(value); else hideSuggestions();
 });
+document.getElementById('countryInput').addEventListener('input', (e) => {
+  const value = e.target.value.trim();
+  if (value.length >= 1) scheduleCountrySearch(value); else hideCountrySuggestions();
+});
 document.addEventListener('click', (e) => {
   const box = document.getElementById('nameSuggestions');
   const input = document.getElementById('wcaIdInput');
   if (box && !box.contains(e.target) && e.target !== input) hideSuggestions();
+  const cbox = document.getElementById('countrySuggestions');
+  const cinput = document.getElementById('countryInput');
+  if (cbox && !cbox.contains(e.target) && e.target !== cinput) hideCountrySuggestions();
 });
 
 applyStaticTranslations();
