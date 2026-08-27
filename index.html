@@ -385,6 +385,10 @@
   @media (max-width: 860px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) { .menu-grid { grid-template-columns: 1fr; } }
   .menu-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
     text-align: left;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -400,7 +404,7 @@
   .menu-card.ranking { border-top: 4px solid var(--senior); }
   .menu-card.custom { border-top: 4px solid var(--accent); }
   .menu-card.country { border-top: 4px solid var(--world-time); }
-  .menu-card-icon { font-size: 30px; margin-bottom: 10px; }
+  .menu-card-icon { font-size: 30px; line-height: 1; height: 36px; margin-bottom: 10px; display: flex; align-items: center; }
   .menu-card-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 6px; }
   .menu-card-desc { color: var(--text-dim); font-size: 13.5px; line-height: 1.5; }
 
