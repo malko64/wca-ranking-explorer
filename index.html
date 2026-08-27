@@ -770,7 +770,7 @@ const I18N = {
     rankingError: 'Impossible de charger les records du monde pour le moment.',
     eventFilterAll: 'Toutes les épreuves',
     eventFilterSummary: (n) => `${n} épreuve${n > 1 ? 's' : ''}`,
-    subtitleCountry: "Champions, records nationaux et statistiques par pays — choisis un pays pour explorer ses données",
+    subtitleCountry: "Champions, records nationaux et statistiques par pays. Choisis un pays pour explorer ses données",
     menuCountryTitle: 'Pays',
     menuCountryDesc: "Champions nationaux, records en cours, et les cubeurs les plus titrés, les plus prolifiques en records et les plus assidus en compétition.",
     countryPlaceholder: 'Nom du pays',
@@ -788,11 +788,13 @@ const I18N = {
     nrAverageLabel: 'Record national — Average',
     noNationalRecord: 'Aucun record enregistré',
     statMostTitles: (n) => `Le/la plus titré·e (${n} titre${n > 1 ? 's' : ''})`,
+    statMostPodiums: (n) => `Le/la plus podiumé·e (${n})`,
+    statMostGolds: (n) => `Le/la plus de médailles d'or (${n})`,
     statMostNR: (n) => `Le/la plus prolifique en records (${n})`,
     statMostComps: (n) => `Le/la plus assidu·e en compétition (${n})`,
     noStatData: 'Aucune donnée',
     sectionCountryStatsTitle: 'Cubeurs remarquables',
-    countryFootnote: (date) => `Champions et records nationaux calculés une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne fournit ce classement par pays en direct). Le podium (🥇🥈🥉) = résultats de la finale de chaque épreuve à la dernière édition du Championnat national officiel de ce pays, en ne comptant que les cubeurs ayant représenté ce pays à cette compétition précise. Le record national (single/average) reste le meilleur résultat jamais réalisé par quelqu'un représentant ce pays, même si cette personne représente un autre pays aujourd'hui — comme sur le site officiel de la WCA. "Le/la plus titré·e" = victoires en finale lors du Championnat national officiel de ce pays, toutes éditions confondues. "Le/la plus prolifique en records" = nombre de fois où cette personne a battu un record national (single ou average), toutes épreuves confondues. Le profil, l'avatar et les infos de compétition sont récupérés en direct via l'API WCA à chaque affichage.`,
+    countryFootnote: (date) => `Champions et records nationaux calculés une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne fournit ce classement par pays en direct). Le podium (🥇🥈🥉) = résultats de la finale de chaque épreuve à la dernière édition du Championnat national officiel de ce pays, en ne comptant que les cubeurs ayant représenté ce pays à cette compétition précise. Le record national (single/average) reste le meilleur résultat jamais réalisé par quelqu'un représentant ce pays. "Le/la plus titré·e" = victoires en finale lors du Championnat national officiel de ce pays, toutes éditions confondues. "Le/la plus podiumé·e" et "Le/la plus de médailles d'or" = nombre de fois où cette personne a fini respectivement dans le top 3 / 1ère en finale, toutes épreuves et toutes compétitions confondues (pas seulement le Championnat national). "Le/la plus prolifique en records" = nombre de fois où cette personne a battu un record national (single ou average), toutes épreuves confondues. Le profil, l'avatar et les infos de compétition sont récupérés en direct via l'API WCA à chaque affichage.`,
   },
   en: {
     subtitleMenu: "New ways to explore WCA data, live from worldcubeassociation.org",
@@ -849,7 +851,7 @@ const I18N = {
     rankingError: "Couldn't load the world records right now.",
     eventFilterAll: 'All events',
     eventFilterSummary: (n) => `${n} event${n > 1 ? 's' : ''}`,
-    subtitleCountry: "Champions, national records and stats by country — pick a country to explore its data",
+    subtitleCountry: "Champions, national records and stats by country. Pick a country to explore its data",
     menuCountryTitle: 'Country',
     menuCountryDesc: "National champions, current records, and the cubers with the most titles, the most national records, and the most competitions attended.",
     countryPlaceholder: 'Country name',
@@ -867,11 +869,13 @@ const I18N = {
     nrAverageLabel: 'National Record — Average',
     noNationalRecord: 'No record on file',
     statMostTitles: (n) => `Most titles (${n})`,
+    statMostPodiums: (n) => `Most podiums (${n})`,
+    statMostGolds: (n) => `Most gold medals (${n})`,
     statMostNR: (n) => `Most national records (${n})`,
     statMostComps: (n) => `Most competitions attended (${n})`,
     noStatData: 'No data',
     sectionCountryStatsTitle: 'Notable cubers',
-    countryFootnote: (date) => `National champions and records are computed once from the official WCA database export dated ${date} (no public endpoint provides this ranking by country live). The podium (🥇🥈🥉) = final results for each event at the latest edition of this country's official National Championship, counting only competitors who represented this country at that specific competition. The national record (single/average) remains the best result ever achieved by someone representing this country, even if they represent a different country today — matching the official WCA site. "Most titles" = final-round wins at this country's official National Championship, across all editions. "Most national records" = number of times this person has broken a national record (single or average), across all events. The profile, avatar and competition info are fetched live from the WCA API on every view.`,
+    countryFootnote: (date) => `National champions and records are computed once from the official WCA database export dated ${date} (no public endpoint provides this ranking by country live). The podium (🥇🥈🥉) = final results for each event at the latest edition of this country's official National Championship, counting only competitors who represented this country at that specific competition. The national record (single/average) remains the best result ever achieved by someone representing this country. "Most titles" = final-round wins at this country's official National Championship, across all editions. "Most podiums" and "Most gold medals" = number of times this person finished in the top 3 / 1st respectively in a final round, across all events and all competitions (not just the National Championship). "Most national records" = number of times this person has broken a national record (single or average), across all events. The profile, avatar and competition info are fetched live from the WCA API on every view.`,
   },
 };
 function t(key, ...args) {
@@ -1827,14 +1831,20 @@ async function buildCountryStatsCard(entry) {
   const mostTitles = entry.mostTitles;
   const mostNR = entry.mostNR;
   const mostComps = entry.mostComps;
+  const mostPodiums = entry.mostPodiums;
+  const mostGolds = entry.mostGolds;
 
-  const [titlesPerson, nrPerson, compsPerson] = await Promise.all([
+  const [titlesPerson, nrPerson, compsPerson, podiumsPerson, goldsPerson] = await Promise.all([
     mostTitles ? fetchPersonBasic(mostTitles.personId) : null,
     mostNR ? fetchPersonBasic(mostNR.personId) : null,
     mostComps ? fetchPersonBasic(mostComps.personId) : null,
+    mostPodiums ? fetchPersonBasic(mostPodiums.personId) : null,
+    mostGolds ? fetchPersonBasic(mostGolds.personId) : null,
   ]);
 
   grid.appendChild(await buildCountryStatBox(t('statMostTitles', mostTitles ? mostTitles.count : 0), mostTitles, titlesPerson, true));
+  grid.appendChild(buildSimpleStatBox(t('statMostPodiums', mostPodiums ? mostPodiums.count : 0), mostPodiums, podiumsPerson));
+  grid.appendChild(buildSimpleStatBox(t('statMostGolds', mostGolds ? mostGolds.count : 0), mostGolds, goldsPerson));
   grid.appendChild(buildSimpleStatBox(t('statMostNR', mostNR ? mostNR.count : 0), mostNR, nrPerson));
   grid.appendChild(buildSimpleStatBox(t('statMostComps', mostComps ? mostComps.count : 0), mostComps, compsPerson));
 
