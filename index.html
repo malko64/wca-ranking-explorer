@@ -524,6 +524,7 @@
   .podium-name a { color: var(--text); text-decoration: none; }
   .podium-name a:hover { color: var(--accent); }
   .podium-value { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--world-time); }
+  .podium-value-tag { font-size: 9.5px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
   .podium-source { font-size: 11.5px; color: var(--text-dim); margin-bottom: 16px; }
   .podium-source a { color: var(--accent); text-decoration: none; }
   .podium-source a:hover { text-decoration: underline; }
@@ -694,6 +695,8 @@ const I18N = {
     setDefaultCountry: '☆ Définir par défaut',
     isDefaultCountry: '★ Pays par défaut',
     podiumFinalAt: 'Finale au',
+    badgeAverageShort: 'moy',
+    badgeSingleShort: 'sgl',
     nrSingleLabel: 'Record national — Single',
     nrAverageLabel: 'Record national — Average',
     noNationalRecord: 'Aucun record enregistré',
@@ -768,6 +771,8 @@ const I18N = {
     setDefaultCountry: '☆ Set as default',
     isDefaultCountry: '★ Default country',
     podiumFinalAt: 'Final at',
+    badgeAverageShort: 'avg',
+    badgeSingleShort: 'sgl',
     nrSingleLabel: 'National Record — Single',
     nrAverageLabel: 'National Record — Average',
     noNationalRecord: 'No record on file',
@@ -1567,12 +1572,13 @@ async function buildCountryEventCard(eid, data, podiumCompetitionId) {
       const name = person ? person.name : p.personId;
       const url = person ? person.url : `https://www.worldcubeassociation.org/persons/${p.personId}`;
       const avatarUrl = person && person.avatar && person.avatar.url ? person.avatar.url : '';
-      const valueText = eid === '333fm' ? formatFMResult(p.value, false) : formatResult(p.value, eid);
+      const valueText = eid === '333fm' ? formatFMResult(p.value, p.isAverage) : formatResult(p.value, eid);
+      const valueTag = p.isAverage ? t('badgeAverageShort') : t('badgeSingleShort');
       podiumList.appendChild(el('div', 'podium-item', `
         <img src="${avatarUrl}" onerror="this.style.display='none'">
         <span class="podium-medal">${MEDALS[p.rank] || '#' + p.rank}</span>
         <span class="podium-name"><a href="${url}" target="_blank" rel="noopener">${name}</a></span>
-        <span class="podium-value">${valueText}</span>
+        <span class="podium-value">${valueText} <span class="podium-value-tag">${valueTag}</span></span>
       `));
     });
     card.appendChild(podiumList);
