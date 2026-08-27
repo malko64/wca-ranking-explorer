@@ -542,6 +542,64 @@
   .podium-col .name a:hover { color: var(--accent); }
   .podium-col .value { font-family: var(--font-mono); font-weight: 700; font-size: 12.5px; color: var(--world-time); }
   .podium-value-tag { font-size: 9px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
+
+  /* Titre de page centré (vue Records) */
+  .page-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    text-align: center;
+    margin: 4px 0 18px;
+  }
+
+  /* Filtre d'épreuves (menu déroulant à cases à cocher) */
+  .event-filter { position: relative; display: flex; justify-content: center; margin-bottom: 22px; }
+  .event-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 9px 18px;
+    box-shadow: var(--shadow);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+  .event-filter-btn:hover:not(:disabled) { transform: none; filter: none; border-color: var(--accent); }
+  .event-filter-btn::after { content: '▾'; color: var(--text-dim); font-size: 11px; }
+  .event-filter-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    z-index: 25;
+    width: min(340px, 90vw);
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 8px;
+  }
+  .event-filter-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+  .event-filter-option:hover { background: var(--surface-2); }
+  .event-filter-option input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; flex-shrink: 0; }
+  .event-filter-all { font-weight: 700; }
+  .event-filter-divider { height: 1px; background: var(--border); margin: 4px 6px; }
+  .event-filter-list { display: flex; flex-direction: column; }
   .country-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
   @media (max-width: 720px) { .country-stats-grid { grid-template-columns: 1fr; } }
   .country-stat-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
@@ -627,6 +685,18 @@
   </div>
 
   <div id="rankingView" style="display:none">
+    <h2 class="page-title" id="rankingPageTitle"></h2>
+    <div class="event-filter">
+      <button id="eventFilterBtn" class="event-filter-btn" type="button"></button>
+      <div id="eventFilterPanel" class="event-filter-panel" style="display:none">
+        <label class="event-filter-option event-filter-all">
+          <input type="checkbox" id="eventFilterAllCheckbox" checked>
+          <span id="eventFilterAllLabel"></span>
+        </label>
+        <div class="event-filter-divider"></div>
+        <div id="eventFilterList" class="event-filter-list"></div>
+      </div>
+    </div>
     <div id="rankingOutput"></div>
   </div>
 
@@ -650,7 +720,7 @@ const I18N = {
     subtitleCustom: "Classement mondial, national, séniors et fréquentation par épreuve — cherche un cubeur par WCA ID ou par nom",
     subtitleRanking: "Le record du monde single et average pour chaque épreuve, avec compétition, date et lien vers le recordman",
     backToMenu: '← Menu',
-    menuRankingTitle: 'Classements',
+    menuRankingTitle: 'Records',
     menuRankingDesc: "Le record du monde en single et en average pour chaque épreuve : compétition, date, recordman et liens utiles.",
     menuCustomTitle: 'Speedcubeur',
     menuCustomDesc: "Cherche un cubeur par WCA ID ou par nom : classement mondial, national, séniors et fréquentation par épreuve.",
@@ -698,6 +768,8 @@ const I18N = {
     rankingLoading: 'Chargement des records du monde…',
     rankingFootnote: (date) => `L'association recordman ↔ compétition est calculée une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne donne "qui détient le record et où" en direct — un nouveau record ne sera reflété ici qu'après une mise à jour manuelle de cette page). Le profil, l'avatar, le pays et les infos de compétition sont eux récupérés en direct via l'API WCA à chaque affichage. Les liens "vidéo" et "cube utilisé" sont des recherches préremplies non vérifiées : la WCA ne suit aucune de ces deux informations.`,
     rankingError: 'Impossible de charger les records du monde pour le moment.',
+    eventFilterAll: 'Toutes les épreuves',
+    eventFilterSummary: (n) => `${n} épreuve${n > 1 ? 's' : ''}`,
     subtitleCountry: "Champions, records nationaux et statistiques par pays — choisis un pays pour explorer ses données",
     menuCountryTitle: 'Pays',
     menuCountryDesc: "Champions nationaux, records en cours, et les cubeurs les plus titrés, les plus prolifiques en records et les plus assidus en compétition.",
@@ -727,7 +799,7 @@ const I18N = {
     subtitleCustom: "World, national and senior rankings plus event turnout — search a cuber by WCA ID or by name",
     subtitleRanking: "The single and average world record for every event, with competition, date and a link to the record holder",
     backToMenu: '← Menu',
-    menuRankingTitle: 'Rankings',
+    menuRankingTitle: 'Records',
     menuRankingDesc: "The single and average world record for every event: competition, date, record holder and useful links.",
     menuCustomTitle: 'Speedcuber',
     menuCustomDesc: "Search a cuber by WCA ID or by name: world, national and senior rankings, plus event turnout.",
@@ -775,6 +847,8 @@ const I18N = {
     rankingLoading: 'Loading world records…',
     rankingFootnote: (date) => `The record holder ↔ competition association is computed once from the official WCA database export dated ${date} (no public endpoint gives "who holds the record and where" live — a new record will only show here after this page is manually refreshed). The profile, avatar, country and competition info are fetched live from the WCA API on every view. The "video" and "cube used" links are unverified pre-filled searches: the WCA does not track either of those.`,
     rankingError: "Couldn't load the world records right now.",
+    eventFilterAll: 'All events',
+    eventFilterSummary: (n) => `${n} event${n > 1 ? 's' : ''}`,
     subtitleCountry: "Champions, national records and stats by country — pick a country to explore its data",
     menuCountryTitle: 'Country',
     menuCountryDesc: "National champions, current records, and the cubers with the most titles, the most national records, and the most competitions attended.",
@@ -1360,6 +1434,7 @@ function cubeSearchUrl(personName) {
 
 let rankingLoaded = false;
 async function loadRankingView() {
+  initEventFilter();
   if (rankingLoaded) return;
   rankingLoaded = true;
   const container = document.getElementById('rankingOutput');
@@ -1367,13 +1442,14 @@ async function loadRankingView() {
   container.appendChild(el('div', 'loading', `<span class="spinner"></span>${t('rankingLoading')}`));
 
   const seniorIndexAttempt = loadSeniorIndex().catch(() => null);
-  const eventIds = EVENT_ORDER.filter(eid => EVENT_RECORDS[eid]);
+  const eventIds = getRankingEventIds();
 
   try {
     const cards = await mapWithConcurrency(eventIds, 5, eid => buildRankingEventCard(eid, seniorIndexAttempt));
     container.innerHTML = '';
     cards.forEach(c => container.appendChild(c));
     container.appendChild(el('div', 'footnote', t('rankingFootnote', EVENT_RECORDS_DATE)));
+    applyEventFilter();
   } catch (err) {
     container.innerHTML = '';
     container.appendChild(el('div', 'error', t('rankingError')));
@@ -1381,8 +1457,89 @@ async function loadRankingView() {
   }
 }
 
+// ---------- Filtre d'épreuves (vue Records) ----------
+
+function getRankingEventIds() {
+  return EVENT_ORDER.filter(eid => EVENT_RECORDS[eid]);
+}
+
+let selectedRankingEvents = null; // null tant que non initialisé ; Set ensuite
+
+function initEventFilter() {
+  const allIds = getRankingEventIds();
+  if (!selectedRankingEvents) selectedRankingEvents = new Set(allIds);
+
+  document.getElementById('eventFilterAllLabel').textContent = t('eventFilterAll');
+
+  const list = document.getElementById('eventFilterList');
+  list.innerHTML = '';
+  allIds.forEach(eid => {
+    const label = el('label', 'event-filter-option', `
+      <input type="checkbox" data-event="${eid}" ${selectedRankingEvents.has(eid) ? 'checked' : ''}>
+      ${eventDot(eid)}<span>${eventName(eid)}</span>
+    `);
+    label.querySelector('input').addEventListener('change', (e) => {
+      if (e.target.checked) selectedRankingEvents.add(eid);
+      else selectedRankingEvents.delete(eid);
+      syncEventFilterAllCheckbox();
+      updateEventFilterButtonLabel();
+      applyEventFilter();
+    });
+    list.appendChild(label);
+  });
+
+  syncEventFilterAllCheckbox();
+  updateEventFilterButtonLabel();
+}
+
+function syncEventFilterAllCheckbox() {
+  const allIds = getRankingEventIds();
+  const allCb = document.getElementById('eventFilterAllCheckbox');
+  const selectedCount = selectedRankingEvents.size;
+  allCb.checked = selectedCount === allIds.length;
+  allCb.indeterminate = selectedCount > 0 && selectedCount < allIds.length;
+}
+
+function updateEventFilterButtonLabel() {
+  const allIds = getRankingEventIds();
+  const btn = document.getElementById('eventFilterBtn');
+  btn.textContent = selectedRankingEvents.size === allIds.length
+    ? t('eventFilterAll')
+    : t('eventFilterSummary', selectedRankingEvents.size);
+}
+
+function applyEventFilter() {
+  document.querySelectorAll('#rankingOutput .ranking-event-card').forEach(card => {
+    card.style.display = selectedRankingEvents.has(card.dataset.event) ? '' : 'none';
+  });
+}
+
+document.getElementById('eventFilterAllCheckbox').addEventListener('change', (e) => {
+  const allIds = getRankingEventIds();
+  selectedRankingEvents = new Set(e.target.checked ? allIds : []);
+  document.querySelectorAll('#eventFilterList input[type="checkbox"]').forEach(cb => {
+    cb.checked = e.target.checked;
+  });
+  updateEventFilterButtonLabel();
+  applyEventFilter();
+});
+
+document.getElementById('eventFilterBtn').addEventListener('click', () => {
+  const panel = document.getElementById('eventFilterPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('eventFilterPanel');
+  const btn = document.getElementById('eventFilterBtn');
+  if (panel && panel.style.display !== 'none' && !panel.contains(e.target) && e.target !== btn) {
+    panel.style.display = 'none';
+  }
+});
+
 async function buildRankingEventCard(eid, seniorIndexAttempt) {
   const card = el('div', 'card ranking-event-card');
+  card.dataset.event = eid;
   card.appendChild(el('div', 'ranking-event-header', `${eventDot(eid)}<h3>${eventName(eid)}</h3>`));
 
   const grid = el('div', 'record-grid');
@@ -1788,6 +1945,8 @@ function applyStaticTranslations() {
   document.getElementById('countryInput').placeholder = t('countryPlaceholder');
   document.getElementById('countryHint').textContent = t('countryHint');
   document.getElementById('appFooter').textContent = t('appFooter');
+  document.getElementById('rankingPageTitle').textContent = t('menuRankingTitle');
+  if (selectedRankingEvents) initEventFilter();
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === currentLang);
   });
