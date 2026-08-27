@@ -109,21 +109,28 @@
   .lang-btn:hover:not(:disabled) { transform: none; filter: none; color: var(--text); }
   .lang-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
   @media (max-width: 560px) { .hero-top { align-items: center; } }
-  .brand-logo {
-    height: 52px;
-    width: auto;
-    display: block;
+  .cube-logo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3px;
+    width: 46px; height: 46px;
+    padding: 5px;
+    background: #101114;
+    border-radius: 12px;
     flex-shrink: 0;
+    box-shadow: 0 4px 14px -4px rgba(0,0,0,0.4);
   }
-  .sr-only {
-    position: absolute;
-    width: 1px; height: 1px;
-    padding: 0; margin: -1px;
-    overflow: hidden;
-    clip: rect(0,0,0,0);
-    white-space: nowrap;
-    border: 0;
-  }
+  .cube-logo span { border-radius: 3px; }
+  .cube-logo span:nth-child(1) { background: var(--cube-white); }
+  .cube-logo span:nth-child(2) { background: var(--cube-red); }
+  .cube-logo span:nth-child(3) { background: var(--cube-blue); }
+  .cube-logo span:nth-child(4) { background: var(--cube-orange); }
+  .cube-logo span:nth-child(5) { background: var(--cube-green); }
+  .cube-logo span:nth-child(6) { background: var(--cube-yellow); }
+  .cube-logo span:nth-child(7) { background: var(--cube-blue); }
+  .cube-logo span:nth-child(8) { background: var(--cube-white); }
+  .cube-logo span:nth-child(9) { background: var(--cube-red); }
   h1 {
     font-family: var(--font-display);
     font-weight: 800;
@@ -321,7 +328,7 @@
     h1 { font-size: 18px; }
     .subtitle { font-size: 12.5px; }
     .hero-brand { gap: 10px; }
-    .brand-logo { height: 40px; }
+    .cube-logo { width: 36px; height: 36px; padding: 4px; border-radius: 9px; }
     .lang-toggle { flex-shrink: 0; }
     .lang-btn { padding: 5px 9px; font-size: 11px; }
   }
@@ -621,9 +628,13 @@
   <header class="hero">
     <div class="hero-top">
       <div class="hero-brand">
-        <img class="brand-logo" src="logo.png" alt="WCA Ranking Explorer">
+        <div class="cube-logo" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
         <div>
-          <h1 class="sr-only">WCA Ranking Explorer</h1>
+          <h1>WCA Ranking Explorer</h1>
           <p class="subtitle" id="subtitleText"></p>
         </div>
       </div>
