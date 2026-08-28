@@ -965,8 +965,9 @@ async function loadSeniorIndex() {
   return seniorIndexPromise;
 }
 
-function getSeniorInfo(index, wcaId, countryIso2, eventIds) {
+function getSeniorInfo(index, wcaId, countryIso2, eventIds, continentMap) {
   let maxAge = 0;
+  const personContinent = continentMap ? continentMap.get(countryIso2) : null;
   const perEvent = {};
   for (const eid of eventIds) {
     const byType = index.brackets[eid];
@@ -981,9 +982,16 @@ function getSeniorInfo(index, wcaId, countryIso2, eventIds) {
         if (!worldEntry) continue;
         const nationalRanks = ranks.filter(r => index.personCountry.get(r.id) === countryIso2);
         const nationalRank = nationalRanks.findIndex(r => r.id === wcaId) + 1;
+        let continentRank = 0, continentTotal = 0;
+        if (personContinent) {
+          const continentRanks = ranks.filter(r => continentMap.get(index.personCountry.get(r.id)) === personContinent);
+          continentRank = continentRanks.findIndex(r => r.id === wcaId) + 1;
+          continentTotal = continentRanks.length;
+        }
         forType[type] = {
           rank: worldEntry.rank, worldTotal: ranks.length,
           nationalRank, nationalTotal: nationalRanks.length,
+          continentRank, continentTotal,
           best: worldEntry.best, age, competition: worldEntry.competition,
         };
         break; // première (= plus haute) tranche où cette personne apparaît pour cette épreuve/type
@@ -1003,7 +1011,8 @@ function formatSeniorCompetition(index, competitionId) {
   if (!comp) return '';
   const date = new Date(comp.startDate + 'T00:00:00Z');
   const dateStr = isNaN(date) ? '' : date.toLocaleDateString(NUM_LOCALE, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-  return `${comp.name}${dateStr ? ' · ' + dateStr : ''}`;
+  const url = `https://www.worldcubeassociation.org/competitions/${comp.webId || competitionId}`;
+  return `<a href="${url}" target="_blank" rel="noopener">${comp.name}</a>${dateStr ? ' · ' + dateStr : ''}`;
 }
 
 const el = (tag, cls, html) => {
@@ -1161,6 +1170,8 @@ async function performSearch(wcaId) {
   output.appendChild(el('div', 'loading', `<span class="spinner"></span>${t('loadingProfile')}`));
 
   const seniorIndexAttempt = loadSeniorIndex().catch(() => null);
+  const continentMapAttempt = loadCountryContinents().catch(() => null);
+  const resultsAttempt = fetchPersonResults(wcaId);
 
   try {
     const personRes = await fetch(`${API}/persons/${wcaId}`);
@@ -1180,10 +1191,13 @@ async function performSearch(wcaId) {
     });
 
     const seniorIndex = await seniorIndexAttempt;
-    const seniorInfo = seniorIndex ? getSeniorInfo(seniorIndex, wcaId, person.country_iso2, eventIds) : null;
+    const continentMap = await continentMapAttempt;
+    const seniorInfo = seniorIndex ? getSeniorInfo(seniorIndex, wcaId, person.country_iso2, eventIds, continentMap) : null;
+    const personResults = await resultsAttempt;
+    const recordComps = await buildRecordCompetitions(personResults, records, eventIds);
 
-    lastProfileData = { person, competitionCount: data.competition_count, records, eventIds, seniorIndex, seniorInfo };
-    renderProfile(person, data.competition_count, records, eventIds, seniorIndex, seniorInfo);
+    lastProfileData = { person, competitionCount: data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps };
+    renderProfile(person, data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps);
   } catch (err) {
     lastProfileData = null;
     output.innerHTML = '';
@@ -1193,7 +1207,7 @@ async function performSearch(wcaId) {
   }
 }
 
-function renderProfile(person, competitionCount, records, eventIds, seniorIndex, seniorInfo) {
+function renderProfile(person, competitionCount, records, eventIds, seniorIndex, seniorInfo, recordComps) {
   const output = document.getElementById('output');
   output.innerHTML = '';
 
@@ -1240,8 +1254,9 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
     const nameTd = el('td', 'event-name', `${eventDot(eid)}${eventName(eid)}`);
     tr.appendChild(nameTd);
 
-    tr.appendChild(buildResultCell(rec.single, eid, false, t('labelBestTime')));
-    tr.appendChild(buildResultCell(rec.average, eid, true, t('labelAverage')));
+    const comps = (recordComps && recordComps[eid]) || {};
+    tr.appendChild(buildResultCell(rec.single, eid, false, t('labelBestTime'), comps.single));
+    tr.appendChild(buildResultCell(rec.average, eid, true, t('labelAverage'), comps.average));
 
     tr.appendChild(buildParticipantsCell(eid, person));
 
@@ -1300,17 +1315,15 @@ function buildSeniorResultCell(seniorIndex, entry, age, label) {
   const best = currentLang === 'fr' ? String(entry.best).replace(' in ', ' en ') : String(entry.best);
   const compText = formatSeniorCompetition(seniorIndex, entry.competition);
   const bracketNote = entry.age < age ? ` <span class="senior-bracket-note">(${entry.age}+)</span>` : '';
+  const continentBadge = entry.continentRank
+    ? `<span class="rank-badge continental ${rankBadgeClass(entry.continentRank)}">#${entry.continentRank.toLocaleString(NUM_LOCALE)} ${t('badgeContinent')} <span class="rank-total">/ ${entry.continentTotal.toLocaleString(NUM_LOCALE)}</span></span>`
+    : '';
   td.innerHTML = `
-    <div class="result-cell">${best}</div>
+    <div class="result-cell">${best}${bracketNote}</div>
     <div class="badge-row">
-      <div class="rank-group">
-        <span class="rank-group-label">${t('rankGroupWorld')}${bracketNote}</span>
-        <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString(NUM_LOCALE)} <span class="rank-total">/ ${entry.worldTotal.toLocaleString(NUM_LOCALE)}</span></span>
-      </div>
-      <div class="rank-group">
-        <span class="rank-group-label">${t('rankGroupNational')}</span>
-        <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString(NUM_LOCALE)} <span class="rank-total">/ ${entry.nationalTotal.toLocaleString(NUM_LOCALE)}</span></span>
-      </div>
+      <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString(NUM_LOCALE)} ${t('badgeNational')} <span class="rank-total">/ ${entry.nationalTotal.toLocaleString(NUM_LOCALE)}</span></span>
+      ${continentBadge}
+      <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')} <span class="rank-total">/ ${entry.worldTotal.toLocaleString(NUM_LOCALE)}</span></span>
     </div>
     ${compText ? `<div class="senior-comp">${compText}</div>` : ''}
   `;
@@ -1348,7 +1361,7 @@ function buildParticipantsCell(eid, person) {
   return td;
 }
 
-function buildResultCell(entry, eid, isAverage, label) {
+function buildResultCell(entry, eid, isAverage, label, comp) {
   const td = el('td', 'rank-cell');
   td.setAttribute('data-label', label);
   if (!entry) { td.innerHTML = '—'; return td; }
@@ -1359,6 +1372,11 @@ function buildResultCell(entry, eid, isAverage, label) {
   const countryCls = rankBadgeClass(entry.country_rank);
   const continentCls = rankBadgeClass(entry.continent_rank);
 
+  const compDate = comp ? formatCompetitionDate(comp) : '';
+  const compLine = comp
+    ? `<div class="record-comp"><a href="${comp.url}" target="_blank" rel="noopener">${comp.name}</a>${compDate ? ' · ' + compDate : ''}</div>`
+    : '';
+
   td.innerHTML = `
     <div class="result-cell">${resultText}</div>
     <div class="badge-row">
@@ -1366,6 +1384,7 @@ function buildResultCell(entry, eid, isAverage, label) {
       <span class="rank-badge continental ${continentCls}">#${entry.continent_rank.toLocaleString(NUM_LOCALE)} ${t('badgeContinent')}</span>
       <span class="rank-badge ${worldCls}">#${entry.world_rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')}</span>
     </div>
+    ${compLine}
   `;
   return td;
 }
@@ -1410,6 +1429,62 @@ function formatCompetitionDate(comp) {
   const d = new Date(comp.start_date + 'T00:00:00Z');
   if (isNaN(d)) return '';
   return d.toLocaleDateString(NUM_LOCALE, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
+// Résultats bruts d'une personne (avec competition_id), utilisés pour retrouver la
+// compétition où chaque record personnel (single/average) a été établi.
+const personResultsCache = new Map();
+function fetchPersonResults(wcaId) {
+  if (!personResultsCache.has(wcaId)) {
+    personResultsCache.set(wcaId, fetch(`${API}/persons/${wcaId}/results`)
+      .then(r => r.ok ? r.json() : []).catch(() => []));
+  }
+  return personResultsCache.get(wcaId);
+}
+
+// Pour un record personnel donné (best single ou best average), retrouve la première
+// compétition (la plus ancienne) où cette valeur exacte a été obtenue.
+async function pickRecordCompetition(results, eid, field, value) {
+  if (!value) return null;
+  const candidateIds = [...new Set(
+    results.filter(r => r.event_id === eid && r[field] === value).map(r => r.competition_id)
+  )];
+  if (!candidateIds.length) return null;
+  const comps = await Promise.all(candidateIds.map(id => fetchCompetition(id)));
+  let chosen = null;
+  comps.forEach(c => {
+    if (!c) return;
+    if (!chosen || (c.start_date && (!chosen.start_date || c.start_date < chosen.start_date))) chosen = c;
+  });
+  return chosen;
+}
+
+async function buildRecordCompetitions(results, records, eventIds) {
+  const jobs = [];
+  const map = {};
+  eventIds.forEach(eid => {
+    map[eid] = { single: null, average: null };
+    const rec = records[eid];
+    if (rec.single) jobs.push({ eid, type: 'single', field: 'best', value: rec.single.best });
+    if (rec.average) jobs.push({ eid, type: 'average', field: 'average', value: rec.average.best });
+  });
+  await mapWithConcurrency(jobs, 5, async (job) => {
+    map[job.eid][job.type] = await pickRecordCompetition(results, job.eid, job.field, job.value);
+  });
+  return map;
+}
+
+// Cache pays -> continent (pour calculer le classement continental des séniors, dont les
+// données wca-seniors.org ne fournissent que le pays de chaque cubeur classé).
+let countryContinentPromise = null;
+function loadCountryContinents() {
+  if (!countryContinentPromise) {
+    countryContinentPromise = fetch(`${API}/countries`)
+      .then(r => r.ok ? r.json() : [])
+      .then(list => new Map(list.map(c => [c.iso2, c.continent_id])))
+      .catch(() => new Map());
+  }
+  return countryContinentPromise;
 }
 
 function youtubeSearchUrl(personName, eventName, isAverage) {
@@ -1961,7 +2036,7 @@ function setLang(lang) {
   // Re-rend le contenu déjà affiché dans la nouvelle langue.
   if (currentView === 'custom' && lastProfileData) {
     const d = lastProfileData;
-    renderProfile(d.person, d.competitionCount, d.records, d.eventIds, d.seniorIndex, d.seniorInfo);
+    renderProfile(d.person, d.competitionCount, d.records, d.eventIds, d.seniorIndex, d.seniorInfo, d.recordComps);
   }
   if (currentView === 'ranking' && rankingLoaded) {
     rankingLoaded = false;
