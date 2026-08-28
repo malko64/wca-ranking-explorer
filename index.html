@@ -523,8 +523,16 @@
     border-radius: 12px;
     padding: 14px 6px;
   }
-  .podium-col img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--surface); border: 1px solid var(--border); }
-  .podium-col .medal { font-size: 19px; }
+  .podium-avatar-wrap { position: relative; width: 58px; height: 58px; flex-shrink: 0; }
+  .podium-col img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; background: var(--surface); border: 1px solid var(--border); }
+  .podium-col .medal {
+    position: absolute;
+    bottom: -5px;
+    right: -8px;
+    font-size: 27px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.45));
+  }
   .podium-col .name { font-weight: 600; font-size: 12px; line-height: 1.25; }
   .podium-col .name a { color: var(--text); text-decoration: none; }
   .podium-col .name a:hover { color: var(--accent); }
@@ -1827,8 +1835,10 @@ async function buildCountryEventCard(eid, data, podiumCompetitionId, countryName
       const valueText = eid === '333fm' ? formatFMResult(p.value, p.isAverage) : formatResult(p.value, eid);
       const valueTag = p.isAverage ? t('badgeAverageShort') : t('badgeSingleShort');
       podiumRow.appendChild(el('div', 'podium-col', `
-        <span class="medal">${MEDALS[p.rank] || '#' + p.rank}</span>
-        <img src="${avatarUrl}" onerror="this.style.display='none'">
+        <div class="podium-avatar-wrap">
+          <img src="${avatarUrl}" onerror="this.style.display='none'">
+          <span class="medal">${MEDALS[p.rank] || '#' + p.rank}</span>
+        </div>
         <span class="name"><a href="${url}" target="_blank" rel="noopener">${name}</a></span>
         <span class="value">${valueText} <span class="podium-value-tag">${valueTag}</span></span>
       `));
