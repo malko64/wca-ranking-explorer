@@ -1316,14 +1316,14 @@ function buildSeniorResultCell(seniorIndex, entry, age, label) {
   const compText = formatSeniorCompetition(seniorIndex, entry.competition);
   const bracketNote = entry.age < age ? ` <span class="senior-bracket-note">(${entry.age}+)</span>` : '';
   const continentBadge = entry.continentRank
-    ? `<span class="rank-badge continental ${rankBadgeClass(entry.continentRank)}">#${entry.continentRank.toLocaleString(NUM_LOCALE)} ${t('badgeContinent')} <span class="rank-total">/ ${entry.continentTotal.toLocaleString(NUM_LOCALE)}</span></span>`
+    ? `<span class="rank-badge continental ${rankBadgeClass(entry.continentRank)}">#${entry.continentRank.toLocaleString(NUM_LOCALE)} ${t('badgeContinent')}</span>`
     : '';
   td.innerHTML = `
     <div class="result-cell">${best}${bracketNote}</div>
     <div class="badge-row">
-      <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString(NUM_LOCALE)} ${t('badgeNational')} <span class="rank-total">/ ${entry.nationalTotal.toLocaleString(NUM_LOCALE)}</span></span>
+      <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString(NUM_LOCALE)} ${t('badgeNational')}</span>
       ${continentBadge}
-      <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')} <span class="rank-total">/ ${entry.worldTotal.toLocaleString(NUM_LOCALE)}</span></span>
+      <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')}</span>
     </div>
     ${compText ? `<div class="senior-comp">${compText}</div>` : ''}
   `;
