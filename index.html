@@ -774,9 +774,9 @@ const I18N = {
     statDistance: 'Kilomètres parcourus',
     statDistanceLoading: 'Calcul du kilométrage…',
     statDistanceNote: (name, city, country, date) =>
-      `Calculé par la route (itinéraire le plus rapide) : pour chaque compétition, aller-retour depuis la toute première compétition du cubeur (« compétition zéro »), ici ${name} à ${city}, ${country} (${date}), puis cumul de tous ces allers-retours. À vol d'oiseau en secours si aucun itinéraire routier n'est trouvé (ex. outre-mer).`,
+      `Calculé à vol d'oiseau (avion, train, voiture... les cubeurs ne voyagent pas tous par la route) : pour chaque compétition, aller-retour depuis la toute première compétition du cubeur (« compétition zéro »), ici ${name} à ${city}, ${country} (${date}), puis cumul de tous ces allers-retours.`,
     statDistanceNoteCustom: (label, count) =>
-      `Calculé par la route (itinéraire le plus rapide) : aller-retour depuis le point de départ personnalisé (${label}) vers chacune des ${count} compétitions, cumulés. À vol d'oiseau en secours si aucun itinéraire routier n'est trouvé (ex. outre-mer).`,
+      `Calculé à vol d'oiseau (avion, train, voiture... les cubeurs ne voyagent pas tous par la route) : aller-retour depuis le point de départ personnalisé (${label}) vers chacune des ${count} compétitions, cumulés.`,
     travelHomeBtnTitle: 'Changer le point de départ',
     travelOriginLabel: (city) => `Point de départ : ${city}`,
     travelHomeChangeBtn: 'Changer',
@@ -873,9 +873,9 @@ const I18N = {
     statDistance: 'Kilometers traveled',
     statDistanceLoading: 'Calculating distance…',
     statDistanceNote: (name, city, country, date) =>
-      `Calculated by road (fastest route): for each competition, a round trip from the cuber's very first competition (the "zero competition"), here ${name} in ${city}, ${country} (${date}), summed across every round trip. Falls back to straight-line distance when no road route is found (e.g. overseas).`,
+      `Calculated as the crow flies (cubers travel by plane, train, car... road distance wouldn't be representative): for each competition, a round trip from the cuber's very first competition (the "zero competition"), here ${name} in ${city}, ${country} (${date}), summed across every round trip.`,
     statDistanceNoteCustom: (label, count) =>
-      `Calculated by road (fastest route): round trip from the custom starting point (${label}) to each of the ${count} competitions, summed. Falls back to straight-line distance when no road route is found (e.g. overseas).`,
+      `Calculated as the crow flies (cubers travel by plane, train, car... road distance wouldn't be representative): round trip from the custom starting point (${label}) to each of the ${count} competitions, summed.`,
     travelHomeBtnTitle: 'Change starting point',
     travelOriginLabel: (city) => `Starting point: ${city}`,
     travelHomeChangeBtn: 'Change',
@@ -1700,46 +1700,11 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Distance par la route (km, itinéraire le plus rapide) entre une origine et une liste de
-// points, via le service "table" d'OSRM (OpenStreetMap) : une seule requête renvoie la
-// distance vers TOUS les points d'un coup. Retourne un tableau parallèle à `points`, avec
-// `null` pour les points que le service n'a pas su relier par la route (ex. outre-mer).
-async function fetchRoadDistancesKm(originLat, originLon, points) {
-  const coords = [`${originLon},${originLat}`, ...points.map(p => `${p.lon},${p.lat}`)].join(';');
-  const url = `https://router.project-osrm.org/table/v1/driving/${coords}?sources=0&annotations=distance`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('osrm failed');
-  const data = await res.json();
-  if (data.code !== 'Ok' || !data.distances || !data.distances[0]) throw new Error('osrm bad response');
-  return data.distances[0].slice(1).map(m => (typeof m === 'number' ? m / 1000 : null));
-}
-
-// Somme des allers-retours (km) entre une origine et une liste de compétitions, par la
-// route la plus rapide (OSRM). Si OSRM ne trouve pas de route pour un point précis (îles,
-// outre-mer sans liaison routière...), on retombe sur la distance à vol d'oiseau pour ce
-// point seulement ; si OSRM est injoignable, on retombe sur le vol d'oiseau pour tout.
-async function sumRoundTripKm(originLat, originLon, points) {
-  if (!points.length) return 0;
-  let roadKm;
-  try {
-    roadKm = await fetchRoadDistancesKm(originLat, originLon, points.map(p => ({ lat: p.latitude_degrees, lon: p.longitude_degrees })));
-  } catch {
-    roadKm = points.map(() => null);
-  }
-  let total = 0;
-  points.forEach((p, i) => {
-    const oneWay = roadKm[i] !== null && roadKm[i] !== undefined
-      ? roadKm[i]
-      : haversineKm(originLat, originLon, p.latitude_degrees, p.longitude_degrees);
-    total += 2 * oneWay;
-  });
-  return total;
-}
-
 // Kilomètres parcourus en compétition : par défaut, la "compétition zéro" est la toute
 // première compétition du cubeur (sert de point de départ / domicile supposé). Pour
-// chaque compétition suivante, on cumule l'aller-retour PAR LA ROUTE (itinéraire le plus
-// rapide, via OSRM) entre la compétition zéro et cette compétition. On utilise les
+// chaque compétition suivante, on cumule l'aller-retour À VOL D'OISEAU entre la
+// compétition zéro et cette compétition (les cubeurs voyagent en avion, en train, en
+// voiture... la distance par la route n'est pas représentative). On utilise les
 // coordonnées GPS exactes de chaque salle (lat/long WCA) plutôt que le nom de ville, pour
 // ne jamais confondre deux villes homonymes dans des pays différents. Si un point de départ
 // personnalisé (customHome, ville de résidence géocodée) est fourni, il remplace la
@@ -1759,7 +1724,10 @@ async function computeTravelStats(personResults, customHome) {
       name: customHome.label, city: customHome.label, country_iso2: '',
       latitude_degrees: customHome.lat, longitude_degrees: customHome.lon,
     };
-    const totalKm = await sumRoundTripKm(customHome.lat, customHome.lon, valid);
+    let totalKm = 0;
+    valid.forEach(c => {
+      totalKm += 2 * haversineKm(customHome.lat, customHome.lon, c.latitude_degrees, c.longitude_degrees);
+    });
     return {
       totalKm: Math.round(totalKm), compZero, tripCount: valid.length,
       skipped: comps.length - valid.length, isCustomHome: true,
@@ -1772,10 +1740,15 @@ async function computeTravelStats(personResults, customHome) {
   const countries = await loadCountriesList().catch(() => []);
   const countryMatch = countries.find(c => c.iso2 === compZero.country_iso2);
   compZero.countryName = countryMatch ? countryMatch.name : compZero.country_iso2;
-  const rest = valid.slice(1);
-  const totalKm = await sumRoundTripKm(compZero.latitude_degrees, compZero.longitude_degrees, rest);
+  let totalKm = 0;
+  for (let i = 1; i < valid.length; i++) {
+    totalKm += 2 * haversineKm(
+      compZero.latitude_degrees, compZero.longitude_degrees,
+      valid[i].latitude_degrees, valid[i].longitude_degrees
+    );
+  }
   return {
-    totalKm: Math.round(totalKm), compZero, tripCount: rest.length,
+    totalKm: Math.round(totalKm), compZero, tripCount: valid.length - 1,
     skipped: comps.length - valid.length, isCustomHome: false,
   };
 }
