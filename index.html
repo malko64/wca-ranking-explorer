@@ -217,7 +217,15 @@
   }
   .stat { font-size: 12.5px; color: var(--text-dim); }
   .stat b { display: block; font-family: var(--font-mono); font-size: 19px; color: var(--text); font-weight: 700; }
-  .stat-label-line { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+  .travel-origin {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
   .travel-info-btn {
     display: inline-flex;
     align-items: center;
@@ -774,9 +782,9 @@ const I18N = {
     statDistance: 'Kilomètres parcourus',
     statDistanceLoading: 'Calcul du kilométrage…',
     statDistanceNote: (name, city, country, date) =>
-      `Calculé à vol d'oiseau : pour chaque compétition, aller-retour depuis la toute première compétition du cubeur (« compétition zéro »), ici ${name} à ${city}, ${country} (${date}), puis cumul de tous ces allers-retours. Distance réelle par la route généralement plus longue.`,
+      `Calculé par la route (itinéraire le plus rapide) : pour chaque compétition, aller-retour depuis la toute première compétition du cubeur (« compétition zéro »), ici ${name} à ${city}, ${country} (${date}), puis cumul de tous ces allers-retours. À vol d'oiseau en secours si aucun itinéraire routier n'est trouvé (ex. outre-mer).`,
     statDistanceNoteCustom: (label, count) =>
-      `Calculé à vol d'oiseau : aller-retour depuis le point de départ personnalisé (${label}) vers chacune des ${count} compétitions, cumulés. Distance réelle par la route généralement plus longue.`,
+      `Calculé par la route (itinéraire le plus rapide) : aller-retour depuis le point de départ personnalisé (${label}) vers chacune des ${count} compétitions, cumulés. À vol d'oiseau en secours si aucun itinéraire routier n'est trouvé (ex. outre-mer).`,
     travelHomeBtnTitle: 'Changer le point de départ',
     travelOriginLabel: (city) => `Point de départ : ${city}`,
     travelHomeChangeBtn: 'Changer',
@@ -873,9 +881,9 @@ const I18N = {
     statDistance: 'Kilometers traveled',
     statDistanceLoading: 'Calculating distance…',
     statDistanceNote: (name, city, country, date) =>
-      `Calculated as the crow flies: for each competition, a round trip from the cuber's very first competition (the "zero competition"), here ${name} in ${city}, ${country} (${date}), summed across every round trip. Actual road distance is usually longer.`,
+      `Calculated by road (fastest route): for each competition, a round trip from the cuber's very first competition (the "zero competition"), here ${name} in ${city}, ${country} (${date}), summed across every round trip. Falls back to straight-line distance when no road route is found (e.g. overseas).`,
     statDistanceNoteCustom: (label, count) =>
-      `Calculated as the crow flies: round trip from the custom starting point (${label}) to each of the ${count} competitions, summed. Actual road distance is usually longer.`,
+      `Calculated by road (fastest route): round trip from the custom starting point (${label}) to each of the ${count} competitions, summed. Falls back to straight-line distance when no road route is found (e.g. overseas).`,
     travelHomeBtnTitle: 'Change starting point',
     travelOriginLabel: (city) => `Starting point: ${city}`,
     travelHomeChangeBtn: 'Change',
@@ -1300,6 +1308,8 @@ async function performSearch(wcaId) {
       if (lastProfileData) lastProfileData.travelStats = travelStats;
       const div = document.getElementById('travelStat');
       if (div) renderTravelStat(div, travelStats);
+      const originDiv = document.getElementById('travelOrigin');
+      if (originDiv) renderTravelOrigin(originDiv, travelStats);
     });
   } catch (err) {
     lastProfileData = null;
@@ -1336,6 +1346,11 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
   renderTravelStat(travelStatEl, travelStats);
   stats.appendChild(travelStatEl);
   profileCard.appendChild(stats);
+
+  const travelOriginEl = el('div', 'travel-origin');
+  travelOriginEl.id = 'travelOrigin';
+  renderTravelOrigin(travelOriginEl, travelStats);
+  profileCard.appendChild(travelOriginEl);
 
   const travelPanel = el('div', 'travel-home-panel');
   travelPanel.id = 'travelHomePanel';
@@ -1398,9 +1413,7 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
 
 function travelOriginShortLabel(travelStats) {
   const c = travelStats.compZero;
-  if (!travelStats.isCustomHome) return `${c.city}, ${c.countryName || c.country_iso2}`;
-  const parts = c.name.split(',').map(s => s.trim()).filter(Boolean);
-  return parts.length <= 2 ? c.name : `${parts[0]}, ${parts[parts.length - 1]}`;
+  return travelStats.isCustomHome ? c.name : `${c.city}, ${c.countryName || c.country_iso2}`;
 }
 
 function renderTravelStat(div, travelStats) {
@@ -1414,18 +1427,24 @@ function renderTravelStat(div, travelStats) {
     return;
   }
   const km = travelStats.totalKm.toLocaleString(NUM_LOCALE);
+  div.innerHTML = `<b>${km} km</b>${t('statDistance')}`;
+  div.style.display = '';
+}
+
+function renderTravelOrigin(div, travelStats) {
+  if (!travelStats) {
+    div.style.display = 'none';
+    return;
+  }
   const c = travelStats.compZero;
   const note = travelStats.isCustomHome
     ? t('statDistanceNoteCustom', c.name, travelStats.tripCount)
     : t('statDistanceNote', c.name, c.city, `${countryFlag(c.country_iso2)} ${c.country_iso2}`, formatCompetitionDate(c));
 
   div.innerHTML = `
-    <b>${km} km</b>
-    <span class="stat-label-line">
-      ${t('statDistance')} · ${t('travelOriginLabel', travelOriginShortLabel(travelStats))}
-      <button type="button" id="travelInfoBtn" class="travel-info-btn">ⓘ</button>
-      <button type="button" id="travelHomeBtn" class="default-btn travel-home-btn">${t('travelHomeChangeBtn')}</button>
-    </span>
+    ${t('travelOriginLabel', travelOriginShortLabel(travelStats))}
+    <button type="button" id="travelInfoBtn" class="travel-info-btn">ⓘ</button>
+    <button type="button" id="travelHomeBtn" class="default-btn travel-home-btn">${t('travelHomeChangeBtn')}</button>
   `;
   div.style.display = '';
 
@@ -1686,7 +1705,8 @@ async function buildRecordCompetitions(results, records, eventIds) {
   return map;
 }
 
-// Distance à vol d'oiseau (km) entre deux points, formule de Haversine.
+// Distance à vol d'oiseau (km) entre deux points, formule de Haversine — utilisée
+// uniquement en repli si le routage par la route (OSRM) échoue pour une paire de points.
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const toRad = (d) => d * Math.PI / 180;
@@ -1697,14 +1717,51 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Distance par la route (km, itinéraire le plus rapide) entre une origine et une liste de
+// points, via le service "table" d'OSRM (OpenStreetMap) : une seule requête renvoie la
+// distance vers TOUS les points d'un coup. Retourne un tableau parallèle à `points`, avec
+// `null` pour les points que le service n'a pas su relier par la route (ex. outre-mer).
+async function fetchRoadDistancesKm(originLat, originLon, points) {
+  const coords = [`${originLon},${originLat}`, ...points.map(p => `${p.lon},${p.lat}`)].join(';');
+  const url = `https://router.project-osrm.org/table/v1/driving/${coords}?sources=0&annotations=distance`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('osrm failed');
+  const data = await res.json();
+  if (data.code !== 'Ok' || !data.distances || !data.distances[0]) throw new Error('osrm bad response');
+  return data.distances[0].slice(1).map(m => (typeof m === 'number' ? m / 1000 : null));
+}
+
+// Somme des allers-retours (km) entre une origine et une liste de compétitions, par la
+// route la plus rapide (OSRM). Si OSRM ne trouve pas de route pour un point précis (îles,
+// outre-mer sans liaison routière...), on retombe sur la distance à vol d'oiseau pour ce
+// point seulement ; si OSRM est injoignable, on retombe sur le vol d'oiseau pour tout.
+async function sumRoundTripKm(originLat, originLon, points) {
+  if (!points.length) return 0;
+  let roadKm;
+  try {
+    roadKm = await fetchRoadDistancesKm(originLat, originLon, points.map(p => ({ lat: p.latitude_degrees, lon: p.longitude_degrees })));
+  } catch {
+    roadKm = points.map(() => null);
+  }
+  let total = 0;
+  points.forEach((p, i) => {
+    const oneWay = roadKm[i] !== null && roadKm[i] !== undefined
+      ? roadKm[i]
+      : haversineKm(originLat, originLon, p.latitude_degrees, p.longitude_degrees);
+    total += 2 * oneWay;
+  });
+  return total;
+}
+
 // Kilomètres parcourus en compétition : par défaut, la "compétition zéro" est la toute
 // première compétition du cubeur (sert de point de départ / domicile supposé). Pour
-// chaque compétition suivante, on cumule l'aller-retour (2x la distance à vol d'oiseau)
-// entre la compétition zéro et cette compétition. On utilise les coordonnées GPS exactes
-// de chaque salle (lat/long WCA) plutôt que le nom de ville, pour ne jamais confondre
-// deux villes homonymes dans des pays différents. Si un point de départ personnalisé
-// (customHome, ville de résidence géocodée) est fourni, il remplace la compétition zéro
-// et TOUTES les compétitions (y compris la première) comptent pour un aller-retour.
+// chaque compétition suivante, on cumule l'aller-retour PAR LA ROUTE (itinéraire le plus
+// rapide, via OSRM) entre la compétition zéro et cette compétition. On utilise les
+// coordonnées GPS exactes de chaque salle (lat/long WCA) plutôt que le nom de ville, pour
+// ne jamais confondre deux villes homonymes dans des pays différents. Si un point de départ
+// personnalisé (customHome, ville de résidence géocodée) est fourni, il remplace la
+// compétition zéro et TOUTES les compétitions (y compris la première) comptent pour un
+// aller-retour.
 async function computeTravelStats(personResults, customHome) {
   const compIds = [...new Set(personResults.map(r => r.competition_id))];
   if (!compIds.length) return null;
@@ -1719,10 +1776,7 @@ async function computeTravelStats(personResults, customHome) {
       name: customHome.label, city: customHome.label, country_iso2: '',
       latitude_degrees: customHome.lat, longitude_degrees: customHome.lon,
     };
-    let totalKm = 0;
-    valid.forEach(c => {
-      totalKm += 2 * haversineKm(customHome.lat, customHome.lon, c.latitude_degrees, c.longitude_degrees);
-    });
+    const totalKm = await sumRoundTripKm(customHome.lat, customHome.lon, valid);
     return {
       totalKm: Math.round(totalKm), compZero, tripCount: valid.length,
       skipped: comps.length - valid.length, isCustomHome: true,
@@ -1735,15 +1789,10 @@ async function computeTravelStats(personResults, customHome) {
   const countries = await loadCountriesList().catch(() => []);
   const countryMatch = countries.find(c => c.iso2 === compZero.country_iso2);
   compZero.countryName = countryMatch ? countryMatch.name : compZero.country_iso2;
-  let totalKm = 0;
-  for (let i = 1; i < valid.length; i++) {
-    totalKm += 2 * haversineKm(
-      compZero.latitude_degrees, compZero.longitude_degrees,
-      valid[i].latitude_degrees, valid[i].longitude_degrees
-    );
-  }
+  const rest = valid.slice(1);
+  const totalKm = await sumRoundTripKm(compZero.latitude_degrees, compZero.longitude_degrees, rest);
   return {
-    totalKm: Math.round(totalKm), compZero, tripCount: valid.length - 1,
+    totalKm: Math.round(totalKm), compZero, tripCount: rest.length,
     skipped: comps.length - valid.length, isCustomHome: false,
   };
 }
@@ -1764,14 +1813,19 @@ function saveTravelHome(wcaId, home) {
 }
 
 // Géocodage ville -> coordonnées GPS via Nominatim (OpenStreetMap), pas de clé requise.
+// On ne garde que "Ville, Pays" (composants structurés de l'adresse), pas l'adresse
+// complète renvoyée par Nominatim.
 async function geocodeCity(query) {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&accept-language=${currentLang}&q=${encodeURIComponent(query)}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('geocode failed');
   const list = await res.json();
   if (!list.length) return null;
   const r = list[0];
-  return { label: r.display_name, lat: parseFloat(r.lat), lon: parseFloat(r.lon) };
+  const addr = r.address || {};
+  const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || r.name || r.display_name.split(',')[0];
+  const country = addr.country || r.display_name.split(',').pop().trim();
+  return { label: `${city}, ${country}`, lat: parseFloat(r.lat), lon: parseFloat(r.lon) };
 }
 
 // Cache pays -> continent (pour calculer le classement continental des séniors, dont les
