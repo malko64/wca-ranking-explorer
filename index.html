@@ -1462,42 +1462,21 @@ function setupTravelHomePanel(wcaId) {
       const geo = await geocodeCity(query);
       if (!geo) {
         status.textContent = t('travelHomeNotFound');
+        saveBtn.disabled = false;
       } else {
-        const newHome = { label: geo.label, lat: geo.lat, lon: geo.lon };
-        saveTravelHome(wcaId, newHome);
-        status.textContent = t('travelHomeFound', geo.label);
-        resetBtn.style.display = '';
-        await recomputeTravelForCurrentProfile(wcaId, newHome);
+        saveTravelHome(wcaId, { label: geo.label, lat: geo.lat, lon: geo.lon });
+        performSearch(wcaId);
       }
     } catch (err) {
       status.textContent = t('travelHomeError');
-    } finally {
       saveBtn.disabled = false;
     }
   };
 
-  resetBtn.onclick = async () => {
+  resetBtn.onclick = () => {
     saveTravelHome(wcaId, null);
-    input.value = '';
-    resetBtn.style.display = 'none';
-    status.textContent = '';
-    await recomputeTravelForCurrentProfile(wcaId, null);
+    performSearch(wcaId);
   };
-}
-
-async function recomputeTravelForCurrentProfile(wcaId, home) {
-  if (!lastProfileData || lastProfileData.person.wca_id !== wcaId) return;
-  const myTravelToken = ++travelToken;
-  lastProfileData.travelStats = undefined;
-  const loadingDiv = document.getElementById('travelStat');
-  if (loadingDiv) renderTravelStat(loadingDiv, undefined);
-  const result = await computeTravelStats(lastProfileData.personResults, home).catch(() => null);
-  if (myTravelToken !== travelToken) return;
-  lastProfileData.travelStats = result;
-  const div = document.getElementById('travelStat');
-  if (div) renderTravelStat(div, result);
-  const originDiv = document.getElementById('travelOrigin');
-  if (originDiv) renderTravelOrigin(originDiv, result);
 }
 
 function buildSeniorCard(person, seniorIndex, seniorInfo) {
