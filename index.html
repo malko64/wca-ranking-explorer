@@ -1420,7 +1420,7 @@ function renderTravelStat(div, travelStats) {
   div.innerHTML = `
     <b>${km} km</b>
     <span class="stat-label-line">
-      ${t('statDistance')} · ${t('travelOriginLabel', travelOriginShortLabel(travelStats))}
+      ${t('travelOriginLabel', travelOriginShortLabel(travelStats))}
       <button type="button" id="travelInfoBtn" class="travel-info-btn">ⓘ</button>
       <button type="button" id="travelHomeBtn" class="default-btn travel-home-btn">${t('travelHomeChangeBtn')}</button>
     </span>
