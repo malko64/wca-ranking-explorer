@@ -1398,7 +1398,11 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
 
 function travelOriginShortLabel(travelStats) {
   const c = travelStats.compZero;
-  return travelStats.isCustomHome ? c.name : `${c.city}, ${c.countryName || c.country_iso2}`;
+  if (!travelStats.isCustomHome) return `${c.city}, ${c.countryName || c.country_iso2}`;
+  // Ne garde que "Ville, Pays" même si la valeur stockée (localStorage, éventuellement
+  // enregistrée avant qu'on ne nettoie le géocodage) contient une adresse plus détaillée.
+  const parts = c.name.split(',').map(s => s.trim()).filter(Boolean);
+  return parts.length <= 2 ? c.name : `${parts[0]}, ${parts[parts.length - 1]}`;
 }
 
 function renderTravelStat(div, travelStats) {
