@@ -217,15 +217,7 @@
   }
   .stat { font-size: 12.5px; color: var(--text-dim); }
   .stat b { display: block; font-family: var(--font-mono); font-size: 19px; color: var(--text); font-weight: 700; }
-  .travel-origin {
-    font-size: 12.5px;
-    color: var(--text-dim);
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
+  .stat-label-line { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; }
   .travel-info-btn {
     display: inline-flex;
     align-items: center;
@@ -1308,8 +1300,6 @@ async function performSearch(wcaId) {
       if (lastProfileData) lastProfileData.travelStats = travelStats;
       const div = document.getElementById('travelStat');
       if (div) renderTravelStat(div, travelStats);
-      const originDiv = document.getElementById('travelOrigin');
-      if (originDiv) renderTravelOrigin(originDiv, travelStats);
     });
   } catch (err) {
     lastProfileData = null;
@@ -1346,11 +1336,6 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
   renderTravelStat(travelStatEl, travelStats);
   stats.appendChild(travelStatEl);
   profileCard.appendChild(stats);
-
-  const travelOriginEl = el('div', 'travel-origin');
-  travelOriginEl.id = 'travelOrigin';
-  renderTravelOrigin(travelOriginEl, travelStats);
-  profileCard.appendChild(travelOriginEl);
 
   const travelPanel = el('div', 'travel-home-panel');
   travelPanel.id = 'travelHomePanel';
@@ -1427,24 +1412,18 @@ function renderTravelStat(div, travelStats) {
     return;
   }
   const km = travelStats.totalKm.toLocaleString(NUM_LOCALE);
-  div.innerHTML = `<b>${km} km</b>${t('statDistance')}`;
-  div.style.display = '';
-}
-
-function renderTravelOrigin(div, travelStats) {
-  if (!travelStats) {
-    div.style.display = 'none';
-    return;
-  }
   const c = travelStats.compZero;
   const note = travelStats.isCustomHome
     ? t('statDistanceNoteCustom', c.name, travelStats.tripCount)
     : t('statDistanceNote', c.name, c.city, `${countryFlag(c.country_iso2)} ${c.country_iso2}`, formatCompetitionDate(c));
 
   div.innerHTML = `
-    ${t('travelOriginLabel', travelOriginShortLabel(travelStats))}
-    <button type="button" id="travelInfoBtn" class="travel-info-btn">ⓘ</button>
-    <button type="button" id="travelHomeBtn" class="default-btn travel-home-btn">${t('travelHomeChangeBtn')}</button>
+    <b>${km} km</b>
+    <span class="stat-label-line">
+      ${t('statDistance')} · ${t('travelOriginLabel', travelOriginShortLabel(travelStats))}
+      <button type="button" id="travelInfoBtn" class="travel-info-btn">ⓘ</button>
+      <button type="button" id="travelHomeBtn" class="default-btn travel-home-btn">${t('travelHomeChangeBtn')}</button>
+    </span>
   `;
   div.style.display = '';
 
