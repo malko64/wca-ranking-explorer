@@ -217,23 +217,19 @@
   }
   .stat { font-size: 12.5px; color: var(--text-dim); }
   .stat b { display: block; font-family: var(--font-mono); font-size: 19px; color: var(--text); font-weight: 700; }
-  .travel-home-btn {
-    display: inline-flex;
+  .travel-origin {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    display: flex;
     align-items: center;
-    justify-content: center;
-    width: 18px; height: 18px;
-    padding: 0;
-    margin-left: 4px;
-    border: none;
-    border-radius: 50%;
-    background: var(--surface-2);
-    box-shadow: none;
-    font-size: 10.5px;
-    line-height: 1;
-    cursor: pointer;
-    vertical-align: middle;
+    flex-wrap: wrap;
+    gap: 8px;
   }
-  .travel-home-btn:hover { background: var(--accent-dim); transform: none; filter: none; }
+  .travel-home-btn {
+    padding: 4px 12px;
+    font-size: 11.5px;
+  }
   .travel-home-panel {
     margin-top: 14px;
     padding: 14px;
@@ -774,6 +770,8 @@ const I18N = {
     statDistanceNoteCustom: (label, count) =>
       `Calculé à vol d'oiseau : aller-retour depuis le point de départ personnalisé (${label}) vers chacune des ${count} compétitions, cumulés. Distance réelle par la route généralement plus longue.`,
     travelHomeBtnTitle: 'Changer le point de départ',
+    travelOriginLabel: (city) => `Point de départ : ${city}`,
+    travelHomeChangeBtn: 'Changer',
     travelHomeLabel: "Ta ville de résidence au moment de ta première compétition (remplace la compétition zéro par défaut) :",
     travelHomePlaceholder: 'Ville, pays (ex. Bayonne, France)',
     travelHomeSaveBtn: 'Valider',
@@ -871,6 +869,8 @@ const I18N = {
     statDistanceNoteCustom: (label, count) =>
       `Calculated as the crow flies: round trip from the custom starting point (${label}) to each of the ${count} competitions, summed. Actual road distance is usually longer.`,
     travelHomeBtnTitle: 'Change starting point',
+    travelOriginLabel: (city) => `Starting point: ${city}`,
+    travelHomeChangeBtn: 'Change',
     travelHomeLabel: "Your city of residence at the time of your first competition (replaces the default zero competition):",
     travelHomePlaceholder: 'City, country (e.g. Bayonne, France)',
     travelHomeSaveBtn: 'Save',
@@ -1292,6 +1292,8 @@ async function performSearch(wcaId) {
       if (lastProfileData) lastProfileData.travelStats = travelStats;
       const div = document.getElementById('travelStat');
       if (div) renderTravelStat(div, travelStats);
+      const originDiv = document.getElementById('travelOrigin');
+      if (originDiv) renderTravelOrigin(originDiv, travelStats);
     });
   } catch (err) {
     lastProfileData = null;
@@ -1328,6 +1330,11 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
   renderTravelStat(travelStatEl, travelStats);
   stats.appendChild(travelStatEl);
   profileCard.appendChild(stats);
+
+  const travelOriginEl = el('div', 'travel-origin');
+  travelOriginEl.id = 'travelOrigin';
+  renderTravelOrigin(travelOriginEl, travelStats);
+  profileCard.appendChild(travelOriginEl);
 
   const travelPanel = el('div', 'travel-home-panel');
   travelPanel.id = 'travelHomePanel';
@@ -1400,12 +1407,25 @@ function renderTravelStat(div, travelStats) {
     return;
   }
   const km = travelStats.totalKm.toLocaleString(NUM_LOCALE);
-  const btn = `<button type="button" id="travelHomeBtn" class="travel-home-btn" title="${t('travelHomeBtnTitle')}">📍</button>`;
-  div.innerHTML = `<b>${km} km</b>${t('statDistance')} ${btn}`;
+  div.innerHTML = `<b>${km} km</b>${t('statDistance')}`;
   const c = travelStats.compZero;
   div.title = travelStats.isCustomHome
     ? t('statDistanceNoteCustom', c.name, travelStats.tripCount)
     : t('statDistanceNote', c.name, c.city, `${countryFlag(c.country_iso2)} ${c.country_iso2}`, formatCompetitionDate(c));
+  div.style.display = '';
+}
+
+function travelOriginLabel(travelStats) {
+  const c = travelStats.compZero;
+  return travelStats.isCustomHome ? c.name : `${c.city}, ${c.countryName || c.country_iso2}`;
+}
+
+function renderTravelOrigin(div, travelStats) {
+  if (!travelStats) {
+    div.style.display = 'none';
+    return;
+  }
+  div.innerHTML = `${t('travelOriginLabel', travelOriginLabel(travelStats))} <button type="button" id="travelHomeBtn" class="default-btn travel-home-btn" title="${t('travelHomeBtnTitle')}">${t('travelHomeChangeBtn')}</button>`;
   div.style.display = '';
   const homeBtn = document.getElementById('travelHomeBtn');
   if (homeBtn) homeBtn.addEventListener('click', toggleTravelHomePanel);
@@ -1476,6 +1496,8 @@ async function recomputeTravelForCurrentProfile(wcaId, home) {
   lastProfileData.travelStats = result;
   const div = document.getElementById('travelStat');
   if (div) renderTravelStat(div, result);
+  const originDiv = document.getElementById('travelOrigin');
+  if (originDiv) renderTravelOrigin(originDiv, result);
 }
 
 function buildSeniorCard(person, seniorIndex, seniorInfo) {
@@ -1724,6 +1746,9 @@ async function computeTravelStats(personResults, customHome) {
   if (valid.length < 2) return null;
   valid.sort((a, b) => a.start_date < b.start_date ? -1 : a.start_date > b.start_date ? 1 : 0);
   const compZero = valid[0];
+  const countries = await loadCountriesList().catch(() => []);
+  const countryMatch = countries.find(c => c.iso2 === compZero.country_iso2);
+  compZero.countryName = countryMatch ? countryMatch.name : compZero.country_iso2;
   let totalKm = 0;
   for (let i = 1; i < valid.length; i++) {
     totalKm += 2 * haversineKm(
