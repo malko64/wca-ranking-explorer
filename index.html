@@ -596,11 +596,14 @@
   .event-filter-all { font-weight: 700; }
   .event-filter-divider { height: 1px; background: var(--border); margin: 4px 6px; }
   .event-filter-list { display: flex; flex-direction: column; }
-  .country-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-  @media (max-width: 720px) { .country-stats-grid { grid-template-columns: 1fr; } }
+  .country-stats-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
   .country-stat-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
   .country-stat-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); margin-bottom: 10px; }
   .country-stat-value { font-family: var(--font-mono); font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+  .country-stats-compact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+  .country-stat-card.compact { padding: 10px 12px; }
+  .country-stat-card.compact .country-stat-label { font-size: 9.5px; margin-bottom: 5px; }
+  .country-stat-card.compact .country-stat-value { font-size: 13.5px; }
   .title-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
   .title-badge {
     font-size: 11px;
@@ -780,6 +783,7 @@ const I18N = {
     nrAverageLabel: 'Record national — Average',
     noNationalRecord: 'Aucun record enregistré',
     statMostTitles: (n) => `Le/la plus titré(e) (${n} titre${n > 1 ? 's' : ''})`,
+    statMostNCPodiums: (n) => `Le plus de podiums en championnat national (${n})`,
     statMostPodiums: (n) => `Le plus de podiums (${n})`,
     statMostGolds: (n) => `Le plus de médailles d'or (${n})`,
     statMostNR: (n) => `Le/la plus prolifique en records (${n})`,
@@ -861,6 +865,7 @@ const I18N = {
     nrAverageLabel: 'National Record — Average',
     noNationalRecord: 'No record on file',
     statMostTitles: (n) => `Most titles (${n})`,
+    statMostNCPodiums: (n) => `Most national championship podiums (${n})`,
     statMostPodiums: (n) => `Most podiums (${n})`,
     statMostGolds: (n) => `Most gold medals (${n})`,
     statMostNR: (n) => `Most national records (${n})`,
@@ -1902,27 +1907,32 @@ async function buildCountryStatsCard(entry) {
   const mostComps = entry.mostComps;
   const mostPodiums = entry.mostPodiums;
   const mostGolds = entry.mostGolds;
+  const mostNCPodiums = entry.mostNCPodiums;
 
-  const [titlesPerson, nrPerson, compsPerson, podiumsPerson, goldsPerson] = await Promise.all([
+  const [titlesPerson, nrPerson, compsPerson, podiumsPerson, goldsPerson, ncPodiumsPerson] = await Promise.all([
     mostTitles ? fetchPersonBasic(mostTitles.personId) : null,
     mostNR ? fetchPersonBasic(mostNR.personId) : null,
     mostComps ? fetchPersonBasic(mostComps.personId) : null,
     mostPodiums ? fetchPersonBasic(mostPodiums.personId) : null,
     mostGolds ? fetchPersonBasic(mostGolds.personId) : null,
+    mostNCPodiums ? fetchPersonBasic(mostNCPodiums.personId) : null,
   ]);
 
   grid.appendChild(await buildCountryStatBox(t('statMostTitles', mostTitles ? mostTitles.count : 0), mostTitles, titlesPerson, true));
-  grid.appendChild(buildSimpleStatBox(t('statMostPodiums', mostPodiums ? mostPodiums.count : 0), mostPodiums, podiumsPerson));
-  grid.appendChild(buildSimpleStatBox(t('statMostGolds', mostGolds ? mostGolds.count : 0), mostGolds, goldsPerson));
-  grid.appendChild(buildSimpleStatBox(t('statMostNR', mostNR ? mostNR.count : 0), mostNR, nrPerson));
-  grid.appendChild(buildSimpleStatBox(t('statMostComps', mostComps ? mostComps.count : 0), mostComps, compsPerson));
-
   card.appendChild(grid);
+
+  const compactGrid = el('div', 'country-stats-compact-grid');
+  compactGrid.appendChild(buildSimpleStatBox(t('statMostNCPodiums', mostNCPodiums ? mostNCPodiums.count : 0), mostNCPodiums, ncPodiumsPerson));
+  compactGrid.appendChild(buildSimpleStatBox(t('statMostPodiums', mostPodiums ? mostPodiums.count : 0), mostPodiums, podiumsPerson));
+  compactGrid.appendChild(buildSimpleStatBox(t('statMostGolds', mostGolds ? mostGolds.count : 0), mostGolds, goldsPerson));
+  compactGrid.appendChild(buildSimpleStatBox(t('statMostNR', mostNR ? mostNR.count : 0), mostNR, nrPerson));
+  compactGrid.appendChild(buildSimpleStatBox(t('statMostComps', mostComps ? mostComps.count : 0), mostComps, compsPerson));
+  card.appendChild(compactGrid);
   return card;
 }
 
 function buildSimpleStatBox(label, data, person) {
-  const box = el('div', 'country-stat-card');
+  const box = el('div', 'country-stat-card compact');
   box.appendChild(el('div', 'country-stat-label', label));
   if (!data) {
     box.appendChild(el('div', 'result-cell', t('noStatData')));
