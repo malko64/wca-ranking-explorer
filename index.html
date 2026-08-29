@@ -771,7 +771,7 @@ const I18N = {
     appFooter: "Données WCA officielles + wca-seniors.org (communautaire) · usage personnel non affilié à la WCA",
     statCompetitions: 'Compétitions',
     statEvents: 'Épreuves pratiquées',
-    statDistance: 'Kilomètres parcourus',
+    statDistance: 'Distance parcourue',
     statDistanceLoading: 'Calcul du kilométrage…',
     statDistanceNote: (name, city, country, date) =>
       `Calculé à vol d'oiseau (avion, train, voiture... les cubeurs ne voyagent pas tous par la route) : pour chaque compétition, aller-retour depuis la toute première compétition du cubeur (« compétition zéro »), ici ${name} à ${city}, ${country} (${date}), puis cumul de tous ces allers-retours.`,
@@ -870,7 +870,7 @@ const I18N = {
     appFooter: "Official WCA data + wca-seniors.org (community) · personal project, not affiliated with the WCA",
     statCompetitions: 'Competitions',
     statEvents: 'Events practiced',
-    statDistance: 'Kilometers traveled',
+    statDistance: 'Distance traveled',
     statDistanceLoading: 'Calculating distance…',
     statDistanceNote: (name, city, country, date) =>
       `Calculated as the crow flies (cubers travel by plane, train, car... road distance wouldn't be representative): for each competition, a round trip from the cuber's very first competition (the "zero competition"), here ${name} in ${city}, ${country} (${date}), summed across every round trip.`,
@@ -1424,7 +1424,7 @@ function renderTravelStat(div, travelStats) {
   div.innerHTML = `
     <b>${km} km</b>
     <span class="stat-label-line">
-      ${t('travelOriginLabel', travelOriginShortLabel(travelStats))}
+      ${t('statDistance')} · ${t('travelOriginLabel', travelOriginShortLabel(travelStats))}
       <button type="button" id="travelInfoBtn" class="travel-info-btn">ⓘ</button>
       <button type="button" id="travelHomeBtn" class="default-btn travel-home-btn">${t('travelHomeChangeBtn')}</button>
     </span>
