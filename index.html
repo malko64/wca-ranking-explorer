@@ -209,7 +209,8 @@
   .profile-meta a:hover { text-decoration: underline; }
   .profile-stats {
     display: flex;
-    gap: 24px;
+    flex-wrap: wrap;
+    gap: 16px 24px;
     margin-top: 16px;
     padding-top: 16px;
     border-top: 1px dashed var(--border);
@@ -725,6 +726,10 @@ const I18N = {
     appFooter: "Données WCA officielles + wca-seniors.org (communautaire) · usage personnel non affilié à la WCA",
     statCompetitions: 'Compétitions',
     statEvents: 'Épreuves pratiquées',
+    statDistance: 'Kilomètres parcourus',
+    statDistanceLoading: 'Calcul du kilométrage…',
+    statDistanceNote: (name, city, country, date) =>
+      `Calculé à vol d'oiseau : pour chaque compétition, aller-retour depuis la toute première compétition du cubeur (« compétition zéro »), ici ${name} à ${city}, ${country} (${date}), puis cumul de tous ces allers-retours. Distance réelle par la route généralement plus longue.`,
     sectionRankingsTitle: 'Classements par épreuve',
     thEvent: 'Épreuve',
     thSingle: 'Meilleur temps (single)',
@@ -807,6 +812,10 @@ const I18N = {
     appFooter: "Official WCA data + wca-seniors.org (community) · personal project, not affiliated with the WCA",
     statCompetitions: 'Competitions',
     statEvents: 'Events practiced',
+    statDistance: 'Kilometers traveled',
+    statDistanceLoading: 'Calculating distance…',
+    statDistanceNote: (name, city, country, date) =>
+      `Calculated as the crow flies: for each competition, a round trip from the cuber's very first competition (the "zero competition"), here ${name} in ${city}, ${country} (${date}), summed across every round trip. Actual road distance is usually longer.`,
     sectionRankingsTitle: 'Rankings by event',
     thEvent: 'Event',
     thSingle: 'Best time (single)',
@@ -1173,6 +1182,7 @@ async function search() {
 }
 
 let lastProfileData = null;
+let travelToken = 0;
 
 async function performSearch(wcaId) {
   const btn = document.getElementById('searchBtn');
@@ -1209,8 +1219,16 @@ async function performSearch(wcaId) {
     const personResults = await resultsAttempt;
     const recordComps = await buildRecordCompetitions(personResults, records, eventIds);
 
-    lastProfileData = { person, competitionCount: data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps };
-    renderProfile(person, data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps);
+    const myTravelToken = ++travelToken;
+    lastProfileData = { person, competitionCount: data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps, travelStats: undefined };
+    renderProfile(person, data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps, undefined);
+
+    computeTravelStats(personResults).catch(() => null).then((travelStats) => {
+      if (myTravelToken !== travelToken) return;
+      if (lastProfileData) lastProfileData.travelStats = travelStats;
+      const div = document.getElementById('travelStat');
+      if (div) renderTravelStat(div, travelStats);
+    });
   } catch (err) {
     lastProfileData = null;
     output.innerHTML = '';
@@ -1220,7 +1238,7 @@ async function performSearch(wcaId) {
   }
 }
 
-function renderProfile(person, competitionCount, records, eventIds, seniorIndex, seniorInfo, recordComps) {
+function renderProfile(person, competitionCount, records, eventIds, seniorIndex, seniorInfo, recordComps, travelStats) {
   const output = document.getElementById('output');
   output.innerHTML = '';
 
@@ -1241,6 +1259,10 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
   const stats = el('div', 'profile-stats');
   stats.appendChild(el('div', 'stat', `<b>${competitionCount}</b>${t('statCompetitions')}`));
   stats.appendChild(el('div', 'stat', `<b>${eventIds.length}</b>${t('statEvents')}`));
+  const travelStatEl = el('div', 'stat');
+  travelStatEl.id = 'travelStat';
+  renderTravelStat(travelStatEl, travelStats);
+  stats.appendChild(travelStatEl);
   profileCard.appendChild(stats);
   output.appendChild(profileCard);
 
@@ -1285,6 +1307,24 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
   if (seniorInfo) {
     output.appendChild(buildSeniorCard(person, seniorIndex, seniorInfo));
   }
+}
+
+function renderTravelStat(div, travelStats) {
+  if (travelStats === undefined) {
+    div.innerHTML = `<b>…</b>${t('statDistanceLoading')}`;
+    div.removeAttribute('title');
+    div.style.display = '';
+    return;
+  }
+  if (!travelStats) {
+    div.style.display = 'none';
+    return;
+  }
+  const km = travelStats.totalKm.toLocaleString(NUM_LOCALE);
+  div.innerHTML = `<b>${km} km</b>${t('statDistance')}`;
+  const c = travelStats.compZero;
+  div.title = t('statDistanceNote', c.name, c.city, `${countryFlag(c.country_iso2)} ${c.country_iso2}`, formatCompetitionDate(c));
+  div.style.display = '';
 }
 
 function buildSeniorCard(person, seniorIndex, seniorInfo) {
@@ -1485,6 +1525,44 @@ async function buildRecordCompetitions(results, records, eventIds) {
     map[job.eid][job.type] = await pickRecordCompetition(results, job.eid, job.field, job.value);
   });
   return map;
+}
+
+// Distance à vol d'oiseau (km) entre deux points, formule de Haversine.
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Kilomètres parcourus en compétition : la "compétition zéro" est la toute première
+// compétition du cubeur (sert de point de départ / domicile supposé). Pour chaque
+// compétition suivante, on cumule l'aller-retour (2x la distance à vol d'oiseau) entre
+// la compétition zéro et cette compétition. On utilise les coordonnées GPS exactes de
+// chaque salle (lat/long WCA) plutôt que le nom de ville, pour ne jamais confondre deux
+// villes homonymes dans des pays différents.
+async function computeTravelStats(personResults) {
+  const compIds = [...new Set(personResults.map(r => r.competition_id))];
+  if (compIds.length < 2) return null;
+
+  const comps = await mapWithConcurrency(compIds, 5, id => fetchCompetition(id));
+  const valid = comps.filter(c => c && c.start_date &&
+    typeof c.latitude_degrees === 'number' && typeof c.longitude_degrees === 'number');
+  if (valid.length < 2) return null;
+
+  valid.sort((a, b) => a.start_date < b.start_date ? -1 : a.start_date > b.start_date ? 1 : 0);
+  const compZero = valid[0];
+  let totalKm = 0;
+  for (let i = 1; i < valid.length; i++) {
+    totalKm += 2 * haversineKm(
+      compZero.latitude_degrees, compZero.longitude_degrees,
+      valid[i].latitude_degrees, valid[i].longitude_degrees
+    );
+  }
+  return { totalKm: Math.round(totalKm), compZero, tripCount: valid.length - 1, skipped: comps.length - valid.length };
 }
 
 // Cache pays -> continent (pour calculer le classement continental des séniors, dont les
@@ -2056,7 +2134,7 @@ function setLang(lang) {
   // Re-rend le contenu déjà affiché dans la nouvelle langue.
   if (currentView === 'custom' && lastProfileData) {
     const d = lastProfileData;
-    renderProfile(d.person, d.competitionCount, d.records, d.eventIds, d.seniorIndex, d.seniorInfo, d.recordComps);
+    renderProfile(d.person, d.competitionCount, d.records, d.eventIds, d.seniorIndex, d.seniorInfo, d.recordComps, d.travelStats);
   }
   if (currentView === 'ranking' && rankingLoaded) {
     rankingLoaded = false;
