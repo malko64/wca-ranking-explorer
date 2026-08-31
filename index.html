@@ -298,9 +298,6 @@
   .rank-badge.silver { background: linear-gradient(135deg,#eef0f5,#b7bdca); color: #262a33; box-shadow: 0 2px 8px -2px rgba(150,155,170,0.5); }
   .rank-badge.bronze { background: linear-gradient(135deg,#e8b183,#b0662f); color: #3a1f0a; box-shadow: 0 2px 8px -2px rgba(176,102,47,0.5); }
   .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; }
-  .rank-group { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
-  .rank-group-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); }
-  .sub-rank { color: var(--text-dim); font-size: 11px; margin-top: 3px; font-weight: 500; }
   .result-cell { color: var(--world-time); font-size: 21px; font-weight: 700; margin-bottom: 6px; font-family: var(--font-mono); letter-spacing: -0.01em; }
   .participants-cell { font-family: var(--font-mono); }
   .geo-counts { display: flex; flex-direction: column; gap: 5px; }
@@ -787,7 +784,6 @@ const I18N = {
     travelHomeSearching: 'Recherche de la ville…',
     travelHomeNotFound: "Ville introuvable — essaie d'être plus précis·e (ex. ajoute le pays).",
     travelHomeError: 'Erreur réseau, réessaie.',
-    travelHomeFound: (label) => `Point de départ défini : ${label}`,
     sectionRankingsTitle: 'Classements par épreuve',
     thEvent: 'Épreuve',
     thSingle: 'Meilleur temps (single)',
@@ -803,8 +799,6 @@ const I18N = {
     seniorAgeBadge: (age) => `${age} ans et +`,
     seniorSub: (name, age) => `Tranche d'âge la plus haute atteinte par ${name}, en ne comptant que les résultats obtenus depuis qu'il/elle a ${age} ans.`,
     seniorFootnote: (refreshed) => `Classement communautaire non-officiel produit par <a href="https://wca-seniors.org" target="_blank" rel="noopener">wca-seniors.org</a> (inscription volontaire du WCA ID + date de naissance), recalculé chaque jour à partir de l'export de la base WCA — actualisé le ${refreshed}. La WCA ne publie aucune date de naissance ni classement par âge officiellement ; ce cubeur n'apparaît ici que parce qu'il/elle s'est inscrit·e sur ce site tiers. Le rang mondial vient directement de wca-seniors.org ; le rang national est recalculé ici en filtrant ce même classement par pays. Les deux peuvent être légèrement approximatifs (± 1-2 places) pour les cubeurs séniors non inscrits sur le site.`,
-    rankGroupWorld: 'Monde',
-    rankGroupNational: 'National',
     geoLabelWorld: 'monde',
     errorEmptyInput: 'Entre un WCA ID (ex. 2009ZEMD01) ou un nom de cubeur.',
     loadingNameSearch: 'Recherche par nom…',
@@ -902,8 +896,6 @@ const I18N = {
     seniorAgeBadge: (age) => `${age}+ years old`,
     seniorSub: (name, age) => `Highest age bracket reached by ${name}, counting only results achieved since turning ${age}.`,
     seniorFootnote: (refreshed) => `Unofficial community ranking produced by <a href="https://wca-seniors.org" target="_blank" rel="noopener">wca-seniors.org</a> (voluntary sign-up with WCA ID + date of birth), recomputed daily from the WCA database export — last updated ${refreshed}. The WCA does not officially publish any date of birth or age-based ranking; this cuber only appears here because they signed up on this third-party site. The world rank comes straight from wca-seniors.org; the national rank is recomputed here by filtering that same ranking by country. Both can be slightly approximate (± 1-2 places) for senior cubers not registered on the site.`,
-    rankGroupWorld: 'World',
-    rankGroupNational: 'National',
     geoLabelWorld: 'world',
     errorEmptyInput: 'Enter a WCA ID (e.g. 2009ZEMD01) or a cuber\'s name.',
     loadingNameSearch: 'Searching by name…',
@@ -1264,7 +1256,7 @@ async function performSearch(wcaId) {
   output.appendChild(el('div', 'loading', `<span class="spinner"></span>${t('loadingProfile')}`));
 
   const seniorIndexAttempt = loadSeniorIndex().catch(() => null);
-  const continentMapAttempt = loadCountryContinents().catch(() => null);
+  const continentMapAttempt = loadCountryContinentMap().catch(() => null);
   const resultsAttempt = fetchPersonResults(wcaId);
 
   try {
@@ -1688,8 +1680,7 @@ async function buildRecordCompetitions(results, records, eventIds) {
   return map;
 }
 
-// Distance à vol d'oiseau (km) entre deux points, formule de Haversine — utilisée
-// uniquement en repli si le routage par la route (OSRM) échoue pour une paire de points.
+// Distance à vol d'oiseau (km) entre deux points, formule de Haversine.
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const toRad = (d) => d * Math.PI / 180;
@@ -1728,10 +1719,7 @@ async function computeTravelStats(personResults, customHome) {
     valid.forEach(c => {
       totalKm += 2 * haversineKm(customHome.lat, customHome.lon, c.latitude_degrees, c.longitude_degrees);
     });
-    return {
-      totalKm: Math.round(totalKm), compZero, tripCount: valid.length,
-      skipped: comps.length - valid.length, isCustomHome: true,
-    };
+    return { totalKm: Math.round(totalKm), compZero, tripCount: valid.length, isCustomHome: true };
   }
 
   if (valid.length < 2) return null;
@@ -1747,10 +1735,7 @@ async function computeTravelStats(personResults, customHome) {
       valid[i].latitude_degrees, valid[i].longitude_degrees
     );
   }
-  return {
-    totalKm: Math.round(totalKm), compZero, tripCount: valid.length - 1,
-    skipped: comps.length - valid.length, isCustomHome: false,
-  };
+  return { totalKm: Math.round(totalKm), compZero, tripCount: valid.length - 1, isCustomHome: false };
 }
 
 // Point de départ personnalisé (ville de résidence géocodée), mémorisé par WCA ID.
@@ -1782,19 +1767,6 @@ async function geocodeCity(query) {
   const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || r.name || r.display_name.split(',')[0];
   const country = addr.country || r.display_name.split(',').pop().trim();
   return { label: `${city}, ${country}`, lat: parseFloat(r.lat), lon: parseFloat(r.lon) };
-}
-
-// Cache pays -> continent (pour calculer le classement continental des séniors, dont les
-// données wca-seniors.org ne fournissent que le pays de chaque cubeur classé).
-let countryContinentPromise = null;
-function loadCountryContinents() {
-  if (!countryContinentPromise) {
-    countryContinentPromise = fetch(`${API}/countries`)
-      .then(r => r.ok ? r.json() : [])
-      .then(list => new Map(list.map(c => [c.iso2, c.continent_id])))
-      .catch(() => new Map());
-  }
-  return countryContinentPromise;
 }
 
 function youtubeSearchUrl(personName, eventName, isAverage) {
@@ -2007,6 +1979,18 @@ function loadCountriesList() {
     countriesListPromise = fetch(`${API}/countries`).then(r => r.ok ? r.json() : []).catch(() => []);
   }
   return countriesListPromise;
+}
+
+// Cache pays -> continent (pour calculer le classement continental des séniors, dont les
+// données wca-seniors.org ne fournissent que le pays de chaque cubeur classé). Dérivé de
+// loadCountriesList() pour ne pas dupliquer l'appel à /api/v0/countries.
+let countryContinentMapPromise = null;
+function loadCountryContinentMap() {
+  if (!countryContinentMapPromise) {
+    countryContinentMapPromise = loadCountriesList()
+      .then(list => new Map(list.map(c => [c.iso2, c.continent_id])));
+  }
+  return countryContinentMapPromise;
 }
 
 function hideCountrySuggestions() {
