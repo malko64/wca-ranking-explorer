@@ -297,7 +297,7 @@
   .rank-badge.gold { background: linear-gradient(135deg,#ffe49a,#d9a520); color: #4a3300; box-shadow: 0 2px 8px -2px rgba(217,165,32,0.6); }
   .rank-badge.silver { background: linear-gradient(135deg,#eef0f5,#b7bdca); color: #262a33; box-shadow: 0 2px 8px -2px rgba(150,155,170,0.5); }
   .rank-badge.bronze { background: linear-gradient(135deg,#e8b183,#b0662f); color: #3a1f0a; box-shadow: 0 2px 8px -2px rgba(176,102,47,0.5); }
-  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; }
+  .badge-row { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 4px; }
   .result-cell { color: var(--world-time); font-size: 21px; font-weight: 700; margin-bottom: 6px; font-family: var(--font-mono); letter-spacing: -0.01em; }
   .participants-cell { font-family: var(--font-mono); }
   .geo-counts { display: flex; flex-direction: column; gap: 5px; }
@@ -391,7 +391,6 @@
       color: var(--text-dim);
       margin-bottom: 5px;
     }
-    .badge-row { flex-wrap: wrap; }
   }
 
   /* Menu de démarrage */
