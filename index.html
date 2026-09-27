@@ -783,6 +783,18 @@ const I18N = {
     travelHomeSearching: 'Recherche de la ville…',
     travelHomeNotFound: "Ville introuvable — essaie d'être plus précis·e (ex. ajoute le pays).",
     travelHomeError: 'Erreur réseau, réessaie.',
+    sectionCurrentHonorsTitle: '🥇 Titres et records en cours',
+    reigningChampionTag: (country, isFemale) => `${isFemale ? 'Championne' : 'Champion'} de ${country} en titre`,
+    honorWorld: (event, type) => `Record du monde — ${event} (${type})`,
+    honorContinental: (event, type, continent) => `Record continental (${continent}) — ${event} (${type})`,
+    honorNational: (event, type, country) => `Record national (${country}) — ${event} (${type})`,
+    sectionCareerTitle: '📜 Titres et records — carrière',
+    careerStatTitles: (n) => `Titres (${n})`,
+    careerStatRecords: (n) => `Records battus (${n})`,
+    careerStatGolds: (n) => `Médailles d'or (${n})`,
+    careerStatPodiums: (n) => `Podiums, toutes compétitions (${n})`,
+    careerStatNCPodiums: (n) => `Podiums en championnat (${n})`,
+    careerFootnote: (date) => `Titres = victoires en finale lors du Championnat national officiel du pays représenté à cette compétition précise, toutes éditions confondues. Records battus = nombre de fois où un record national/continental/mondial (single ou average) a été battu, toutes épreuves confondues (record actuel ou déjà dépassé depuis). Médailles d'or et podiums = 1ère place / top 3 en finale, toutes compétitions et épreuves confondues. Podiums en championnat = même chose, mais uniquement lors du Championnat national du pays représenté. Résultats bruts récupérés en direct depuis l'API WCA ; la liste des compétitions correspondant à un Championnat national est calculée une fois à partir de l'export officiel de la base WCA du ${date}.`,
     sectionRankingsTitle: 'Classements par épreuve',
     thEvent: 'Épreuve',
     thSingle: 'Meilleur temps (single)',
@@ -879,7 +891,18 @@ const I18N = {
     travelHomeSearching: 'Looking up the city…',
     travelHomeNotFound: 'City not found — try being more specific (e.g. add the country).',
     travelHomeError: 'Network error, try again.',
-    travelHomeFound: (label) => `Starting point set: ${label}`,
+    sectionCurrentHonorsTitle: '🥇 Current titles and records',
+    reigningChampionTag: (country, isFemale) => `Reigning ${country} Champion`,
+    honorWorld: (event, type) => `World record — ${event} (${type})`,
+    honorContinental: (event, type, continent) => `Continental record (${continent}) — ${event} (${type})`,
+    honorNational: (event, type, country) => `National record (${country}) — ${event} (${type})`,
+    sectionCareerTitle: '📜 Titles and records — career',
+    careerStatTitles: (n) => `Titles (${n})`,
+    careerStatRecords: (n) => `Records broken (${n})`,
+    careerStatGolds: (n) => `Gold medals (${n})`,
+    careerStatPodiums: (n) => `Podiums, all competitions (${n})`,
+    careerStatNCPodiums: (n) => `National championship podiums (${n})`,
+    careerFootnote: (date) => `Titles = final-round wins at the official National Championship of the country represented at that specific competition, across all editions. Records broken = number of times a national/continental/world record (single or average) was broken, across all events (whether still current or since superseded). Gold medals and podiums = 1st place / top 3 in a final round, across all competitions and events. National championship podiums = the same, but only at the National Championship of the country represented there. Raw results are fetched live from the WCA API; the list of competitions that are a National Championship is computed once from the official WCA database export dated ${date}.`,
     sectionRankingsTitle: 'Rankings by event',
     thEvent: 'Event',
     thSingle: 'Best time (single)',
@@ -993,6 +1016,17 @@ const CONTINENT_NAMES_FR = {
 // direct via l'API à l'affichage, donc seule cette association personne↔compétition peut dater.
 const EVENT_RECORDS_DATE = '26 août 2026';
 const EVENT_RECORDS = {"222":{"average":{"holders":[{"competitionId":"KidsAmericaChristmasOH2025","personId":"2016FEIS01"}],"value":86},"single":{"holders":[{"competitionId":"HefeiOpen2025","personId":"2021YEZI01"}],"value":39}},"333":{"average":{"holders":[{"competitionId":"HefeiCubingLeague3x3III2026","personId":"2019WANY36"}],"value":351},"single":{"holders":[{"competitionId":"GLSBigCubesGdansk2026","personId":"2021ZAJD03"}],"value":276}},"333bf":{"average":{"holders":[{"competitionId":"HefeiAugustOpen2026","personId":"2015CHER07"}],"value":1397},"single":{"holders":[{"competitionId":"MidAtlanticQuietChampionship2026","personId":"2015CHER07"}],"value":1156}},"333fm":{"average":{"holders":[{"competitionId":"EvanstonFMCSpring2026","personId":"2013JOHN10"}],"value":1900},"single":{"holders":[{"competitionId":"FMC2019","personId":"2011TRON02"},{"competitionId":"AshfieldSummerChallenge2024","personId":"2018GIBS04"},{"competitionId":"AshfieldSummerChallenge2024","personId":"2017BRYA06"},{"competitionId":"RubiksUKChampionshipFMC2024","personId":"2022BROW01"}],"value":16}},"333ft":{"average":{"holders":[{"competitionId":"Medan10thAnniversary2019","personId":"2016HUNG08"}],"value":1990},"single":{"holders":[{"competitionId":"VJTIMumbaiCubeOpen2019","personId":"2017KOLI01"}],"value":1556}},"333mbf":{"single":{"holders":[{"competitionId":"PleaseBeQuietReno2025","personId":"2016SIGG01"}],"value":380350302}},"333mbo":{"single":{"holders":[{"competitionId":"GermanOpen2008","personId":"2007HABE01"}],"value":750815700}},"333oh":{"average":{"holders":[{"competitionId":"WuhuOpen2026","personId":"2023CHEN30"}],"value":699},"single":{"holders":[{"competitionId":"MidAtlanticChampionship2026","personId":"2012PONC02"}],"value":562}},"444":{"average":{"holders":[{"competitionId":"SeoulWinter2026","personId":"2016KOLA02"}],"value":1856},"single":{"holders":[{"competitionId":"SpanishChampionship2025","personId":"2016KOLA02"}],"value":1518}},"444bf":{"average":{"holders":[{"competitionId":"NewYorkMultimatePBQII2025","personId":"2016CHAP04"}],"value":5939},"single":{"holders":[{"competitionId":"4BLDinaMadisonHall2023","personId":"2016CHAP04"}],"value":5196}},"555":{"average":{"holders":[{"competitionId":"AllRoundersKatowiceI2026","personId":"2016KOLA02"}],"value":3373},"single":{"holders":[{"competitionId":"AllRoundersKatowiceI2026","personId":"2016KOLA02"}],"value":2949}},"555bf":{"average":{"holders":[{"competitionId":"MichiganCubingClubEpsilon2019","personId":"2016CHAP04"}],"value":14763},"single":{"holders":[{"competitionId":"MultiMayhemVA2026","personId":"2016CHAP04"}],"value":11859}},"666":{"average":{"holders":[{"competitionId":"KualaLumpurCC2026","personId":"2019TARA09"}],"value":6363},"single":{"holders":[{"competitionId":"BurbankBigCubes2025","personId":"2012PARK03"}],"value":5769}},"777":{"average":{"holders":[{"competitionId":"NubOpenTrabucoHillsFall2025","personId":"2012PARK03"}],"value":9686},"single":{"holders":[{"competitionId":"NAC2026","personId":"2012PARK03"}],"value":9059}},"clock":{"average":{"holders":[{"competitionId":"NewZealandNationals2026","personId":"2022GIBS04"}],"value":214},"single":{"holders":[{"competitionId":"HastyHastings2025","personId":"2022GIBS04"}],"value":153}},"magic":{"average":{"holders":[{"competitionId":"BeijingSummer2011","personId":"2009WANG13"}],"value":76},"single":{"holders":[{"competitionId":"BeijingSpring2011","personId":"2009WANG13"}],"value":69}},"minx":{"average":{"holders":[{"competitionId":"KualaLumpurCC2026","personId":"2019TARA09"}],"value":2340},"single":{"holders":[{"competitionId":"QuanzhouSummer2026","personId":"2016WUZI04"}],"value":2104}},"mmagic":{"average":{"holders":[{"competitionId":"USNationals2011","personId":"2010PULC01"}],"value":175},"single":{"holders":[{"competitionId":"TianjinWinter2012","personId":"2009WANG13"}],"value":166}},"pyram":{"average":{"holders":[{"competitionId":"ZhengzhouZest2025","personId":"2019JIAN54"}],"value":114},"single":{"holders":[{"competitionId":"MiddletonMeetupThursday2023","personId":"2016KELL12"}],"value":73}},"skewb":{"average":{"holders":[{"competitionId":"CFLJustynow2025","personId":"2022SAMS03"}],"value":137},"single":{"holders":[{"competitionId":"GluszycaOpen2026","personId":"2021GROH01"}],"value":73}},"sq1":{"average":{"holders":[{"competitionId":"CubinginSouthernOregon2025","personId":"2017AGGA01"}],"value":463},"single":{"holders":[{"competitionId":"EvanstonQualifier2026","personId":"2013JOHN10"}],"value":285}}};
+
+// Compétitions flaguées comme Championnat national officiel (championship_type = code ISO2
+// à 2 lettres dans l'export WCA) -> liste des pays concernés. Sert à savoir, pour un résultat
+// donné d'un cubeur (fetché en direct via /persons/{id}/results), s'il a été obtenu lors d'un
+// vrai Championnat national (titres, podiums de championnat) plutôt qu'une compétition classique.
+// Cette info n'existe dans aucun endpoint public de l'API WCA, d'où ce lookup précalculé une fois
+// à partir de l'export officiel (table championships).
+const CHAMPIONSHIP_COMPS = {"ACA5thAnniversary2020":["AZ"],"ACARO2016":["HK"],"AFSwedishCubeOpen2016":["SE"],"AlbanianOpen2018":["AL"],"AlbanianOpen2019":["AL"],"Andorra2017":["AD"],"Andorra2019":["AD"],"AndorranChampionship2024":["AD"],"AndorranChampionship2025":["AD"],"ArnoldClassicAfrica2019":["ZA"],"AsianChampionship2012":["HK"],"AsianChampionship2014":["JP"],"AustralianNationals2010":["AU"],"AustralianNationals2011":["AU"],"AustralianNationals2012":["AU"],"AustralianNationals2013":["AU"],"AustralianNationals2014":["AU"],"AustralianNationals2015":["AU"],"AustralianNationals2016":["AU"],"AustralianNationals2017":["AU"],"AustralianNationals2018":["AU"],"AustralianNationals2020":["AU"],"AustralianNationals2021":["AU"],"AustralianNationals2022":["AU"],"AustralianNationals2023":["AU"],"AustralianNationals2024":["AU"],"AustralianNationals2025":["AU"],"AustralianNationals2026":["AU"],"AustralianNationalsFMC2022":["AU"],"AustralianNationalsFMC2023":["AU"],"AustralianNationalsFMC2024":["AU"],"AustralianNationalsFMC2025":["AU"],"AustrianNationals2026":["AT"],"AzerbaijanNationals2022":["AZ"],"AzerbaijanNationals2023":["AZ"],"BIHOpen2012":["BA"],"BanjaLukaOpen2017":["BA"],"BanjaLukaOpen2018":["BA"],"Barbados2025":["BB"],"Barbados2026":["BB"],"BelarusNationals2019":["BY"],"BelgianNationals2022":["BE"],"BelgianNationals2023":["BE"],"BelgianNationals2024":["BE"],"BelgianNationals2025":["BE"],"BoliviaNationals2016":["BO"],"BoliviaNationals2018":["BO"],"BoliviaNationals2019":["BO"],"BoliviaNationals2023":["BO"],"BoliviaNationals2024":["BO"],"BoliviaNationals2026":["BO"],"BoliviaNationalsFMC2024":["BO"],"BoliviaNationalsFMC2025":["BO"],"BosniaandHerzegovinaOpen2016":["BA"],"BotswanaNationals2026":["BW"],"Brasileiro2013":["BR"],"Brasileiro2016":["BR"],"Brasileiro2017":["BR"],"Brasileiro2018":["BR"],"BrasileiroInverno2014":["BR"],"BulgarianNationals2024":["BG"],"CaboVerdeNationals2026":["CV"],"CambodiaChampionship2024":["KH"],"CambodiaCubingChampionship2019":["KH"],"CampeonatoBrasileiro2019":["BR"],"CampeonatoBrasileiro2023":["BR"],"CampeonatoBrasileiro2024":["BR"],"CampeonatoBrasileiro2025":["BR"],"CampeonatoBrasileiro2026":["BR"],"CampeonatoBrasileiroFMC2023":["BR"],"CampeonatoBrasileiroFMC2024":["BR"],"CampeonatoBrasileiroFMC2025":["BR"],"CampeonatoBrasileiroFMC2026":["BR"],"CampeonatoNacional2012":["CL"],"CampeonatoNacional2013":["CL"],"CampeonatoNacionalPerubik2017":["PE"],"CampeonatodePortugal2015":["PT"],"CanadianChampionship2019":["CA"],"CanadianChampionship2023":["CA"],"CanadianOpen2007":["CA"],"CanadianOpen2009":["CA"],"CanadianOpen2011":["CA"],"CanadianOpen2013":["CA"],"CanadianOpen2015":["CA"],"CanadianOpen2017":["CA"],"CancelledCostaRicaNationals2025":["CR"],"CancelledEstonianOpen2021":["EE"],"ChampionnatCanadien2025":["CA"],"ColombiaNationals2012":["CO"],"ColombiaNationals2014":["CO"],"ColombiaNationals2018":["CO"],"ColombiaNationals2022":["CO"],"ColombianNationals2024":["CO"],"ColombianNationals2025":["CO"],"ColombianNationalsFMC2024":["CO"],"ColombianNationalsFMC2025":["CO"],"ColombianNationalsFMC2026":["CO"],"ColombianNationalsPaipa2026":["CO"],"CostaRicaNationals2018":["CR"],"CostaRicaNationals2025":["CR"],"CostaRicanChampionship2023":["CR"],"CroatianChampionship2024":["HR"],"CroatianChampionship2025":["HR"],"CroatianChampionship2026":["HR"],"CroatianNationals2019":["HR"],"CroatianNationals2023":["HR"],"CroatianOpen2011":["HR"],"CroatianOpen2014":["HR"],"CroatianOpen2015":["HR"],"CroatianOpen2016":["HR"],"CroatianOpen2017":["HR"],"CroatianOpen2018":["HR"],"CroatianQuietChampionship2026":["HR"],"CubingKazakhstanNationals2019":["KZ"],"CubingKazakhstanNationals2021":["KZ"],"CubingKazakhstanNationals2022":["KZ"],"CubingKazakhstanNationals2023":["KZ"],"CubingKazakhstanNationals2024":["KZ"],"CubingKazakhstanNationals2025":["KZ"],"CubingKazakhstanNationals2026":["KZ"],"CubingMadaOpen2025":["MG"],"CubingUSAAllStars2025":["US"],"CubingUSANationals2017":["US"],"CubingUSANationals2018":["US"],"CubingUSANationals2019":["US"],"CubingUSANationals2023":["US"],"CubingZAFMCChampionship2023":["ZA"],"CubingZAFMCChampionship2025":["ZA"],"CubingZANationalChampionship2023":["ZA"],"CubingZANationals2025":["ZA"],"CyprusChampionship2022":["CY"],"CyprusNationals2024":["CY"],"CyprusNationals2025":["CY"],"CzechChampionship2023":["CZ"],"CzechChampionship2024":["CZ"],"CzechChampionship2025":["CZ"],"CzechChampionship2026":["CZ"],"CzechFMCChampionship2023":["CZ"],"CzechFMCChampionship2025":["CZ"],"CzechQuietChampionship2026":["CZ"],"DanaMallBahrainOpen2022":["BH"],"DanishChampionship2020":["DK"],"DanishChampionship2021":["DK"],"DanishChampionship2022":["DK"],"DanishChampionship2023":["DK"],"DanishChampionship2024":["DK"],"DanishChampionship2025":["DK"],"DanishChampionship2026":["DK"],"DanishFMChampionship2022":["DK"],"DanishFMChampionship2023":["DK"],"DanishFMChampionship2024":["DK"],"DanishFMChampionship2025":["DK"],"DanishFMChampionship2026":["DK"],"DanishOpen2008":["DK"],"DanishOpen2009":["DK"],"DanishOpen2010":["DK"],"DanishOpen2011":["DK"],"DanishOpen2012":["DK"],"DanishOpen2013":["DK"],"DanishOpen2014":["DK"],"DanishOpen2015":["DK"],"DanishOpen2016":["DK"],"DanishOpen2017":["DK"],"DanishOpen2018":["DK"],"DanishOpen2019":["DK"],"DutchNationals2010":["NL"],"DutchNationals2011":["NL"],"DutchNationals2014":["NL"],"DutchNationals2015":["NL"],"DutchNationals2016":["NL"],"DutchNationals2017":["NL"],"DutchNationals2018":["NL"],"DutchNationals2019":["NL"],"DutchNationals2022":["NL"],"DutchNationals2023":["NL"],"DutchNationals2024":["NL"],"EcuadorNationals2018":["EC"],"EcuadorNationals2019":["EC"],"EcuadorNationals2022":["EC"],"EcuadorNationals2023":["EC"],"EcuadorNationals2024":["EC"],"EcuadorNationals2025":["EC"],"EgyptNational2026":["EG"],"EgyptianChampionship2019":["EG"],"EstonianChampionship2024":["EE"],"EstonianChampionship2025":["EE"],"EstonianOpen2009":["EE"],"EstonianOpen2010":["EE"],"EstonianOpen2011":["EE"],"EstonianOpen2012":["EE"],"EstonianOpen2013":["EE"],"EstonianOpen2014":["EE"],"EstonianOpen2015":["EE"],"EstonianOpen2016":["EE"],"EstonianOpen2017":["EE"],"EstonianOpen2018":["EE"],"EstonianOpen2019":["EE"],"EstonianOpen2020":["EE"],"EstonianOpen2021":["EE"],"EstonianOpen2022":["EE"],"EstonianOpen2023":["EE"],"EswatiniNationals2026":["SZ"],"FMCArgentina2024":["AR"],"FMCAsia2017":["JP"],"FMCBelgianNationals2024":["BE"],"FMCCanada2023":["CA"],"FMCCanada2025":["CA"],"FMCColombia2023":["CO"],"FMCEurope2026":["CH","CY","GR","UA","NL"],"FMCFrenchChampionship2025":["FR"],"FMCGreekNationals2024":["GR"],"FMCIberianChampionship2025":["ES","PT"],"FMCItaly2021":["IT"],"FMCItaly2022":["IT"],"FMCItaly2023":["IT"],"FMCNewZealand2022":["NZ"],"FMCNewZealand2023":["NZ"],"FMCNewZealand2025":["NZ"],"FMCPortugalChampionship2026":["PT"],"FMCSpanishChampionship2023":["ES"],"FMCSpanishChampionship2024":["ES"],"FMCSpanishChampionship2026":["ES"],"FMCSwissNationals2024":["CH"],"FMCSwissNationals2025":["CH"],"FMCUkraineFriendship2022":["UA"],"FMCUkraineFriendship2023":["UA"],"FMCUkrainianNationals2024":["UA"],"FMCUkrainianNationals2025":["UA"],"FMCWorld2026":["AU"],"FijiNationals2025":["FJ"],"FinnishChampionship2014":["FI"],"FinnishChampionship2015":["FI"],"FinnishChampionship2016":["FI"],"FinnishChampionship2017":["FI"],"FinnishChampionship2018":["FI"],"FinnishChampionship2019":["FI"],"FinnishChampionship2021":["FI"],"FinnishChampionship2022":["FI"],"FinnishChampionship2023":["FI"],"FinnishChampionship2024":["FI"],"FinnishChampionship2025":["FI"],"FinnishChampionship2026":["FI"],"FinnishFMCChampionship2021":["FI"],"FinnishFMCChampionship2022":["FI"],"FinnishFMCChampionship2023":["FI"],"FinnishFMCChampionship2024":["FI"],"FinnishFMCChampionship2025":["FI"],"FinnishOpen2007":["FI"],"FinnishOpen2008":["FI"],"FinnishOpen2009":["FI"],"FinnishOpen2010":["FI"],"FinnishOpen2011":["FI"],"FinnishOpen2012":["FI"],"FinnishOpen2013":["FI"],"FinnishQuietChampionship2026":["FI"],"France2004":["FR"],"France2005":["FR"],"France2006":["FR"],"France2007":["FR"],"France2008":["FR"],"France2009":["FR"],"France2010":["FR"],"France2011":["FR"],"France2012":["FR"],"France2013":["FR"],"France2015":["FR"],"France2016":["FR"],"France2017":["FR"],"France2018":["FR"],"FrenchChampionship2014":["FR"],"FrenchChampionship2019":["FR"],"FrenchChampionship2020":["FR"],"FrenchChampionship2022":["FR"],"FrenchChampionship2023":["FR"],"FrenchChampionship2024":["FR"],"FrenchChampionship2025":["FR"],"FrenchChampionship2026":["FR"],"FrenchFMCChampionship2024":["FR"],"GermanNationals2011":["DE"],"GermanNationals2012":["DE"],"GermanNationals2013":["DE"],"GermanNationals2014":["DE"],"GermanNationals2015":["DE"],"GermanNationals2016":["DE"],"GermanNationals2017":["DE"],"GermanNationals2018":["DE"],"GermanNationals2019":["DE"],"GermanNationals2022":["DE"],"GermanNationals2023":["DE"],"Germany2005":["DE"],"Germany2006":["DE"],"Germany2007":["DE"],"Germany2008":["DE"],"Germany2009":["DE"],"Germany2010":["DE"],"GreekNationals2023":["GR"],"GreekNationals2024":["GR"],"GreekNationals2025":["GR"],"HongKongChampionship2023":["HK"],"HongKongChampionship2024":["HK"],"HongKongChampionship2025":["HK"],"HongKongFMCChampionship2024":["HK"],"HongKongFMCChampionship2025":["HK"],"HongKongOpen2008":["HK"],"HongKongOpen2009":["HK"],"HongKongOpen2010":["HK"],"HungarianOpen2008":["HU"],"HungarianOpen2009":["HU"],"HungarianOpen2010":["HU"],"HungarianOpen2011":["HU"],"HungarianOpen2012":["HU"],"HungarianOpen2013":["HU"],"HungarianOpen2014":["HU"],"HungarianOpen2015":["HU"],"HungarianOpen2016":["HU"],"HungarianOpen2017":["HU"],"HungarianOpen2018":["HU"],"HungarianOpen2019":["HU"],"HungarianOpen2023":["HU"],"HungarianOpen2024":["HU"],"HungarianOpen2025":["HU"],"HungarianOpen2026":["HU"],"Hungary2005":["HU"],"IcelandNationals2018":["IS"],"IcelandicNationals2019":["IS"],"IcelandicNationals2021":["IS"],"IcelandicNationals2022":["IS"],"IcelandicNationals2023":["IS"],"IndianEliteChampionship2026":["IN"],"IndianFMCChampionship2026":["IN"],"IndianNationals2014":["IN"],"IndianNationals2015":["IN"],"IndianNationals2016":["IN"],"IndianNationals2017":["IN"],"IndianNationals2018":["IN"],"IndianNationals2019":["IN"],"IndianNationals2020":["IN"],"IndianNationals2023":["IN"],"IndianNationalsFMC2023":["IN"],"IndonesianChampionship2010":["ID"],"IndonesianChampionship2012":["ID"],"IndonesianChampionship2016":["ID"],"IndonesianChampionship2017":["ID"],"IndonesianChampionship2018":["ID"],"IndonesianChampionship2019":["ID"],"IndonesianChampionship2022":["ID"],"IndonesianChampionship2024":["ID"],"IndonesianChampionship2025":["ID"],"IndonesianChampionship2026":["ID"],"IndonesianOpen2009":["ID"],"IndonesianOpen2011":["ID"],"IranNationals2016":["IR"],"IrishChampionship2015":["IE"],"IrishChampionship2016":["IE"],"IrishChampionship2017":["IE"],"IrishChampionship2018":["IE"],"IrishChampionship2019":["IE"],"IrishChampionship2022":["IE"],"IrishChampionship2023":["IE"],"IrishChampionship2026":["IE"],"IrishChampionshipFMC2023":["IE"],"IrishChampionshipFMC2026":["IE"],"Islandsmotid2024":["IS"],"Islandsmotid2025":["IS"],"Islandsmotid2026":["IS"],"Israel2011":["IL"],"IsraelChampionship2014":["IL"],"IsraelChampionship2015":["IL"],"IsraelChampionship2016":["IL"],"IsraelChampionship2017":["IL"],"IsraelChampionship2019":["IL"],"IsraelChampionship2022":["IL"],"IsraelChampionship2023":["IL"],"IsraelChampionship2024":["IL"],"IsraelChampionship2025":["IL"],"IsraelChampionship2026":["IL"],"IsraelFMCChampionship2024":["IL"],"IsraelFMCChampionship2025":["IL"],"IsraelOpen2010":["IL"],"IsraelPBQChampionship2026":["IL"],"ItalianChampionship2010":["IT"],"ItalianChampionship2011":["IT"],"ItalianChampionship2012":["IT"],"ItalianChampionship2013":["IT"],"ItalianChampionship2014":["IT"],"ItalianChampionship2015":["IT"],"ItalianChampionship2016":["IT"],"ItalianChampionship2017":["IT"],"ItalianChampionship2018":["IT"],"ItalianChampionship2019":["IT"],"ItalianChampionship2021":["IT"],"ItalianChampionship2022":["IT"],"ItalianChampionship2023":["IT"],"ItalianChampionship2024":["IT"],"ItalianChampionship2025":["IT"],"ItalianOpen2007":["IT"],"ItalianOpen2008":["IT"],"ItalianOpen2009":["IT"],"JCCQ8speedcubingNationals2024":["JO"],"Japan2005":["JP"],"Japan2006":["JP"],"JapanChampionship2018":["JP"],"JapanChampionship2019":["JP"],"JapanChampionship2026":["JP"],"JapanFMCChampionship2026":["JP"],"JapanOpen2007":["JP"],"JapanOpen2008":["JP"],"JapanOpen2009":["JP"],"JapanOpen2010":["JP"],"JapanOpen2011":["JP"],"JapanOpen2012":["JP"],"JapanOpen2013":["JP"],"JapanOpen2015":["JP"],"JapanOpen2016":["JP"],"JapanOpen2017":["JP"],"JordanNationals2022":["JO"],"JordanNationals2023":["JO"],"JordanNationals2025":["JO"],"JordanNationals2026":["JO"],"KazakhstanNationals2018":["KZ"],"KazakhstanOpen2017":["KZ"],"KenyaNationals2024":["KE"],"KenyaNationals2025":["KE"],"KewbzUKBLDChampionship2026":["GB"],"KewbzUKChampionship2022":["GB"],"KewbzUKChampionship2026":["GB"],"KewbzUKChampionshipFMC2022":["GB"],"KewbzUKChampionshipFMC2026":["GB"],"Korea2006":["KR"],"Korea2009":["KR"],"Korea2010":["KR"],"KoreanChampionship2011":["KR"],"KoreanChampionship2016":["KR"],"KoreanChampionship2017":["KR"],"KoreanChampionship2018":["KR"],"KoreanChampionship2019":["KR"],"KoreanChampionship2022":["KR"],"KoreanChampionship2023":["KR"],"KoreanChampionship2024":["KR"],"KoreanChampionship2025":["KR"],"KoreanChampionshipMini2021":["KR"],"KoreanFMCChampionship2023":["KR"],"KoreanFMCChampionship2024":["KR"],"KoreanFMCChampionship2025":["KR"],"KuwaitNationals2026":["KW"],"KuwaitiNationals2023":["KW"],"KuwaitiNationals2024":["KW"],"KuwaitiNationals2025":["KW"],"KyrgyzstanNationals2025":["KG"],"KyrgyzstanNationals2026":["KG"],"KyrgyzstanOpen2019":["KG"],"LaosChampionship2024":["LA"],"LatvianChampionship2022":["LV"],"LatvianFMCChampionship2023":["LV"],"LatvijasCempionats2025":["LV"],"LesothoNationals2026":["LS"],"LithuanianNationals2023":["LT"],"LuxembourgNationals2024":["LU"],"LuxembourgNationals2026":["LU"],"MYHMBoliviaNationals2025":["BO"],"MYHMIndonesianChampionship2023":["ID"],"MYHMSingaporeChampionship2024":["SG"],"MacedonianNationals2019":["MK"],"MadagascarCubingOpen2019":["MG"],"MalaysiaCubeChampionship2018":["MY"],"MalaysiaCubeChampionship2019":["MY"],"MalaysiaCubeChampionship2022":["MY"],"MalaysiaCubeChampionship2023":["MY"],"MalaysiaCubeChampionship2024":["MY"],"MalaysiaCubeChampionship2025":["MY"],"MalaysiaFMCChampionship2024":["MY"],"MalaysiaFMCChampionship2025":["MY"],"MalaysianCubeChampionship2017":["MY"],"MaltaOpen2019":["MT"],"MaltaOpen2024":["MT"],"MalteseChampionship2026":["MT"],"MauritianOdyssey2024":["MU"],"MauritiusNationals2026":["MU"],"MexicanChampionship2018":["MX"],"MexicanChampionship2023":["MX"],"MexicanChampionship2025":["MX"],"MoldovaOpen2020":["MD"],"MongoliaChampionship2019":["MN"],"MongoliaChampionship2020":["MN"],"MongoliaChampionship2022":["MN"],"MongolianChampionship2023":["MN"],"MongolianChampionship2025":["MN"],"MongolianChampionship2026":["MN"],"MontenegroNationals2019":["ME"],"MontenegroOpen2017":["ME"],"MoroccanChampionship2025":["MA"],"MoroccanNationals2024":["MA"],"MoroccoChampionship2026":["MA"],"MozambiqueNationals2026":["MZ"],"NAC2024":["US"],"NAC2026":["US"],"NacionalPerubik2013":["PE"],"NacionalPerubik2016":["PE"],"NacionalesArgentinas2018":["AR"],"NacionalesArgentinas2019":["AR"],"NacionalesArgentinas2022":["AR"],"NacionalesArgentinas2023":["AR"],"NacionalesArgentinas2025":["AR"],"NacionalesArgentinasSDE2026":["AR"],"NacionalesChilenas2025":["CL"],"NacionalesColombia2023":["CO"],"NacionalesElSalvador2018":["SV"],"NacionalesElSalvador2019":["SV"],"NacionalesElSalvador2023":["SV"],"NacionalesElSalvador2024":["SV"],"NacionalesElSalvador2025":["SV"],"NacionalesFenixColombia2021":["CO"],"NacionalesGuatemala2018":["GT"],"NacionalesGuatemala2019":["GT"],"NacionalesGuatemala2022":["GT"],"NacionalesGuatemala2023":["GT"],"NacionalesGuatemala2024":["GT"],"NacionalesGuatemala2025":["GT"],"NacionalesHonduras2026":["HN"],"NacionalesMedellinExplora2019":["CO"],"NacionalesUruguayas2023":["UY"],"NacionalesUruguayas2024":["UY"],"NacionalesUruguayasFMC2024":["UY"],"NacionalesUruguayasUCHI2017":["UY"],"NacionalesUruguayasUCHI2018":["UY"],"NacionalesUruguayo2019":["UY"],"NamibiaNationals2026":["NA"],"NepalOpen2016":["NP"],"NepalOpen2017":["NP"],"NepalOpen2018":["NP"],"NepaliNationals2019":["NP"],"NepaliNationals2025":["NP"],"Netherlands2005":["NL"],"Netherlands2006":["NL"],"Netherlands2007":["NL"],"Netherlands2008":["NL"],"Netherlands2009":["NL"],"NewZealand2010":["NZ"],"NewZealandChamps2009":["NZ"],"NewZealandNationals2012":["NZ"],"NewZealandNationals2013":["NZ"],"NewZealandNationals2014":["NZ"],"NewZealandNationals2015":["NZ"],"NewZealandNationals2016":["NZ"],"NewZealandNationals2017":["NZ"],"NewZealandNationals2018":["NZ"],"NewZealandNationals2019":["NZ"],"NewZealandNationals2020":["NZ"],"NewZealandNationals2022":["NZ"],"NewZealandNationals2023":["NZ"],"NewZealandNationals2024":["NZ"],"NewZealandNationals2025":["NZ"],"NewZealandNationals2026":["NZ"],"NextaAndorraChampionship2026":["AD"],"NigeriaChampionship2022":["NG"],"NigerianChampionship2023":["NG"],"NordicSwedishChampionship2026":["SE"],"Norway2013":["NO"],"NorwegianChampionship2012":["NO"],"NorwegianChampionship2014":["NO"],"NorwegianChampionship2015":["NO"],"NorwegianChampionship2016":["NO"],"NorwegianChampionship2017":["NO"],"NorwegianChampionship2018":["NO"],"NorwegianChampionship2019":["NO"],"NorwegianChampionship2020":["NO"],"NorwegianChampionship2021":["NO"],"NorwegianChampionship2022":["NO"],"NorwegianChampionship2023":["NO"],"NorwegianChampionship2024":["NO"],"NorwegianChampionship2025":["NO"],"NorwegianChampionship2026":["NO"],"NorwegianFMCChampionship2023":["NO"],"NorwegianFMChampionship2025":["NO"],"NorwegianFMChampionship2026":["NO"],"NorwegianOpen2008":["NO"],"NorwegianOpen2009":["NO"],"NorwegianOpen2010":["NO"],"NorwegianOpen2011":["NO"],"NutiEstonianChampionship2026":["EE"],"OCFMC2024":["NZ"],"OmanOpen2023":["OM"],"OmanOpen2026":["OM"],"PanamaNationals2022":["PA"],"PanamaNationals2023":["PA"],"PanamaNationals2024":["PA"],"PanamaNationals2025":["PA"],"PanamaNationalsFMCBLD2026":["PA"],"Paraguay2016":["PY"],"Paraguay2017":["PY"],"ParaguayNationals2018":["PY"],"ParaguayNationals2019":["PY"],"ParaguayNationals2021":["PY"],"ParaguayNationals2022":["PY"],"ParaguayNationals2023":["PY"],"ParaguayNationals2024":["PY"],"ParaguayNationals2025":["PY"],"ParaguayNationals2026":["PY"],"ParaguayNationalsFMC2024":["PY"],"PeruNationals2018":["PE"],"PeruNationals2019":["PE"],"PeruNationals2022":["PE"],"PeruNationals2023":["PE"],"PeruNationals2024":["PE"],"PeruNationals2025":["PE"],"PeruNationals2026":["PE"],"PhilippineChampionship2016":["PH"],"PhilippineChampionship2017":["PH"],"PhilippineChampionship2018":["PH"],"PhilippineChampionship2019":["PH"],"PhilippineChampionship2024":["PH"],"PhilippineChampionship2025":["PH"],"PhilippineChampionship2026":["PH"],"PhilippineFMCChampionship2026":["PH"],"PhilippineOpen2011":["PH"],"PhilippineOpen2013":["PH"],"PhilippineOpen2014":["PH"],"PhilippineOpen2015":["PH"],"PhilippinesOpen2007":["PH"],"PhilippinesOpen2008":["PH"],"PhilippinesOpen2009":["PH"],"PhilippinesOpen2010":["PH"],"PolishChampionship2015":["PL"],"PolishChampionship2016":["PL"],"PolishChampionship2018":["PL"],"PolishChampionship2019":["PL"],"PolishChampionship2021":["PL"],"PolishChampionship2022":["PL"],"PolishChampionship2023":["PL"],"PolishChampionship2024":["PL"],"PolishChampionship2025":["PL"],"PolishNationals2009":["PL"],"PolishNationals2010":["PL"],"PolishNationals2011":["PL"],"PolishNationals2012":["PL"],"PolishNationals2013":["PL"],"PolishNationals2014":["PL"],"PolishNationals2017":["PL"],"PolishOpen2005":["PL"],"PolishOpen2006":["PL"],"PolishOpen2007":["PL"],"PolishOpen2008":["PL"],"PortugalChampionship2024":["PT"],"PortugalChampionship2025":["PT"],"PortugalChampionship2026":["PT"],"PortugalOpen2008":["PT"],"PortugalOpen2009":["PT"],"PortugalOpen2014":["PT"],"QYMongolianChampionship2024":["MN"],"QuietBelgianNationals2026":["BE"],"RepDominicanaNationals2019":["DO"],"Romanian24hChampionship2024":["RO"],"RomanianCubingOpen2019":["RO"],"RomanianCubingOpen2020":["RO"],"RomanianNationalChampionship2023":["RO"],"RomanianNationalDay2018":["RO"],"RomanianNationals2010":["RO"],"RomanianNationals2012":["RO"],"RomanianNationals2025":["RO"],"RomanianNationals2026":["RO"],"RubiksDutchNationals2025":["NL"],"RubiksFMCItaly2024":["IT"],"RubiksFMCItaly2025":["IT"],"RubiksGermanNationals2024":["DE"],"RubiksGermanNationals2025":["DE"],"RubiksGermanNationals2026":["DE"],"RubiksIrishChampionship2024":["IE"],"RubiksIrishChampionship2025":["IE"],"RubiksIrishChampionshipFMC2024":["IE"],"RubiksIrishChampionshipFMC2025":["IE"],"RubiksUKChampionship2023":["GB"],"RubiksUKChampionship2024":["GB"],"RubiksUKChampionship2025":["GB"],"RubiksUKChampionshipFMC2023":["GB"],"RubiksUKChampionshipFMC2024":["GB"],"RubiksUKChampionshipFMC2025":["GB"],"RussiaOpen2010":["RU"],"RussiaOpen2011":["RU"],"SAC2022":["BR"],"SAC2024":["AR"],"SamoaNationals2025":["WS"],"SanMarinoNationals2018":["SM"],"SanMarinoNationals2019":["SM"],"SanMarinoNationals2020":["SM"],"SanMarinoNationals2023":["SM"],"SanMarinoNationals2024":["SM"],"SerbianChampionship2020":["RS"],"SerbianChampionship2022":["RS"],"SerbianChampionship2023":["RS"],"SerbianChampionship2024":["RS"],"SerbianChampionship2025":["RS"],"SerbianFMCChampionship2025":["RS"],"SerbianOpen2012":["RS"],"SerbianOpen2013":["RS"],"SerbianOpen2015":["RS"],"SerbianOpen2016":["RS"],"SerbianOpen2019":["RS"],"SingaporeChampionship2018":["SG"],"SingaporeChampionship2019":["SG"],"SingaporeChampionship2023":["SG"],"SingaporeChampionship2025":["SG"],"SingaporeChampionship2026":["SG"],"SingaporeCubeChampionship2020":["SG"],"SingaporeOpen2014":["SG"],"SingaporeOpen2015":["SG"],"SingaporeOpen2016":["SG"],"SingaporeOpen2017":["SG"],"SlovakChampionship2025":["SK"],"SlovakChampionship2026":["SK"],"SlovakFMCNationals2024":["SK"],"SlovakNationals2023":["SK"],"SlovakNationals2024":["SK"],"SlovakianOpen2014":["SK"],"SlovakianOpen2015":["SK"],"SlovakianOpen2016":["SK"],"SlovakianOpen2017":["SK"],"SlovakianOpen2019":["SK"],"SloveniaNationals2018":["SI"],"SlovenianFMCNationals2023":["SI"],"SlovenianFMCNationals2024":["SI"],"SlovenianFMCNationals2025":["SI"],"SlovenianFMCNationals2026":["SI"],"SlovenianNationals2019":["SI"],"SlovenianNationals2020":["SI"],"SlovenianNationals2022":["SI"],"SlovenianNationals2023":["SI"],"SlovenianNationals2024":["SI"],"SlovenianNationals2025":["SI"],"SlovenianNationals2026":["SI"],"SolveItBahrain2025":["BH"],"SolveItBahrain2026":["BH"],"Spain2004":["ES"],"Spain2005":["ES"],"Spain2006":["ES"],"Spain2007":["ES"],"Spain2008":["ES"],"Spain2018":["ES"],"SpanishChampionship2009":["ES"],"SpanishChampionship2010":["ES"],"SpanishChampionship2011":["ES"],"SpanishChampionship2012":["ES"],"SpanishChampionship2014":["ES"],"SpanishChampionship2015":["ES"],"SpanishChampionship2016":["ES"],"SpanishChampionship2017":["ES"],"SpanishChampionship2019":["ES"],"SpanishChampionship2022":["ES"],"SpanishChampionship2023":["ES"],"SpanishChampionship2024":["ES"],"SpanishChampionship2025":["ES"],"SpanishChampionship2026":["ES"],"SpanishChampionships2013":["ES"],"SriLankanNationals2024":["LK"],"SriLankanNationalsFMC2024":["LK"],"SwedishChampionship2011":["SE"],"SwedishChampionship2012":["SE"],"SwedishChampionship2013":["SE"],"SwedishChampionship2014":["SE"],"SwedishChampionship2015":["SE"],"SwedishChampionship2017":["SE"],"SwedishChampionship2018":["SE"],"SwedishChampionship2019":["SE"],"SwedishChampionship2020":["SE"],"SwedishChampionship2021":["SE"],"SwedishChampionship2022":["SE"],"SwedishChampionship2023":["SE"],"SwedishChampionship2024":["SE"],"SwedishChampionship2025":["SE"],"SwedishFMCChampionship2022":["SE"],"SwedishFMCChampionship2023":["SE"],"SwedishFMCChampionship2024":["SE"],"SwedishOpen2005":["SE"],"SwedishOpen2006":["SE"],"SwedishOpen2007":["SE"],"SwedishOpen2008":["SE"],"SwedishOpen2009":["SE"],"SwedishOpen2010":["SE"],"SwissNationals2015":["CH"],"SwissNationals2016":["CH"],"SwissNationals2017":["CH"],"SwissNationals2018":["CH"],"SwissNationals2019":["CH"],"SwissNationals2022":["CH"],"SwissNationals2023":["CH"],"SwissNationals2024":["CH"],"SwissNationals2025":["CH"],"SwissNationals2026":["CH"],"Taiwan2006":["TW"],"Taiwan2007":["TW"],"TaiwanChampionship2016":["TW"],"TaiwanChampionship2017":["TW"],"TaiwanChampionship2018":["TW"],"TaiwanChampionship2019":["TW"],"TaiwanChampionship2020":["TW"],"TaiwanChampionship2022":["TW"],"TajikistanNationals2023":["TJ"],"TajikistanOpen2018":["TJ"],"Thailand2012":["TH"],"ThailandChampionship2013":["TH"],"ThailandChampionship2014":["TH"],"ThailandChampionship2015":["TH"],"ThailandChampionship2016":["TH"],"ThailandChampionship2017":["TH"],"ThailandChampionship2018":["TH"],"ThailandChampionship2019":["TH"],"ThailandChampionship2023":["TH"],"ThailandChampionship2024":["TH"],"ThailandChampionship2025":["TH"],"ThailandChampionship2026":["TH"],"ThailandFMCChampionship2025":["TH"],"ThailandOpen2009":["TH"],"ThailandOpen2010":["TH"],"ThailandOpen2011":["TH"],"TheBahamasCubeChallenge2026":["BS"],"TongaNationals2025":["TO"],"TrinidadandTobagoNationals2026":["TT"],"TurkishNationals2023":["TR"],"TurkishNationals2024":["TR"],"TurkishNationals2025":["TR"],"U24Nationals2022":["UA"],"UKC2018":["GB"],"UKChampionship2013":["GB"],"UKChampionship2014":["GB"],"UKChampionship2015":["GB"],"UKChampionship2016":["GB"],"UKChampionship2017":["GB"],"UKChampionship2019":["GB"],"UKOpen2006":["GB"],"UKOpen2007":["GB"],"UKOpen2008":["GB"],"UKOpen2009":["GB"],"UKOpen2010":["GB"],"UKOpen2011":["GB"],"UKOpen2012":["GB"],"US2004":["US"],"US2006":["US"],"USNationals2009":["US"],"USNationals2010":["US"],"USNationals2011":["US"],"USNationals2012":["US"],"USNationals2014":["US"],"USNationals2015":["US"],"USNationals2016":["US"],"USOpen2007":["US"],"USOpen2008":["US"],"UchiFlorida2015":["UY"],"UchiMontevideo2016":["UY"],"UgandaCubingOpen2025":["UG"],"UkrainianNationals2014":["UA"],"UkrainianNationals2016":["UA"],"UkrainianNationals2017":["UA"],"UkrainianNationals2018":["UA"],"UkrainianNationals2019":["UA"],"UkrainianNationals2023":["UA"],"UkrainianNationals2024":["UA"],"UkrainianNationals2025":["UA"],"UkrainianNationals2026":["UA"],"UzbekistanNationals2019":["UZ"],"UzbekistanNationals2023":["UZ"],"UzbekistanNationals2024":["UZ"],"UzbekistanNationals2025":["UZ"],"UzbekistanNationals2026":["UZ"],"UzbekistanOpen2017":["UZ"],"UzbekistanOpen2018":["UZ"],"VenezuelaNationals2015":["VE"],"VenezuelaNationals2016":["VE"],"VenezuelaNationals2023":["VE"],"VenezuelaNationals2025":["VE"],"VietnamChampionship2023":["VN"],"VietnamChampionship2024":["VN"],"VietnamChampionship2025":["VN"],"VietnamChampionship2026":["VN"],"VietnamFMCChampionship2026":["VN"],"WC2007":["HU"],"WC2013":["US"],"WC2015":["BR"],"WC2019":["AU"],"WelcomeBackMongoliaChampions2020":["MN"]};
+// Types de round WCA correspondant à une finale (table round_types de l'export officiel).
+const FINAL_ROUND_IDS = new Set(['c', 'f']);
+const CAREER_STATS_DATE = '27 septembre 2026';
 
 const EVENT_NAMES = {
   '222': '2x2x2', '333': '3x3x3', '444': '4x4x4', '555': '5x5x5', '666': '6x6x6', '777': '7x7x7',
@@ -1257,6 +1291,7 @@ async function performSearch(wcaId) {
   const seniorIndexAttempt = loadSeniorIndex().catch(() => null);
   const continentMapAttempt = loadCountryContinentMap().catch(() => null);
   const resultsAttempt = fetchPersonResults(wcaId);
+  const countryStatsAttempt = loadCountryStats().catch(() => null);
 
   try {
     const personRes = await fetch(`${API}/persons/${wcaId}`);
@@ -1281,9 +1316,20 @@ async function performSearch(wcaId) {
     const personResults = await resultsAttempt;
     const recordComps = await buildRecordCompetitions(personResults, records, eventIds);
 
+    const countryStatsData = await countryStatsAttempt;
+    const latestChampCompId = countryStatsData && countryStatsData[person.country_iso2]
+      ? countryStatsData[person.country_iso2].podiumCompetitionId
+      : null;
+    const currentHonors = computeCurrentHonors(records, eventIds);
+    const reigningEvents = computeReigningTitles(personResults, latestChampCompId, person.country_iso2);
+    const careerStats = computeCareerStats(personResults);
+
     const myTravelToken = ++travelToken;
-    lastProfileData = { person, competitionCount: data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps, travelStats: undefined, personResults };
-    renderProfile(person, data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps, undefined);
+    lastProfileData = {
+      person, competitionCount: data.competition_count, records, eventIds, seniorIndex, seniorInfo,
+      recordComps, travelStats: undefined, personResults, currentHonors, reigningEvents, careerStats,
+    };
+    renderProfile(person, data.competition_count, records, eventIds, seniorIndex, seniorInfo, recordComps, undefined, currentHonors, reigningEvents, careerStats);
 
     const travelHome = loadTravelHome(wcaId);
     computeTravelStats(personResults, travelHome).catch(() => null).then((travelStats) => {
@@ -1301,7 +1347,7 @@ async function performSearch(wcaId) {
   }
 }
 
-function renderProfile(person, competitionCount, records, eventIds, seniorIndex, seniorInfo, recordComps, travelStats) {
+async function renderProfile(person, competitionCount, records, eventIds, seniorIndex, seniorInfo, recordComps, travelStats, currentHonors, reigningEvents, careerStats) {
   const output = document.getElementById('output');
   output.innerHTML = '';
 
@@ -1343,6 +1389,10 @@ function renderProfile(person, competitionCount, records, eventIds, seniorIndex,
   profileCard.appendChild(travelPanel);
   output.appendChild(profileCard);
   setupTravelHomePanel(person.wca_id);
+
+  const honorsCard = buildCurrentHonorsCard(person, currentHonors, reigningEvents, recordComps);
+  if (honorsCard) output.appendChild(honorsCard);
+  output.appendChild(await buildCareerCard(careerStats));
 
   const tableCard = el('div', 'card world-card');
   tableCard.appendChild(el('div', 'section-title', `<span class="section-dot"></span>${t('sectionRankingsTitle')}`));
@@ -1677,6 +1727,154 @@ async function buildRecordCompetitions(results, records, eventIds) {
     map[job.eid][job.type] = await pickRecordCompetition(results, job.eid, job.field, job.value);
   });
   return map;
+}
+
+// ---------- Titres, records et podiums (situation actuelle + carrière) ----------
+
+// Parmi les épreuves où ce cubeur est actuellement classé #1 (national, continental ou mondial)
+// en single ou en average, ne garde que le niveau le plus élevé par (épreuve, type) : être #1
+// mondial implique forcément d'être aussi #1 continental et national, inutile d'empiler les trois.
+function computeCurrentHonors(records, eventIds) {
+  const honors = [];
+  eventIds.forEach(eid => {
+    const rec = records[eid];
+    ['single', 'average'].forEach(type => {
+      const entry = rec[type];
+      if (!entry) return;
+      let level = null;
+      if (entry.world_rank === 1) level = 'world';
+      else if (entry.continent_rank === 1) level = 'continental';
+      else if (entry.country_rank === 1) level = 'national';
+      if (level) honors.push({ eid, type, level });
+    });
+  });
+  return honors;
+}
+
+// Épreuves où ce cubeur a fini 1er en finale à la DERNIÈRE édition du Championnat national
+// officiel de son pays actuel (podiumCompetitionId, déjà calculé dans country_stats.json) : ce
+// sont les titres qu'il détient "en ce moment", jusqu'à la prochaine édition.
+function computeReigningTitles(personResults, latestChampCompId, countryIso2) {
+  if (!latestChampCompId) return [];
+  const events = new Set();
+  personResults.forEach(r => {
+    if (r.competition_id === latestChampCompId && r.pos === 1 &&
+        FINAL_ROUND_IDS.has(r.round_type_id) && r.country_iso2 === countryIso2) {
+      events.add(r.event_id);
+    }
+  });
+  return [...events];
+}
+
+// Statistiques de carrière à partir des résultats bruts de ce cubeur (déjà récupérés en direct) :
+// titres (victoires en finale de Championnat national, toutes éditions confondues), records
+// battus (NR/CR/WR en single ou average, toutes épreuves, qu'ils soient toujours d'actualité ou
+// déjà dépassés depuis), médailles d'or et podiums toutes compétitions confondues, et podiums
+// spécifiquement en Championnat national. Un résultat ne compte pour un titre/podium de
+// championnat que si la compétition est bien LE Championnat national du pays que ce cubeur y
+// représentait à ce moment précis (via CHAMPIONSHIP_COMPS, calculé une fois depuis l'export WCA).
+function computeCareerStats(personResults) {
+  const titles = [];
+  let recordCount = 0, goldCount = 0, podiumCount = 0, ncPodiumCount = 0;
+
+  personResults.forEach(r => {
+    if (r.regional_single_record) recordCount++;
+    if (r.regional_average_record) recordCount++;
+
+    if (!FINAL_ROUND_IDS.has(r.round_type_id) || r.pos == null) return;
+
+    if (r.pos === 1) goldCount++;
+    if (r.pos <= 3) podiumCount++;
+
+    const champCountries = CHAMPIONSHIP_COMPS[r.competition_id];
+    if (champCountries && champCountries.includes(r.country_iso2)) {
+      if (r.pos <= 3) ncPodiumCount++;
+      if (r.pos === 1) titles.push({ event: r.event_id, competitionId: r.competition_id });
+    }
+  });
+
+  return { titles, titleCount: titles.length, recordCount, goldCount, podiumCount, ncPodiumCount };
+}
+
+function buildCareerStatBox(label, value) {
+  const box = el('div', 'country-stat-card compact');
+  box.appendChild(el('div', 'country-stat-label', label));
+  box.appendChild(el('div', 'country-stat-value', String(value)));
+  return box;
+}
+
+async function buildCareerTitlesList(titles) {
+  const list = el('div', 'title-list');
+  const comps = await Promise.all(titles.map(ti => fetchCompetition(ti.competitionId)));
+  titles.forEach((ti, i) => {
+    const comp = comps[i];
+    const compUrl = comp ? comp.url : `https://www.worldcubeassociation.org/competitions/${ti.competitionId}`;
+    const compLabel = comp ? comp.name : ti.competitionId;
+    const badge = el('a', 'title-badge', `${eventName(ti.event)} · ${compLabel}`);
+    badge.href = compUrl;
+    badge.target = '_blank';
+    badge.rel = 'noopener';
+    list.appendChild(badge);
+  });
+  return list;
+}
+
+function buildCurrentHonorsCard(person, currentHonors, reigningEvents, recordComps) {
+  if (!currentHonors.length && !reigningEvents.length) return null;
+  const card = el('div', 'card');
+  card.appendChild(el('div', 'section-title', `<span class="section-dot"></span>${t('sectionCurrentHonorsTitle')}`));
+
+  if (reigningEvents.length) {
+    const isFemale = person.gender === 'f';
+    card.appendChild(el('div', 'podium-champion', t('reigningChampionTag', person.country.name, isFemale)));
+    const list = el('div', 'title-list');
+    reigningEvents.forEach(eid => {
+      list.appendChild(el('span', 'title-badge', `${eventDot(eid)}${eventName(eid)}`));
+    });
+    card.appendChild(list);
+  }
+
+  if (currentHonors.length) {
+    const list = el('div', 'title-list');
+    currentHonors.forEach(h => {
+      const comp = recordComps[h.eid] && recordComps[h.eid][h.type];
+      const typeLabel = h.type === 'single' ? t('recordSingle') : t('recordAverage');
+      let label;
+      if (h.level === 'world') label = t('honorWorld', eventName(h.eid), typeLabel);
+      else if (h.level === 'continental') label = t('honorContinental', eventName(h.eid), typeLabel, continentName(person.country.continent_id));
+      else label = t('honorNational', eventName(h.eid), typeLabel, person.country.name);
+      const badge = el('a', 'title-badge', label);
+      if (comp) {
+        badge.href = comp.url;
+        badge.target = '_blank';
+        badge.rel = 'noopener';
+      }
+      list.appendChild(badge);
+    });
+    card.appendChild(list);
+  }
+
+  return card;
+}
+
+async function buildCareerCard(careerStats) {
+  const card = el('div', 'card');
+  card.appendChild(el('div', 'section-title', `<span class="section-dot"></span>${t('sectionCareerTitle')}`));
+
+  const grid = el('div', 'country-stats-compact-grid');
+  grid.appendChild(buildCareerStatBox(t('careerStatTitles', careerStats.titleCount), careerStats.titleCount));
+  grid.appendChild(buildCareerStatBox(t('careerStatRecords', careerStats.recordCount), careerStats.recordCount));
+  grid.appendChild(buildCareerStatBox(t('careerStatGolds', careerStats.goldCount), careerStats.goldCount));
+  grid.appendChild(buildCareerStatBox(t('careerStatPodiums', careerStats.podiumCount), careerStats.podiumCount));
+  grid.appendChild(buildCareerStatBox(t('careerStatNCPodiums', careerStats.ncPodiumCount), careerStats.ncPodiumCount));
+  card.appendChild(grid);
+
+  if (careerStats.titles.length) {
+    card.appendChild(await buildCareerTitlesList(careerStats.titles));
+  }
+
+  card.appendChild(el('div', 'footnote', t('careerFootnote', CAREER_STATS_DATE)));
+  return card;
 }
 
 // Distance à vol d'oiseau (km) entre deux points, formule de Haversine.
@@ -2336,7 +2534,7 @@ function setLang(lang) {
   // Re-rend le contenu déjà affiché dans la nouvelle langue.
   if (currentView === 'custom' && lastProfileData) {
     const d = lastProfileData;
-    renderProfile(d.person, d.competitionCount, d.records, d.eventIds, d.seniorIndex, d.seniorInfo, d.recordComps, d.travelStats);
+    renderProfile(d.person, d.competitionCount, d.records, d.eventIds, d.seniorIndex, d.seniorInfo, d.recordComps, d.travelStats, d.currentHonors, d.reigningEvents, d.careerStats);
   }
   if (currentView === 'ranking' && rankingLoaded) {
     rankingLoaded = false;
