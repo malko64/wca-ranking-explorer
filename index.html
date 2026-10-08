@@ -1551,8 +1551,8 @@ function buildSeniorCard(person, seniorIndex, seniorInfo) {
     const entry = seniorInfo.perEvent[eid];
     const tr = el('tr');
     tr.appendChild(el('td', 'event-name', `${eventDot(eid)}${eventName(eid)}`));
-    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.single, seniorInfo.maxAge, t('labelBestTime')));
-    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.average, seniorInfo.maxAge, t('labelAverage')));
+    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.single, t('labelBestTime')));
+    tr.appendChild(buildSeniorResultCell(seniorIndex, entry.average, t('labelAverage')));
     tbody.appendChild(tr);
   });
 
@@ -1563,22 +1563,21 @@ function buildSeniorCard(person, seniorIndex, seniorInfo) {
   return card;
 }
 
-function buildSeniorResultCell(seniorIndex, entry, age, label) {
+function buildSeniorResultCell(seniorIndex, entry, label) {
   const td = el('td', 'rank-cell senior-cell');
   td.setAttribute('data-label', label);
   if (!entry) { td.innerHTML = '—'; return td; }
   const best = currentLang === 'fr' ? String(entry.best).replace(' in ', ' en ') : String(entry.best);
   const compText = formatSeniorCompetition(seniorIndex, entry.competition);
-  const bracketNote = entry.age < age ? ` <span class="senior-bracket-note">(${entry.age}+)</span>` : '';
   const continentBadge = entry.continentRank
-    ? `<span class="rank-badge continental ${rankBadgeClass(entry.continentRank)}">#${entry.continentRank.toLocaleString(NUM_LOCALE)} ${t('badgeContinent')}</span>`
+    ? `<span class="rank-badge continental ${rankBadgeClass(entry.continentRank)}">#${entry.continentRank.toLocaleString(NUM_LOCALE)} ${t('badgeContinent')} <span class="rank-total">/ ${entry.continentTotal.toLocaleString(NUM_LOCALE)}</span></span>`
     : '';
   td.innerHTML = `
-    <div class="result-cell">${best}${bracketNote}</div>
+    <div class="result-cell">${best} <span class="senior-bracket-note">(${entry.age}+)</span></div>
     <div class="badge-row">
-      <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString(NUM_LOCALE)} ${t('badgeNational')}</span>
+      <span class="rank-badge national ${rankBadgeClass(entry.nationalRank)}">#${entry.nationalRank.toLocaleString(NUM_LOCALE)} ${t('badgeNational')} <span class="rank-total">/ ${entry.nationalTotal.toLocaleString(NUM_LOCALE)}</span></span>
       ${continentBadge}
-      <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')}</span>
+      <span class="rank-badge ${rankBadgeClass(entry.rank)}">#${entry.rank.toLocaleString(NUM_LOCALE)} ${t('badgeWorld')} <span class="rank-total">/ ${entry.worldTotal.toLocaleString(NUM_LOCALE)}</span></span>
     </div>
     ${compText ? `<div class="senior-comp">${compText}</div>` : ''}
   `;
