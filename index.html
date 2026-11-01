@@ -481,7 +481,38 @@
   .name-suggestion .sugg-empty { color: var(--text-dim); font-weight: 400; }
 
   /* Vue Classements */
-  .ranking-event-card { margin-bottom: 20px; }
+  .ranking-event-card { margin-bottom: 8px; padding: 0; overflow: hidden; }
+  .ranking-summary-head, .ranking-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) 1fr 1fr 20px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+  }
+  .ranking-summary-head { padding-top: 0; padding-bottom: 6px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); }
+  .ranking-summary {
+    width: 100%;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    color: var(--text);
+    font-family: var(--font-body);
+    text-align: left;
+    cursor: pointer;
+  }
+  .ranking-summary:hover { background: var(--surface-2); transform: none; filter: none; }
+  .ranking-summary-event { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14.5px; min-width: 0; }
+  .ranking-summary-event span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ranking-summary-time { font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
+  .ranking-summary-chevron { color: var(--text-dim); transition: transform 0.2s; text-align: center; }
+  .ranking-event-card.open .ranking-summary-chevron { transform: rotate(90deg); }
+  .ranking-event-card.open .ranking-summary { background: var(--surface-2); }
+  .ranking-detail { padding: 16px 18px 18px; border-top: 1px solid var(--border); }
+  @media (max-width: 640px) {
+    .ranking-summary-head, .ranking-summary { grid-template-columns: minmax(0, 1.3fr) 1fr 1fr 14px; gap: 8px; padding-left: 12px; padding-right: 12px; }
+    .ranking-summary-time { font-size: 13.5px; }
+  }
   .ranking-event-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .ranking-event-header .event-dot { width: 13px; height: 13px; }
   .ranking-event-header h3 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin: 0; }
@@ -821,6 +852,7 @@ const I18N = {
     errorHttp: (code) => `Erreur ${code} lors de la récupération du profil.`,
     errorGeneric: 'Une erreur est survenue.',
     mouv: 'mouv.',
+    recordEventCol: 'Épreuve',
     recordSingle: 'Single',
     recordAverage: 'Moyenne',
     recordNone: 'Aucun record enregistré',
@@ -929,6 +961,7 @@ const I18N = {
     errorHttp: (code) => `Error ${code} while fetching the profile.`,
     errorGeneric: 'Something went wrong.',
     mouv: 'moves',
+    recordEventCol: 'Event',
     recordSingle: 'Single',
     recordAverage: 'Average',
     recordNone: 'No record on file',
@@ -1969,8 +2002,9 @@ function youtubeSearchUrl(personName, eventName, isAverage) {
   const q = `${personName} ${eventName} world record ${isAverage ? 'average' : 'single'}`;
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
 }
-function cubeSearchUrl(personName) {
-  return `https://www.google.com/search?q=${encodeURIComponent(`${personName} cube setup speedcubing`)}`;
+function cubeSearchUrl(personName, eventName, isAverage) {
+  const q = `${personName} ${eventName} world record ${isAverage ? 'average' : 'single'} cube used`;
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
 }
 
 let rankingLoaded = false;
@@ -1986,8 +2020,11 @@ async function loadRankingView() {
   const eventIds = getRankingEventIds();
 
   try {
-    const cards = await mapWithConcurrency(eventIds, 5, eid => buildRankingEventCard(eid, seniorIndexAttempt));
+    const cards = eventIds.map(eid => buildRankingEventCard(eid, seniorIndexAttempt));
     container.innerHTML = '';
+    container.appendChild(el('div', 'ranking-summary-head', `
+      <span>${t('recordEventCol')}</span><span>${t('recordSingle')}</span><span>${t('recordAverage')}</span><span></span>
+    `));
     cards.forEach(c => container.appendChild(c));
     container.appendChild(el('div', 'footnote', t('rankingFootnote', EVENT_RECORDS_DATE)));
     applyEventFilter();
@@ -2078,18 +2115,59 @@ document.addEventListener('click', (e) => {
   }
 });
 
-async function buildRankingEventCard(eid, seniorIndexAttempt) {
+function formatRecordValue(eid, recordData, isAverage) {
+  if (!recordData) return '—';
+  return eid === '333fm' ? formatFMResult(recordData.value, isAverage) : formatResult(recordData.value, eid);
+}
+
+// Vue rapide : une ligne single/moyenne par épreuve ; le détail (recordman, compétition, date,
+// liens vidéo/cube) n'est chargé via l'API qu'au premier clic sur la ligne.
+function buildRankingEventCard(eid, seniorIndexAttempt) {
   const card = el('div', 'card ranking-event-card');
   card.dataset.event = eid;
-  card.appendChild(el('div', 'ranking-event-header', `${eventDot(eid)}<h3>${eventName(eid)}</h3>`));
-
-  const grid = el('div', 'record-grid');
   const rec = EVENT_RECORDS[eid];
-  const seniorIndex = await seniorIndexAttempt;
 
-  grid.appendChild(await buildRecordBox(eid, rec.single, t('recordSingle'), false, seniorIndex));
-  grid.appendChild(await buildRecordBox(eid, rec.average, t('recordAverage'), true, seniorIndex));
-  card.appendChild(grid);
+  const summary = el('button', 'ranking-summary', `
+    <span class="ranking-summary-event">${eventDot(eid)}<span>${eventName(eid)}</span></span>
+    <span class="ranking-summary-time">${formatRecordValue(eid, rec.single, false)}</span>
+    <span class="ranking-summary-time">${formatRecordValue(eid, rec.average, true)}</span>
+    <span class="ranking-summary-chevron">›</span>
+  `);
+  summary.type = 'button';
+  summary.setAttribute('aria-expanded', 'false');
+  card.appendChild(summary);
+
+  const detail = el('div', 'ranking-detail');
+  detail.style.display = 'none';
+  card.appendChild(detail);
+
+  let detailLoaded = false;
+  summary.addEventListener('click', async () => {
+    const open = !card.classList.contains('open');
+    card.classList.toggle('open', open);
+    summary.setAttribute('aria-expanded', String(open));
+    detail.style.display = open ? '' : 'none';
+    if (!open || detailLoaded) return;
+    detailLoaded = true;
+    detail.innerHTML = '';
+    detail.appendChild(el('div', 'loading', `<span class="spinner"></span>${t('rankingLoading')}`));
+    try {
+      const seniorIndex = await seniorIndexAttempt;
+      const grid = el('div', 'record-grid');
+      const [singleBox, averageBox] = await Promise.all([
+        buildRecordBox(eid, rec.single, t('recordSingle'), false, seniorIndex),
+        buildRecordBox(eid, rec.average, t('recordAverage'), true, seniorIndex),
+      ]);
+      grid.appendChild(singleBox);
+      grid.appendChild(averageBox);
+      detail.innerHTML = '';
+      detail.appendChild(grid);
+    } catch (err) {
+      detailLoaded = false;
+      detail.innerHTML = '';
+      detail.appendChild(el('div', 'error', t('rankingError')));
+    }
+  });
   return card;
 }
 
@@ -2140,7 +2218,7 @@ async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
     const links = el('div', 'record-links');
     links.innerHTML = `
       <a class="record-link" href="${youtubeSearchUrl(name, eventName(eid), isAverage)}" target="_blank" rel="noopener">${t('recordVideoLink')}</a>
-      <a class="record-link" href="${cubeSearchUrl(name)}" target="_blank" rel="noopener">${t('recordCubeLink')}</a>
+      <a class="record-link" href="${cubeSearchUrl(name, eventName(eid), isAverage)}" target="_blank" rel="noopener">${t('recordCubeLink')}</a>
     `;
     wrap.appendChild(links);
 
