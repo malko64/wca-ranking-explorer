@@ -1086,15 +1086,25 @@ function eventDot(eid) {
 // chaque jour à partir de l'export officiel WCA. On y cherche le cubeur recherché, et on ne garde
 // que la tranche la plus haute à laquelle il appartient, épreuve par épreuve.
 const SENIOR_DATA_URL = 'https://wca-seniors.org/data/Senior_Rankings.js';
+// Copie de secours du même fichier, rafraîchie chaque jour par .github/workflows/sync-wca-data.yml,
+// utilisée si wca-seniors.org ne répond pas.
+const SENIOR_DATA_FALLBACK_URL = 'senior_rankings.js';
 const SENIOR_AGE_BRACKETS = [90, 80, 70, 60, 50, 40];
 let seniorIndexPromise = null;
 
 async function loadSeniorIndex() {
   if (seniorIndexPromise) return seniorIndexPromise;
   seniorIndexPromise = (async () => {
-    const res = await fetch(SENIOR_DATA_URL);
-    if (!res.ok) throw new Error('wca-seniors.org indisponible');
-    const text = await res.text();
+    let text;
+    try {
+      const res = await fetch(SENIOR_DATA_URL);
+      if (!res.ok) throw new Error('wca-seniors.org indisponible');
+      text = await res.text();
+    } catch (err) {
+      const res = await fetch(SENIOR_DATA_FALLBACK_URL);
+      if (!res.ok) throw err;
+      text = await res.text();
+    }
     const data = JSON.parse(text.slice(text.indexOf('{')));
 
     // brackets[eventId][type][age] = tableau des rangs mondiaux (déjà triés), un par tranche d'âge.
