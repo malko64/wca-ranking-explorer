@@ -345,6 +345,7 @@
     font-weight: 700;
   }
   .senior-sub { font-size: 12.5px; color: var(--text-dim); margin-bottom: 14px; }
+  .senior-backup-note { font-size: 12.5px; font-weight: 600; color: var(--senior); background: var(--senior-bg); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; }
   .senior-cell .senior-comp { color: var(--text-dim); font-size: 11px; margin-top: 3px; font-weight: 500; }
   .senior-bracket-note { color: var(--senior); font-weight: 700; }
   .app-footer { text-align: center; color: var(--text-dim); font-size: 12px; margin-top: 36px; }
@@ -839,6 +840,7 @@ const I18N = {
     worldFootnote: (date) => `Profil et classements (national / continental / mondial) récupérés en direct depuis l'API officielle de la WCA. "Cubeurs ayant fait l'épreuve" = nombre de personnes possédant au moins un résultat officiel WCA sur cette épreuve (pays / continent / monde du cubeur recherché), calculé à partir de l'export public de la base de données WCA du ${date} (la WCA ne publie pas ce chiffre en direct par épreuve).`,
     seniorTitle: '🎂 Classement séniors',
     seniorAgeBadge: (age) => `${age} ans et +`,
+    seniorBackupNote: (date) => `⚠️ wca-seniors.org ne répond pas : affichage de la copie de secours du ${date}.`,
     seniorUnavailable: "Impossible de charger le classement séniors (wca-seniors.org ne répond pas). Relance la recherche dans un instant.",
     seniorSub: (name, age) => `Tranche d'âge la plus haute atteinte par ${name}, en ne comptant que les résultats obtenus depuis qu'il/elle a ${age} ans.`,
     seniorFootnote: (refreshed) => `Classement communautaire non-officiel produit par <a href="https://wca-seniors.org" target="_blank" rel="noopener">wca-seniors.org</a> (inscription volontaire du WCA ID + date de naissance), recalculé chaque jour à partir de l'export de la base WCA — actualisé le ${refreshed}. La WCA ne publie aucune date de naissance ni classement par âge officiellement ; ce cubeur n'apparaît ici que parce qu'il/elle s'est inscrit·e sur ce site tiers. Le rang mondial vient directement de wca-seniors.org ; le rang national est recalculé ici en filtrant ce même classement par pays. Les deux peuvent être légèrement approximatifs (± 1-2 places) pour les cubeurs séniors non inscrits sur le site.`,
@@ -949,6 +951,7 @@ const I18N = {
     worldFootnote: (date) => `Profile and rankings (national / continental / world) fetched live from the official WCA API. "Cubers who've done the event" = number of people with at least one official WCA result in that event (country / continent / world of the searched cuber), computed from the public WCA database export dated ${date} (the WCA doesn't publish this figure live per event).`,
     seniorTitle: '🎂 Senior rankings',
     seniorAgeBadge: (age) => `${age}+ years old`,
+    seniorBackupNote: (date) => `⚠️ wca-seniors.org isn't responding: showing the backup copy from ${date}.`,
     seniorUnavailable: "Couldn't load the senior rankings (wca-seniors.org isn't responding). Try the search again in a moment.",
     seniorSub: (name, age) => `Highest age bracket reached by ${name}, counting only results achieved since turning ${age}.`,
     seniorFootnote: (refreshed) => `Unofficial community ranking produced by <a href="https://wca-seniors.org" target="_blank" rel="noopener">wca-seniors.org</a> (voluntary sign-up with WCA ID + date of birth), recomputed daily from the WCA database export — last updated ${refreshed}. The WCA does not officially publish any date of birth or age-based ranking; this cuber only appears here because they signed up on this third-party site. The world rank comes straight from wca-seniors.org; the national rank is recomputed here by filtering that same ranking by country. Both can be slightly approximate (± 1-2 places) for senior cubers not registered on the site.`,
@@ -1095,7 +1098,7 @@ let seniorIndexPromise = null;
 async function loadSeniorIndex() {
   if (seniorIndexPromise) return seniorIndexPromise;
   seniorIndexPromise = (async () => {
-    let text;
+    let text, fromBackup = false;
     try {
       const res = await fetch(SENIOR_DATA_URL);
       if (!res.ok) throw new Error('wca-seniors.org indisponible');
@@ -1104,6 +1107,7 @@ async function loadSeniorIndex() {
       const res = await fetch(SENIOR_DATA_FALLBACK_URL);
       if (!res.ok) throw err;
       text = await res.text();
+      fromBackup = true;
     }
     const data = JSON.parse(text.slice(text.indexOf('{')));
 
@@ -1123,7 +1127,7 @@ async function loadSeniorIndex() {
     const personCountry = new Map(data.persons.map(p => [p.id, p.country]));
     const personAge = new Map(data.persons.map(p => [p.id, p.age]));
     const competitions = new Map(data.competitions.map(c => [c.id, c]));
-    return { refreshed: data.refreshed, brackets, personCountry, personAge, competitions };
+    return { refreshed: data.refreshed, fromBackup, brackets, personCountry, personAge, competitions };
   })();
   // En cas d'échec (site indisponible, réseau), on oublie la promesse rejetée pour retenter à la
   // prochaine recherche au lieu de masquer le classement séniors jusqu'au rechargement de la page.
@@ -1586,6 +1590,11 @@ function buildSeniorCard(person, seniorIndex, seniorInfo) {
   const card = el('div', 'card senior-card');
   card.appendChild(el('div', 'senior-title', `${t('seniorTitle')} <span class="senior-badge">${t('seniorAgeBadge', seniorInfo.maxAge)}</span>`));
   card.appendChild(el('div', 'senior-sub', t('seniorSub', person.name.split(' ')[0], seniorInfo.maxAge)));
+  if (seniorIndex.fromBackup) {
+    const d = new Date(String(seniorIndex.refreshed).slice(0, 10) + 'T00:00:00Z');
+    const dateStr = isNaN(d) ? seniorIndex.refreshed : d.toLocaleDateString(NUM_LOCALE, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    card.appendChild(el('div', 'senior-backup-note', t('seniorBackupNote', dateStr)));
+  }
 
   const tableWrap = el('div', 'table-wrap');
   const table = el('table');
