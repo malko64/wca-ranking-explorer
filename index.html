@@ -541,6 +541,18 @@
   .record-comp a { color: var(--accent); text-decoration: none; }
   .record-comp a:hover { text-decoration: underline; }
   .record-links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .record-gear { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  @media (max-width: 420px) { .record-gear { grid-template-columns: 1fr; } }
+  .record-gear-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; }
+  .record-gear-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); margin-bottom: 4px; }
+  .record-gear-value { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
+  .record-gear-unknown { color: var(--text-dim); margin-bottom: 4px; }
+  .record-gear-meta { color: var(--text-dim); font-size: 11.5px; line-height: 1.5; }
+  .record-gear-meta a { color: var(--accent); text-decoration: none; }
+  .record-gear-meta a:hover { text-decoration: underline; }
+  .record-gear-conf { display: inline-block; font-size: 10.5px; font-weight: 700; border-radius: 6px; padding: 1px 6px; margin-bottom: 4px; }
+  .record-gear-conf.single { color: var(--senior); background: var(--senior-bg); }
+  .record-gear-conf.multi { color: var(--accent); background: var(--surface-2); }
   .record-link {
     font-size: 11.5px;
     font-weight: 600;
@@ -866,6 +878,15 @@ const I18N = {
     recordTie: (n) => `🤝 Record partagé par ${n} cubeurs`,
     recordVideoLink: '🎥 Chercher la vidéo',
     recordCubeLink: '🧊 Chercher le cube utilisé',
+    gearCubeLabel: '🧊 Cube utilisé',
+    gearSetupLabel: '⚙️ Réglages',
+    gearNotFound: 'Non trouvé dans les sources publiques',
+    gearSetupNotFound: 'Non documentés publiquement pour ce record',
+    gearConfSingle: 'Une seule source',
+    gearConfUnsure: 'À confirmer',
+    gearConfMulti: (n) => `Confirmé par ${n} sources`,
+    gearSources: 'Source',
+    gearSearch: 'Chercher sur Google',
     ageBadge: (age) => `${age}+ ans`,
     rankingLoading: 'Chargement des records du monde…',
     rankingFootnote: (date) => `L'association recordman ↔ compétition est calculée une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne donne "qui détient le record et où" en direct — un nouveau record ne sera reflété ici qu'après une mise à jour manuelle de cette page). Le profil, l'avatar, le pays et les infos de compétition sont eux récupérés en direct via l'API WCA à chaque affichage. Les liens "vidéo" et "cube utilisé" sont des recherches préremplies non vérifiées : la WCA ne suit aucune de ces deux informations.`,
@@ -977,6 +998,15 @@ const I18N = {
     recordTie: (n) => `🤝 Record shared by ${n} cubers`,
     recordVideoLink: '🎥 Search for the video',
     recordCubeLink: '🧊 Search for the cube used',
+    gearCubeLabel: '🧊 Cube used',
+    gearSetupLabel: '⚙️ Setup',
+    gearNotFound: 'Not found in public sources',
+    gearSetupNotFound: 'Not publicly documented for this record',
+    gearConfSingle: 'Single source',
+    gearConfUnsure: 'Unconfirmed',
+    gearConfMulti: (n) => `Confirmed by ${n} sources`,
+    gearSources: 'Source',
+    gearSearch: 'Search on Google',
     ageBadge: (age) => `${age}+ yo`,
     rankingLoading: 'Loading world records…',
     rankingFootnote: (date) => `The record holder ↔ competition association is computed once from the official WCA database export dated ${date} (no public endpoint gives "who holds the record and where" live — a new record will only show here after this page is manually refreshed). The profile, avatar, country and competition info are fetched live from the WCA API on every view. The "video" and "cube used" links are unverified pre-filled searches: the WCA does not track either of those.`,
@@ -1057,6 +1087,29 @@ const CONTINENT_NAMES_FR = {
 // première fois). Tout le reste (nom, avatar, pays, nom/date de la compétition) est récupéré en
 // direct via l'API à l'affichage, donc seule cette association personne↔compétition peut dater.
 const EVENT_RECORDS_DATE = "21 novembre 2026";
+
+// Cube et réglages utilisés pour les records du monde, recherchés à la main (recoupement de sources
+// web) en novembre 2026. Ni la WCA ni aucune base publique ne fournissent cette information.
+// Clé = épreuve|type|valeur|personId : si le record change, l'entrée ne correspond plus et l'app
+// affiche "non trouvé" + un lien de recherche au lieu d'une information périmée.
+// unsure = la source ne rattache pas clairement le cube au record.
+// setup = { text, sources } quand des réglages (tension, aimants, lubrifiant…) sont documentés.
+const RECORD_GEAR = {
+  "333|single|251|2023GENG02": {
+    cube: "GAN 16 MagLev MAX",
+    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/List_of_World_Records/3x3x3" }],
+  },
+  "333|average|351|2019WANY36": {
+    cube: "MoYu Super AoLong",
+    unsure: true, // attribution peu claire dans la source
+    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/List_of_World_Records/3x3x3" }],
+  },
+  "222|single|39|2021YEZI01": {
+    cube: "GAN 251 M Pro",
+    sources: [{ label: "SpeedSolving forum", url: "https://www.speedsolving.com/posts/1674141/" }],
+  },
+};
+
 const EVENT_RECORDS = {"222":{"average":{"holders":[{"competitionId":"KidsAmericaChristmasOH2025","personId":"2016FEIS01"}],"value":86},"single":{"holders":[{"competitionId":"HefeiOpen2025","personId":"2021YEZI01"}],"value":39}},"333":{"average":{"holders":[{"competitionId":"HefeiCubingLeague3x3III2026","personId":"2019WANY36"}],"value":351},"single":{"holders":[{"competitionId":"GuangzhouGrandOpen2026","personId":"2023GENG02"}],"value":251}},"333bf":{"average":{"holders":[{"competitionId":"HefeiAugustOpen2026","personId":"2015CHER07"}],"value":1397},"single":{"holders":[{"competitionId":"MidAtlanticQuietChampionship2026","personId":"2015CHER07"}],"value":1156}},"333fm":{"average":{"holders":[{"competitionId":"EvanstonFMCSpring2026","personId":"2013JOHN10"}],"value":1900},"single":{"holders":[{"competitionId":"FMC2019","personId":"2011TRON02"},{"competitionId":"AshfieldSummerChallenge2024","personId":"2017BRYA06"},{"competitionId":"AshfieldSummerChallenge2024","personId":"2018GIBS04"},{"competitionId":"RubiksUKChampionshipFMC2024","personId":"2022BROW01"}],"value":16}},"333ft":{"average":{"holders":[{"competitionId":"Medan10thAnniversary2019","personId":"2016HUNG08"}],"value":1990},"single":{"holders":[{"competitionId":"VJTIMumbaiCubeOpen2019","personId":"2017KOLI01"}],"value":1556}},"333mbf":{"single":{"holders":[{"competitionId":"PleaseBeQuietReno2025","personId":"2016SIGG01"}],"value":380350302}},"333mbo":{"single":{"holders":[{"competitionId":"GermanOpen2008","personId":"2007HABE01"}],"value":750815700}},"333oh":{"average":{"holders":[{"competitionId":"WuhuOpen2026","personId":"2023CHEN30"}],"value":699},"single":{"holders":[{"competitionId":"MidAtlanticChampionship2026","personId":"2012PONC02"}],"value":562}},"444":{"average":{"holders":[{"competitionId":"SeoulWinter2026","personId":"2016KOLA02"}],"value":1856},"single":{"holders":[{"competitionId":"SpanishChampionship2025","personId":"2016KOLA02"}],"value":1518}},"444bf":{"average":{"holders":[{"competitionId":"NewYorkMultimatePBQII2025","personId":"2016CHAP04"}],"value":5939},"single":{"holders":[{"competitionId":"4BLDinaMadisonHall2023","personId":"2016CHAP04"}],"value":5196}},"555":{"average":{"holders":[{"competitionId":"GuangzhouGrandOpen2026","personId":"2019TARA09"}],"value":3319},"single":{"holders":[{"competitionId":"AllRoundersKatowiceI2026","personId":"2016KOLA02"}],"value":2949}},"555bf":{"average":{"holders":[{"competitionId":"MichiganCubingClubEpsilon2019","personId":"2016CHAP04"}],"value":14763},"single":{"holders":[{"competitionId":"MultiMayhemVA2026","personId":"2016CHAP04"}],"value":11859}},"666":{"average":{"holders":[{"competitionId":"BeijingAutumnRivalry2026","personId":"2019TARA09"}],"value":6176},"single":{"holders":[{"competitionId":"BurbankBigCubes2025","personId":"2012PARK03"}],"value":5769}},"777":{"average":{"holders":[{"competitionId":"BeijingAutumnRivalry2026","personId":"2019TARA09"}],"value":9593},"single":{"holders":[{"competitionId":"BeijingAutumnRivalry2026","personId":"2019TARA09"}],"value":8747}},"clock":{"average":{"holders":[{"competitionId":"NewZealandNationals2026","personId":"2022GIBS04"}],"value":214},"single":{"holders":[{"competitionId":"HastyHastings2025","personId":"2022GIBS04"}],"value":153}},"magic":{"average":{"holders":[{"competitionId":"BeijingSummer2011","personId":"2009WANG13"}],"value":76},"single":{"holders":[{"competitionId":"BeijingSpring2011","personId":"2009WANG13"}],"value":69}},"minx":{"average":{"holders":[{"competitionId":"KualaLumpurCC2026","personId":"2019TARA09"}],"value":2340},"single":{"holders":[{"competitionId":"QuanzhouSummer2026","personId":"2016WUZI04"}],"value":2104}},"mmagic":{"average":{"holders":[{"competitionId":"USNationals2011","personId":"2010PULC01"}],"value":175},"single":{"holders":[{"competitionId":"TianjinWinter2012","personId":"2009WANG13"}],"value":166}},"pyram":{"average":{"holders":[{"competitionId":"ZhengzhouZest2025","personId":"2019JIAN54"}],"value":114},"single":{"holders":[{"competitionId":"DobbsFerryDecathlon2026","personId":"2022TUCK09"}],"value":70}},"skewb":{"average":{"holders":[{"competitionId":"CFLJustynow2025","personId":"2022SAMS03"}],"value":137},"single":{"holders":[{"competitionId":"GluszycaOpen2026","personId":"2021GROH01"}],"value":73}},"sq1":{"average":{"holders":[{"competitionId":"CubinginSouthernOregon2025","personId":"2017AGGA01"}],"value":463},"single":{"holders":[{"competitionId":"EvanstonQualifier2026","personId":"2013JOHN10"}],"value":285}}};
 
 // Compétitions flaguées comme Championnat national officiel (championship_type = code ISO2
@@ -2035,6 +2088,10 @@ function youtubeSearchUrl(personName, eventName, isAverage) {
   const q = `${personName} ${eventName} world record ${isAverage ? 'average' : 'single'}`;
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
 }
+function setupSearchUrl(personName, eventName) {
+  const q = `${personName} ${eventName} cube setup tension magnets lube`;
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}
 function cubeSearchUrl(personName, eventName, isAverage) {
   const q = `${personName} ${eventName} world record ${isAverage ? 'average' : 'single'} cube used`;
   return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
@@ -2204,6 +2261,25 @@ function buildRankingEventCard(eid, seniorIndexAttempt) {
   return card;
 }
 
+function buildGearBox(label, value, sources, unsure, notFoundText, searchUrl) {
+  const box = el('div', 'record-gear-box');
+  box.appendChild(el('div', 'record-gear-label', label));
+  if (!value) {
+    box.appendChild(el('div', 'record-gear-unknown', notFoundText));
+    box.appendChild(el('div', 'record-gear-meta', `<a href="${searchUrl}" target="_blank" rel="noopener">${t('gearSearch')} ↗</a>`));
+    return box;
+  }
+  box.appendChild(el('div', 'record-gear-value', value));
+  const n = sources ? sources.length : 0;
+  const conf = unsure ? t('gearConfUnsure') : n > 1 ? t('gearConfMulti', n) : t('gearConfSingle');
+  box.appendChild(el('span', `record-gear-conf ${!unsure && n > 1 ? 'multi' : 'single'}`, conf));
+  if (n) {
+    const links = sources.map(src => `<a href="${src.url}" target="_blank" rel="noopener">${src.label}</a>`).join(' · ');
+    box.appendChild(el('div', 'record-gear-meta', `${t('gearSources')} : ${links}`));
+  }
+  return box;
+}
+
 async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
   const box = el('div', 'record-box');
   box.appendChild(el('div', 'record-box-label', label));
@@ -2251,9 +2327,19 @@ async function buildRecordBox(eid, recordData, label, isAverage, seniorIndex) {
     const links = el('div', 'record-links');
     links.innerHTML = `
       <a class="record-link" href="${youtubeSearchUrl(name, eventName(eid), isAverage)}" target="_blank" rel="noopener">${t('recordVideoLink')}</a>
-      <a class="record-link" href="${cubeSearchUrl(name, eventName(eid), isAverage)}" target="_blank" rel="noopener">${t('recordCubeLink')}</a>
     `;
     wrap.appendChild(links);
+
+    // Fewest Moves se résout sur papier : pas de cube ni de réglages.
+    if (eid !== '333fm') {
+      const gear = RECORD_GEAR[`${eid}|${isAverage ? 'average' : 'single'}|${recordData.value}|${holder.personId}`] || {};
+      const gearRow = el('div', 'record-gear');
+      gearRow.appendChild(buildGearBox(t('gearCubeLabel'), gear.cube, gear.sources, gear.unsure,
+        t('gearNotFound'), cubeSearchUrl(name, eventName(eid), isAverage)));
+      gearRow.appendChild(buildGearBox(t('gearSetupLabel'), gear.setup && gear.setup.text, gear.setup && gear.setup.sources, false,
+        t('gearSetupNotFound'), setupSearchUrl(name, gear.cube || eventName(eid))));
+      wrap.appendChild(gearRow);
+    }
 
     box.appendChild(wrap);
   }
