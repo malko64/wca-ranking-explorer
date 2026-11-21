@@ -1094,20 +1094,61 @@ const EVENT_RECORDS_DATE = "21 novembre 2026";
 // affiche "non trouvé" + un lien de recherche au lieu d'une information périmée.
 // unsure = la source ne rattache pas clairement le cube au record.
 // setup = { text, sources } quand des réglages (tension, aimants, lubrifiant…) sont documentés.
+// searched = date de la recherche ; une entrée sans cube = cherché mais rien trouvé.
+// Les nouveaux records sont recherchés automatiquement chaque jour par une tâche Claude planifiée
+// (voir scripts/RECORD_GEAR_ROUTINE.md).
 const RECORD_GEAR = {
   "333|single|251|2023GENG02": {
+    searched: "2026-11-21",
     cube: "GAN 16 MagLev MAX",
     sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/List_of_World_Records/3x3x3" }],
   },
   "333|average|351|2019WANY36": {
+    searched: "2026-11-21",
     cube: "MoYu Super AoLong",
     unsure: true, // attribution peu claire dans la source
     sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/List_of_World_Records/3x3x3" }],
   },
   "222|single|39|2021YEZI01": {
+    searched: "2026-11-21",
     cube: "GAN 251 M Pro",
     sources: [{ label: "SpeedSolving forum", url: "https://www.speedsolving.com/posts/1674141/" }],
   },
+  "222|average|86|2016FEIS01": { searched: "2026-11-21" },
+  "333bf|single|1156|2015CHER07": { searched: "2026-11-21" },
+  "333bf|average|1397|2015CHER07": { searched: "2026-11-21" },
+  "333ft|single|1556|2017KOLI01": { searched: "2026-11-21" },
+  "333ft|average|1990|2016HUNG08": { searched: "2026-11-21" },
+  "333mbf|single|380350302|2016SIGG01": { searched: "2026-11-21" },
+  "333mbo|single|750815700|2007HABE01": { searched: "2026-11-21" },
+  "333oh|single|562|2012PONC02": { searched: "2026-11-21" },
+  "333oh|average|699|2023CHEN30": { searched: "2026-11-21" },
+  "444|single|1518|2016KOLA02": { searched: "2026-11-21" },
+  "444|average|1856|2016KOLA02": { searched: "2026-11-21" },
+  "444bf|single|5196|2016CHAP04": { searched: "2026-11-21" },
+  "444bf|average|5939|2016CHAP04": { searched: "2026-11-21" },
+  "555|single|2949|2016KOLA02": { searched: "2026-11-21" },
+  "555|average|3319|2019TARA09": { searched: "2026-11-21" },
+  "555bf|single|11859|2016CHAP04": { searched: "2026-11-21" },
+  "555bf|average|14763|2016CHAP04": { searched: "2026-11-21" },
+  "666|single|5769|2012PARK03": { searched: "2026-11-21" },
+  "666|average|6176|2019TARA09": { searched: "2026-11-21" },
+  "777|single|8747|2019TARA09": { searched: "2026-11-21" },
+  "777|average|9593|2019TARA09": { searched: "2026-11-21" },
+  "clock|single|153|2022GIBS04": { searched: "2026-11-21" },
+  "clock|average|214|2022GIBS04": { searched: "2026-11-21" },
+  "magic|single|69|2009WANG13": { searched: "2026-11-21" },
+  "magic|average|76|2009WANG13": { searched: "2026-11-21" },
+  "minx|single|2104|2016WUZI04": { searched: "2026-11-21" },
+  "minx|average|2340|2019TARA09": { searched: "2026-11-21" },
+  "mmagic|single|166|2009WANG13": { searched: "2026-11-21" },
+  "mmagic|average|175|2010PULC01": { searched: "2026-11-21" },
+  "pyram|single|70|2022TUCK09": { searched: "2026-11-21" },
+  "pyram|average|114|2019JIAN54": { searched: "2026-11-21" },
+  "skewb|single|73|2021GROH01": { searched: "2026-11-21" },
+  "skewb|average|137|2022SAMS03": { searched: "2026-11-21" },
+  "sq1|single|285|2013JOHN10": { searched: "2026-11-21" },
+  "sq1|average|463|2017AGGA01": { searched: "2026-11-21" },
 };
 
 const EVENT_RECORDS = {"222":{"average":{"holders":[{"competitionId":"KidsAmericaChristmasOH2025","personId":"2016FEIS01"}],"value":86},"single":{"holders":[{"competitionId":"HefeiOpen2025","personId":"2021YEZI01"}],"value":39}},"333":{"average":{"holders":[{"competitionId":"HefeiCubingLeague3x3III2026","personId":"2019WANY36"}],"value":351},"single":{"holders":[{"competitionId":"GuangzhouGrandOpen2026","personId":"2023GENG02"}],"value":251}},"333bf":{"average":{"holders":[{"competitionId":"HefeiAugustOpen2026","personId":"2015CHER07"}],"value":1397},"single":{"holders":[{"competitionId":"MidAtlanticQuietChampionship2026","personId":"2015CHER07"}],"value":1156}},"333fm":{"average":{"holders":[{"competitionId":"EvanstonFMCSpring2026","personId":"2013JOHN10"}],"value":1900},"single":{"holders":[{"competitionId":"FMC2019","personId":"2011TRON02"},{"competitionId":"AshfieldSummerChallenge2024","personId":"2017BRYA06"},{"competitionId":"AshfieldSummerChallenge2024","personId":"2018GIBS04"},{"competitionId":"RubiksUKChampionshipFMC2024","personId":"2022BROW01"}],"value":16}},"333ft":{"average":{"holders":[{"competitionId":"Medan10thAnniversary2019","personId":"2016HUNG08"}],"value":1990},"single":{"holders":[{"competitionId":"VJTIMumbaiCubeOpen2019","personId":"2017KOLI01"}],"value":1556}},"333mbf":{"single":{"holders":[{"competitionId":"PleaseBeQuietReno2025","personId":"2016SIGG01"}],"value":380350302}},"333mbo":{"single":{"holders":[{"competitionId":"GermanOpen2008","personId":"2007HABE01"}],"value":750815700}},"333oh":{"average":{"holders":[{"competitionId":"WuhuOpen2026","personId":"2023CHEN30"}],"value":699},"single":{"holders":[{"competitionId":"MidAtlanticChampionship2026","personId":"2012PONC02"}],"value":562}},"444":{"average":{"holders":[{"competitionId":"SeoulWinter2026","personId":"2016KOLA02"}],"value":1856},"single":{"holders":[{"competitionId":"SpanishChampionship2025","personId":"2016KOLA02"}],"value":1518}},"444bf":{"average":{"holders":[{"competitionId":"NewYorkMultimatePBQII2025","personId":"2016CHAP04"}],"value":5939},"single":{"holders":[{"competitionId":"4BLDinaMadisonHall2023","personId":"2016CHAP04"}],"value":5196}},"555":{"average":{"holders":[{"competitionId":"GuangzhouGrandOpen2026","personId":"2019TARA09"}],"value":3319},"single":{"holders":[{"competitionId":"AllRoundersKatowiceI2026","personId":"2016KOLA02"}],"value":2949}},"555bf":{"average":{"holders":[{"competitionId":"MichiganCubingClubEpsilon2019","personId":"2016CHAP04"}],"value":14763},"single":{"holders":[{"competitionId":"MultiMayhemVA2026","personId":"2016CHAP04"}],"value":11859}},"666":{"average":{"holders":[{"competitionId":"BeijingAutumnRivalry2026","personId":"2019TARA09"}],"value":6176},"single":{"holders":[{"competitionId":"BurbankBigCubes2025","personId":"2012PARK03"}],"value":5769}},"777":{"average":{"holders":[{"competitionId":"BeijingAutumnRivalry2026","personId":"2019TARA09"}],"value":9593},"single":{"holders":[{"competitionId":"BeijingAutumnRivalry2026","personId":"2019TARA09"}],"value":8747}},"clock":{"average":{"holders":[{"competitionId":"NewZealandNationals2026","personId":"2022GIBS04"}],"value":214},"single":{"holders":[{"competitionId":"HastyHastings2025","personId":"2022GIBS04"}],"value":153}},"magic":{"average":{"holders":[{"competitionId":"BeijingSummer2011","personId":"2009WANG13"}],"value":76},"single":{"holders":[{"competitionId":"BeijingSpring2011","personId":"2009WANG13"}],"value":69}},"minx":{"average":{"holders":[{"competitionId":"KualaLumpurCC2026","personId":"2019TARA09"}],"value":2340},"single":{"holders":[{"competitionId":"QuanzhouSummer2026","personId":"2016WUZI04"}],"value":2104}},"mmagic":{"average":{"holders":[{"competitionId":"USNationals2011","personId":"2010PULC01"}],"value":175},"single":{"holders":[{"competitionId":"TianjinWinter2012","personId":"2009WANG13"}],"value":166}},"pyram":{"average":{"holders":[{"competitionId":"ZhengzhouZest2025","personId":"2019JIAN54"}],"value":114},"single":{"holders":[{"competitionId":"DobbsFerryDecathlon2026","personId":"2022TUCK09"}],"value":70}},"skewb":{"average":{"holders":[{"competitionId":"CFLJustynow2025","personId":"2022SAMS03"}],"value":137},"single":{"holders":[{"competitionId":"GluszycaOpen2026","personId":"2021GROH01"}],"value":73}},"sq1":{"average":{"holders":[{"competitionId":"CubinginSouthernOregon2025","personId":"2017AGGA01"}],"value":463},"single":{"holders":[{"competitionId":"EvanstonQualifier2026","personId":"2013JOHN10"}],"value":285}}};
