@@ -546,7 +546,8 @@
   .record-gear-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; }
   .record-gear-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-dim); margin-bottom: 4px; }
   .record-gear-value { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
-  .record-gear-unknown { color: var(--text-dim); margin-bottom: 4px; }
+  .record-gear-unknown { color: var(--text-dim); margin-bottom: 6px; }
+  .record-gear-search .record-link { color: var(--accent); border-color: var(--accent); }
   .record-gear-meta { color: var(--text-dim); font-size: 11.5px; line-height: 1.5; }
   .record-gear-meta a { color: var(--accent); text-decoration: none; }
   .record-gear-meta a:hover { text-decoration: underline; }
@@ -886,7 +887,8 @@ const I18N = {
     gearConfUnsure: 'À confirmer',
     gearConfMulti: (n) => `Confirmé par ${n} sources`,
     gearSources: 'Source',
-    gearSearch: 'Chercher sur Google',
+    gearSearch: 'Chercher',
+    gearSearchHint: 'Recherche sur les sites des fabricants et des boutiques en ligne',
     ageBadge: (age) => `${age}+ ans`,
     rankingLoading: 'Chargement des records du monde…',
     rankingFootnote: (date) => `L'association recordman ↔ compétition est calculée une fois à partir de l'export officiel de la base WCA du ${date} (aucun endpoint public ne donne "qui détient le record et où" en direct — un nouveau record ne sera reflété ici qu'après une mise à jour manuelle de cette page). Le profil, l'avatar, le pays et les infos de compétition sont eux récupérés en direct via l'API WCA à chaque affichage. Les liens "vidéo" et "cube utilisé" sont des recherches préremplies non vérifiées : la WCA ne suit aucune de ces deux informations.`,
@@ -1006,7 +1008,8 @@ const I18N = {
     gearConfUnsure: 'Unconfirmed',
     gearConfMulti: (n) => `Confirmed by ${n} sources`,
     gearSources: 'Source',
-    gearSearch: 'Search on Google',
+    gearSearch: 'Search',
+    gearSearchHint: 'Search manufacturer and online shop websites',
     ageBadge: (age) => `${age}+ yo`,
     rankingLoading: 'Loading world records…',
     rankingFootnote: (date) => `The record holder ↔ competition association is computed once from the official WCA database export dated ${date} (no public endpoint gives "who holds the record and where" live — a new record will only show here after this page is manually refreshed). The profile, avatar, country and competition info are fetched live from the WCA API on every view. The "video" and "cube used" links are unverified pre-filled searches: the WCA does not track either of those.`,
@@ -1099,15 +1102,19 @@ const EVENT_RECORDS_DATE = "22 novembre 2026";
 // (voir scripts/RECORD_GEAR_ROUTINE.md).
 const RECORD_GEAR = {
   "333|single|251|2023GENG02": {
-    searched: "2026-11-21",
+    searched: "2026-11-22",
     cube: "GAN 16 MagLev MAX",
-    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/List_of_World_Records/3x3x3" }],
+    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/List_of_World_Records/3x3x3" }, { label: "GAN (records)", url: "https://www.gancube.com/pages/gan-records-achievements" },
+      { label: "speedcubing.org", url: "https://speedcubing.org/blogs/news/what-cube-does-xuanyi-geng-use-gan-16-2026" }],
+    setup: { text: "Course du centre 4, tension 4, aimants verts, tige magnétique des arêtes activée (réglages publiés par GAN pour ce cubeur)",
+      sources: [{ label: "GAN (fiche GAN16 Maglev MAX)", url: "https://www.gancube.com/products/gan16-maglev-max-speed-cube" }] },
   },
   "333|average|351|2019WANY36": {
-    searched: "2026-11-21",
-    cube: "MoYu Super AoLong",
-    unsure: true, // attribution peu claire dans la source
-    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/List_of_World_Records/3x3x3" }],
+    searched: "2026-11-22",
+    cube: "MoYu PB WR 3x3",
+    sources: [{ label: "speedcubing.org", url: "https://speedcubing.org/blogs/news/what-cube-does-yiheng-wang-use" }],
+    setup: { text: "Tension 1, élasticité MagLev 1, force des aimants 8 (réglages préférés du cubeur, selon la boutique)",
+      sources: [{ label: "speedcubing.org", url: "https://speedcubing.org/blogs/news/what-cube-does-yiheng-wang-use" }] },
   },
   "222|single|39|2021YEZI01": {
     searched: "2026-11-21",
@@ -1117,7 +1124,7 @@ const RECORD_GEAR = {
   "222|average|86|2016FEIS01": {
     searched: "2026-11-22",
     cube: "GAN 251 M Pro",
-    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/History_of_World_Records/2x2x2" }],
+    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/History_of_World_Records/2x2x2" }, { label: "GAN (records)", url: "https://www.gancube.com/pages/gan-records-achievements" }],
   },
   "333bf|single|1156|2015CHER07": { searched: "2026-11-21" },
   "333bf|average|1397|2015CHER07": { searched: "2026-11-21" },
@@ -1138,7 +1145,7 @@ const RECORD_GEAR = {
   "555|single|2949|2016KOLA02": {
     searched: "2026-11-22",
     cube: "GAN 562 M",
-    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/History_of_World_Records/5x5x5" }],
+    sources: [{ label: "SpeedSolving wiki", url: "https://www.speedsolving.com/wiki/index.php/History_of_World_Records/5x5x5" }, { label: "GAN (records)", url: "https://www.gancube.com/pages/gan-records-achievements" }],
   },
   "555|average|3319|2019TARA09": {
     searched: "2026-11-22",
@@ -1166,12 +1173,20 @@ const RECORD_GEAR = {
   "magic|single|69|2009WANG13": { searched: "2026-11-21" },
   "magic|average|76|2009WANG13": { searched: "2026-11-21" },
   "minx|single|2104|2016WUZI04": { searched: "2026-11-21" },
-  "minx|average|2340|2019TARA09": { searched: "2026-11-21" },
+  "minx|average|2340|2019TARA09": {
+    searched: "2026-11-22",
+    cube: "GAN Megaminx Maglev",
+    sources: [{ label: "GAN (records)", url: "https://www.gancube.com/pages/gan-records-achievements" }],
+  },
   "mmagic|single|166|2009WANG13": { searched: "2026-11-21" },
   "mmagic|average|175|2010PULC01": { searched: "2026-11-21" },
   "pyram|single|70|2022TUCK09": { searched: "2026-11-21" },
   "pyram|average|114|2019JIAN54": { searched: "2026-11-21" },
-  "skewb|single|73|2021GROH01": { searched: "2026-11-21" },
+  "skewb|single|73|2021GROH01": {
+    searched: "2026-11-22",
+    cube: "GAN Skewb M",
+    sources: [{ label: "GAN (records)", url: "https://www.gancube.com/pages/gan-records-achievements" }],
+  },
   "skewb|average|137|2022SAMS03": { searched: "2026-11-21" },
   "sq1|single|285|2013JOHN10": { searched: "2026-11-21" },
   "sq1|average|463|2017AGGA01": { searched: "2026-11-21" },
@@ -2155,13 +2170,23 @@ function youtubeSearchUrl(personName, eventName, isAverage) {
   const q = `${personName} ${eventName} world record ${isAverage ? 'average' : 'single'}`;
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
 }
-function setupSearchUrl(personName, eventName) {
-  const q = `${personName} ${eventName} cube setup tension magnets lube`;
-  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+// Sites des fabricants et boutiques en ligne qui publient le cube et les réglages des cubeurs
+// sponsorisés : la recherche « Chercher » est limitée à ces sites.
+const GEAR_SEARCH_SITES = ['gancube.com', 'moyucube.com', 'qiyicube.com', 'thecubicle.com',
+  'speedcubeshop.com', 'speedcubing.org', 'kewbz.co.uk', 'cubezz.com'];
+function gearSearchUrl(words) {
+  const sites = GEAR_SEARCH_SITES.map(d => `site:${d}`).join(' OR ');
+  return `https://www.google.com/search?q=${encodeURIComponent(`${words} (${sites})`)}`;
+}
+// "Ziyu Ye (叶梓渝)" -> "Ziyu Ye" : les sites marchands utilisent le nom latin.
+function latinName(personName) {
+  return personName.replace(/\s*\(.*\)\s*$/, '');
+}
+function setupSearchUrl(personName, cubeOrEvent) {
+  return gearSearchUrl(`"${latinName(personName)}" ${cubeOrEvent} setup tension magnets`);
 }
 function cubeSearchUrl(personName, eventName, isAverage) {
-  const q = `${personName} ${eventName} world record ${isAverage ? 'average' : 'single'} cube used`;
-  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+  return gearSearchUrl(`"${latinName(personName)}" ${eventName} world record ${isAverage ? 'average' : 'single'} cube`);
 }
 
 let rankingLoaded = false;
@@ -2333,7 +2358,8 @@ function buildGearBox(label, value, sources, unsure, notFoundText, searchUrl) {
   box.appendChild(el('div', 'record-gear-label', label));
   if (!value) {
     box.appendChild(el('div', 'record-gear-unknown', notFoundText));
-    box.appendChild(el('div', 'record-gear-meta', `<a href="${searchUrl}" target="_blank" rel="noopener">${t('gearSearch')} ↗</a>`));
+    box.appendChild(el('div', 'record-gear-search',
+      `<a class="record-link" href="${searchUrl}" target="_blank" rel="noopener" title="${t('gearSearchHint')}">🔍 ${t('gearSearch')}</a>`));
     return box;
   }
   box.appendChild(el('div', 'record-gear-value', value));

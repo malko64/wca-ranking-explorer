@@ -50,6 +50,11 @@ for (const e in R){ if(e==="333fm") continue;
    - speedcubing.org, speedsolving.com (forum), Guinness, titres de vidéos YouTube
    - pour un cubeur chinois, aussi en chinois (`<nom chinois> 世界纪录 魔方 型号`)
    - réglages : `<nom> <cube> setup tension magnets lube`
+   - réglages : fiches produit des fabricants (ex. tableau « Settings from GAN GURUS » sur les
+     pages gancube.com/products/…, qui donne centre / tension / aimants par cubeur sponsorisé),
+     page gancube.com/pages/gan-records-achievements (cube de chaque record GAN), articles
+     « What cube does … use » de speedcubing.org, fiches « cuber profile » de thecubicle.com
+   - si speedsolving.com refuse la lecture (403), passer par la recherche web limitée à ce site
 3. Ouvrir les pages prometteuses pour vérifier ce qu'elles disent réellement.
 
 Règles de fiabilité (**ne jamais inventer**) :
